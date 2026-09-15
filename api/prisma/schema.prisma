@@ -205,3 +205,34 @@ model Offering {
   @@index([position])
   @@map("offerings")
 }
+
+// ---------- Contact (fase 8) ----------
+
+model ContactLink {
+  id        String   @id @default(uuid()) @db.Uuid
+  /// nome do canal, ex.: "GitHub"
+  label     String
+  /// texto exibido, ex.: "github.com/usuario"
+  value     String
+  /// destino abrível: https://…, mailto:…, tel:…
+  url       String
+  position  Int
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  @@index([position])
+  @@map("contact_links")
+}
+
+/// Enviada por um Visitor; só persiste (GLOBAL.md AD-8).
+model ContactMessage {
+  id        String    @id @default(uuid()) @db.Uuid
+  name      String
+  email     String
+  message   String
+  readAt    DateTime? @map("read_at") @db.Timestamptz
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz
+
+  @@index([createdAt])
+  @@map("contact_messages")
+}
