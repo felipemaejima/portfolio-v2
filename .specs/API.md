@@ -266,16 +266,23 @@ services — sem duplicar valores nem converter tipos. Rótulo em PT não existe
 na API.
 
 ### Slug
-No `create`, `slugify(name)` + sufixo `-2`, `-3`… até `slugExists` ser falso.
-Imutável em `update` (DTO de update não tem `slug`; o service ignora `name`
-para fins de slug).
+No `create`, `slugify(name)` (função própria em `shared/domain/slug.ts`:
+NFD, sem acentos, `[a-z0-9-]`) + sufixo `-2`, `-3`… até `slugExists` ser
+falso. Imutável em `update` (o DTO de entrada é o mesmo do create e não tem
+`slug`).
+
+### Parâmetros `:id`
+`UuidParam` (`ParseUUIDPipe` com `errorHttpStatusCode: 404`): id malformado é
+"recurso inexistente" para o app, e nunca chega ao Postgres (coluna `uuid`),
+onde viraria 500.
 
 ### `position` e `reorder`
 - Novo item: `position = max(position) + 1` no escopo, dentro da transação de
   criação.
-- `reorder`: service carrega os ids do escopo, compara com o set recebido
-  (igualdade exata, sem duplicatas) → senão `ValidationError` (`422`). O
-  repositório aplica `position = index` em transação.
+- `reorder`: service carrega os ids do escopo e chama `assertSameIdSet`
+  (`shared/domain/reorder.ts`): igualdade exata, sem duplicatas, senão
+  `ValidationError` (`422`) com as mensagens em `details.ids`. O repositório
+  aplica `position = index` em transação.
 - Após `delete`, não é preciso compactar: ordenação é relativa.
 
 ### Storage (ADR 0003)
@@ -357,9 +364,12 @@ API escreve) lida com parser defensivo. Seed cria Profile vazio junto com o
 Admin.
 
 ### Fase 3 — Projects
-CRUD, slug, `position`/`reorder`, galeria (`ProjectImage`), limite de 12,
-`reorder` de imagens, cascata no delete (linhas + arquivos). Exercita todos os
-padrões; depois dele o resto é repetição.
+CRUD, slug, `position`/`reorder`, galeria (`ProjectImage`), limite de 12
+(cumulativo, `422` em `details.files`; mais de 12 numa única request é `400`
+do multer), `reorder` de imagens, cascata no delete (linhas em cascata no
+banco, depois os arquivos). Upload múltiplo valida **todos** os arquivos
+antes de gravar qualquer um. Exercita todos os padrões; depois dele o resto
+é repetição.
 
 ### Fase 4 — Skills
 `SkillCategory` 1:N `Skill`, dois `reorder` (categorias; skills dentro da
