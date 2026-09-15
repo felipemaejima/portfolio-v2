@@ -39,4 +39,5 @@ COPY --from=build --chown=node:node /app/dist ./dist
 EXPOSE 3000
 HEALTHCHECK --interval=30s --timeout=3s --start-period=20s \
   CMD node -e "fetch('http://localhost:3000/api/v1/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
-CMD ["sh", "-c", "pnpm prisma migrate deploy && node dist/main.js"]
+# Sem pnpm em runtime: sem lockfile na imagem ele tentaria "sincronizar" deps ao rodar scripts.
+CMD ["sh", "-c", "./node_modules/.bin/prisma migrate deploy && node dist/main.js"]

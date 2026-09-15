@@ -1,0 +1,53 @@
+# Espelha `make check`: os mesmos containers do compose, nada instalado no runner.
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  api:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: .env de CI
+        run: cp .env.example .env
+
+      - name: Build da imagem de dev
+        run: docker compose build api
+
+      - name: Dependências
+        run: make api-install
+
+      - name: Lint
+        run: make api-lint
+
+      - name: Build
+        run: make api-build
+
+      - name: Testes unitários
+        run: make api-test
+
+      - name: Testes e2e (sobe o Postgres do compose)
+        run: make api-e2e
+
+      - name: Contrato em dia (openapi.json)
+        run: make openapi-check
+
+      - name: Imagem de produção compila e sobe
+        run: |
+          docker compose -f docker-compose.yml -f docker-compose.prod.yml build api
+          docker compose up -d db
+          docker run --rm -d --name api-prod --network portfolio_default \
+            --env-file .env -e NODE_ENV=production -e COOKIE_SECURE=true \
+            -e DATABASE_URL=postgresql://portfolio:portfolio@db:5432/portfolio_test \
+            -p 3100:3000 portfolio-api:latest
+          for i in $(seq 1 30); do curl -sf http://localhost:3100/api/v1/health && break; sleep 1; done
+          curl -sf http://localhost:3100/api/v1/health
+          docker rm -f api-prod
+
+      - name: Derruba tudo
+        if: always()
+        run: make down

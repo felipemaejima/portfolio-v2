@@ -395,7 +395,14 @@ Depende de todos os anteriores. `CvDocument`, `CvRenderer`, `PdfmakeCvRenderer`,
 ### Fase 10 — Fechamento
 `openapi.json` final revisado (nomes de `operationId`, enums, erros), cobertura
 de testes por módulo, índices (`slug` único, `position` por escopo,
-`token_hash` único), `Dockerfile` multi-stage (ver `INFRA.md`).
+`token_hash` único), `Dockerfile` multi-stage (ver `INFRA.md`), workflow de
+CI (`.github/workflows/ci.yml`) espelhando `make check` e subindo a imagem
+de produção.
+
+**Nota de prod:** o entrypoint chama `./node_modules/.bin/prisma migrate
+deploy` diretamente — nunca `pnpm …`: sem lockfile na imagem, o pnpm 12
+tenta "sincronizar" dependências antes de rodar qualquer script, o que
+significaria instalar pacotes em runtime.
 
 ---
 
