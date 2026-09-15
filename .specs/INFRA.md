@@ -147,7 +147,6 @@ Fonte única. `API.md` e `APP.md` referenciam esta tabela.
 | `PUBLIC_UPLOADS_BASE_URL` | api | `http://localhost/uploads` | `https://<domínio>/uploads` em prod |
 | `MAX_UPLOAD_BYTES` | api | `5242880` | global seção 8 |
 | `ADMIN_EMAIL`, `ADMIN_PASSWORD` | api (seed) | — | seed idempotente |
-| `THROTTLE_LOGIN_PER_MIN`, `THROTTLE_CONTACT_PER_MIN` | api | `5`, `3` | |
 | `POSTGRES_USER/PASSWORD/DB` | db | `portfolio` | |
 | `SITE_ADDRESS` | edge | `:80` | `https://<domínio>` em prod |
 | `API_BASE_URL` | app (dart-define) | `/api/v1` | web sempre relativo; Android usa URL absoluta no build |

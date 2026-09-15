@@ -33,9 +33,6 @@ export const configSchema = z.object({
 
   ADMIN_EMAIL: z.email(),
   ADMIN_PASSWORD: z.string().min(8),
-
-  THROTTLE_LOGIN_PER_MIN: z.coerce.number().int().positive().default(5),
-  THROTTLE_CONTACT_PER_MIN: z.coerce.number().int().positive().default(3),
 });
 
 export type AppConfig = z.infer<typeof configSchema>;

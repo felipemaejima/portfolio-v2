@@ -11,3 +11,35 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+
+// ---------- Identidade (fase 1) ----------
+
+model Admin {
+  id           String   @id @default(uuid()) @db.Uuid
+  email        String   @unique
+  passwordHash String   @map("password_hash")
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt    DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  refreshTokens RefreshToken[]
+
+  @@map("admins")
+}
+
+/// Refresh opaco: só o hash é persistido. `familyId` agrupa a cadeia de
+/// rotações de um login; reuso de um token já substituído revoga a família.
+model RefreshToken {
+  id           String    @id @default(uuid()) @db.Uuid
+  adminId      String    @map("admin_id") @db.Uuid
+  tokenHash    String    @unique @map("token_hash")
+  familyId     String    @map("family_id") @db.Uuid
+  expiresAt    DateTime  @map("expires_at") @db.Timestamptz
+  revokedAt    DateTime? @map("revoked_at") @db.Timestamptz
+  replacedById String?   @unique @map("replaced_by_id") @db.Uuid
+  createdAt    DateTime  @default(now()) @map("created_at") @db.Timestamptz
+
+  admin Admin @relation(fields: [adminId], references: [id], onDelete: Cascade)
+
+  @@index([familyId])
+  @@map("refresh_tokens")
+}

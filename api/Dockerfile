@@ -1,13 +1,11 @@
 # Targets: dev (bind mount + watch) | prod (multi-stage, só runtime)
 FROM node:22-bookworm-slim AS base
-ENV COREPACK_HOME=/corepack \
-    PNPM_HOME=/pnpm \
-    PATH=/pnpm:$PATH
+ARG PNPM_VERSION=12.4.1
 RUN apt-get update && apt-get install -y --no-install-recommends openssl ca-certificates \
     && rm -rf /var/lib/apt/lists/* \
-    && mkdir -p /corepack /pnpm /app /data/uploads \
-    && corepack enable && corepack prepare pnpm@12.4.1 --activate \
-    && chown -R node:node /corepack /pnpm /app /data/uploads
+    && npm install -g pnpm@${PNPM_VERSION} \
+    && mkdir -p /app /data/uploads \
+    && chown -R node:node /app /data/uploads
 WORKDIR /app
 USER node
 

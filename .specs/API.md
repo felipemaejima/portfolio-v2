@@ -304,9 +304,11 @@ export abstract class FileStorage {
   sem cache — o tráfego não justifica.
 
 ### Rate limit
-`ThrottlerModule` global permissivo (ex.: 100/min) e `@Throttle()` estrito em
+`ThrottlerModule` global permissivo (100/min) e `@Throttle()` estrito em
 `POST /auth/login` (5/min por IP) e `POST /contact-messages` (3/min por IP).
-Resposta `429 RATE_LIMITED` pelo filtro.
+Limites são constantes em `shared/http/throttle.ts`, não variáveis de
+ambiente. Atrás do Caddy o IP real vem de `X-Forwarded-For`: `trust proxy`
+restrito a loopback/redes privadas. Resposta `429 RATE_LIMITED` pelo filtro.
 
 ### Config
 `shared/config` valida com zod e expõe `AppConfig` tipado. Variáveis: ver
