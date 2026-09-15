@@ -1,7 +1,8 @@
 /**
  * Seed idempotente: garante o Admin com ADMIN_EMAIL/ADMIN_PASSWORD do
- * ambiente (upsert por e-mail; a senha é re-hasheada a cada execução).
- * Não há rota de registro — este é o único caminho para criar o Admin.
+ * ambiente (upsert por e-mail; a senha é re-hasheada a cada execução) e o
+ * Profile singleton vazio. Não há rota de registro — este é o único caminho
+ * para criar o Admin.
  */
 import { PrismaPg } from '@prisma/adapter-pg';
 import argon2 from 'argon2';
@@ -25,6 +26,13 @@ try {
     create: { email, passwordHash },
   });
   console.log(`admin ok: ${admin.email} (${admin.id})`);
+
+  const profile = await prisma.profile.upsert({
+    where: { key: 'default' },
+    update: {},
+    create: {},
+  });
+  console.log(`profile ok (${profile.id})`);
 } finally {
   await prisma.$disconnect();
 }

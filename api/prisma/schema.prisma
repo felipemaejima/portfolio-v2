@@ -43,3 +43,51 @@ model RefreshToken {
   @@index([familyId])
   @@map("refresh_tokens")
 }
+
+// ---------- Enums de domínio (GLOBAL.md §3) — fonte única; shared/domain/enums.ts reexporta ----------
+
+enum Availability {
+  CLT
+  PJ
+  FREELANCE
+  CONTRACT
+}
+
+enum WorkMode {
+  REMOTE
+  HYBRID
+  ON_SITE
+}
+
+enum LanguageLevel {
+  BASIC
+  INTERMEDIATE
+  ADVANCED
+  FLUENT
+  NATIVE
+}
+
+// ---------- Profile (fase 2) ----------
+
+/// Singleton: `key` é sempre "default" e única. Seed cria a linha vazia.
+model Profile {
+  id           String         @id @default(uuid()) @db.Uuid
+  key          String         @default("default") @unique
+  name         String         @default("")
+  headline     String         @default("")
+  summary      String         @default("")
+  description  String         @default("")
+  city         String         @default("")
+  state        String         @default("")
+  country      String         @default("")
+  availability Availability[] @default([])
+  workModes    WorkMode[]     @default([]) @map("work_modes")
+  /// [{ language: string, level: LanguageLevel }]
+  languages    Json           @default("[]")
+  /// chave no FileStorage; a URL é derivada
+  imageKey     String?        @map("image_key")
+  createdAt    DateTime       @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt    DateTime       @updatedAt @map("updated_at") @db.Timestamptz
+
+  @@map("profiles")
+}

@@ -34,8 +34,7 @@
 | Validação | `class-validator`, `class-transformer` | `ValidationPipe` global |
 | Config | `@nestjs/config` + `zod` | schema valida `.env` no boot; falha rápido |
 | OpenAPI | `@nestjs/swagger` + CLI plugin | plugin em `nest-cli.json` com `introspectComments`, `dtoFileNameSuffix: ['.dto.ts']` |
-| Upload | `multer` via `@nestjs/platform-express`, `file-type` | limite e mime por magic bytes, não por extensão |
-| Estáticos (dev) | `@nestjs/serve-static` | só em `NODE_ENV=development`; em prod é a borda (`INFRA.md`) |
+| Upload | `multer` via `@nestjs/platform-express`, `file-type` | limite e mime por magic bytes, não por extensão. A API **nunca serve bytes**: o Caddy serve `/uploads` em dev e prod (`INFRA.md`) |
 | PDF | `pdfmake` | fontes embutidas no repositório (`assets/fonts`) |
 | Rate limit | `@nestjs/throttler` | |
 | Slug | `slugify` | |
@@ -261,8 +260,10 @@ Implementa a global seção 5 / ADR 0002.
   com stack, sem vazar mensagem.
 
 ### Enums
-`enum` TS em `shared/` ou no módulo dono, espelhados como `enum` no Prisma.
-Rótulo em PT não existe na API.
+A fonte é o `enum` do schema Prisma; `shared/domain/enums.ts` reexporta os
+objetos gerados (`Availability`, `WorkMode`, `LanguageLevel`) para DTOs e
+services — sem duplicar valores nem converter tipos. Rótulo em PT não existe
+na API.
 
 ### Slug
 No `create`, `slugify(name)` + sufixo `-2`, `-3`… até `slugExists` ser falso.
@@ -284,14 +285,20 @@ export abstract class FileStorage {
   abstract delete(key: string): Promise<void>;
 }
 ```
-- `LocalDiskStorage`: grava em `UPLOADS_DIR/<keyPrefix>/<uuid>.<ext>`; `url` =
-  `PUBLIC_UPLOADS_BASE_URL + '/' + key`. Extensão vem do mime detectado.
+- `LocalDiskStorage`: grava em `UPLOADS_DIR/<keyPrefix>/<uuid>.<ext>` com
+  `flag: 'wx'` (chave nova nunca sobrescreve) e recusa chave que escape da
+  raiz; `url` = `PUBLIC_UPLOADS_BASE_URL + '/' + key`. Extensão vem do mime
+  detectado. O banco guarda a **chave** (`imageKey`); a URL é derivada na
+  leitura via `FileStorage.urlFor`, então mudar a base URL não exige migração.
 - Upload: `FileInterceptor('file')` / `FilesInterceptor('files', 12)` com
-  `limits.fileSize = 5 MB`; depois `file-type` confirma o mime real; recusa →
-  `415`. O service chama `put` e só então persiste a linha; se persistir
-  falhar, faz `delete` do arquivo (compensação).
-- `ServeStaticModule` serve `UPLOADS_DIR` em `/uploads` **só em
-  development**.
+  `limits.fileSize = MAX_UPLOAD_BYTES` (constante de contrato em
+  `shared/storage/image-type.ts`, não variável de ambiente); depois
+  `detectImage` (`file-type`) confirma o mime real; recusa → `415`; sem
+  arquivo → `400`. O service chama `put`, persiste a chave e **só então**
+  apaga a imagem anterior; se persistir falhar, apaga o arquivo novo
+  (compensação). Controllers recebem só `{ buffer }` do multer — sem
+  `@types/multer`.
+- Ninguém na API serve `/uploads`: é o Caddy, em dev e prod.
 
 ### CV (global AD-11)
 - `CvService` agrega Profile + Experiences + Educations + SkillCategories +
@@ -343,8 +350,11 @@ rotação e detecção de reuso. Testes e2e cobrem: login web (cookie) e mobile
 
 ### Fase 2 — Profile
 `GET/PUT /profile`, `PUT/DELETE /profile/image`. Primeiro uso de
-`FileStorage` (o caso mais simples: um arquivo). Seed cria Profile vazio junto
-com o Admin.
+`FileStorage` (o caso mais simples: um arquivo). Singleton garantido por
+coluna `key = 'default'` única; o repositório faz `upsert` na leitura, então
+funciona mesmo sem seed. `languages` é coluna `Json` (lista pequena, só a
+API escreve) lida com parser defensivo. Seed cria Profile vazio junto com o
+Admin.
 
 ### Fase 3 — Projects
 CRUD, slug, `position`/`reorder`, galeria (`ProjectImage`), limite de 12,

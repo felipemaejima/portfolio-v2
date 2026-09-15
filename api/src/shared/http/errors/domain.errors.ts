@@ -56,3 +56,11 @@ export class PayloadTooLargeError extends DomainError {
     super(message);
   }
 }
+
+export class BadRequestError extends DomainError {
+  readonly code = ErrorCode.BAD_REQUEST;
+  readonly status = 400;
+  constructor(message = 'Requisição inválida.') {
+    super(message);
+  }
+}

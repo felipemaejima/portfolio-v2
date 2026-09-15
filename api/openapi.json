@@ -231,6 +231,237 @@
           "auth"
         ]
       }
+    },
+    "/api/v1/profile": {
+      "get": {
+        "operationId": "getProfile",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProfileDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro interno",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Dados de apresentação do Admin (seção \"Sobre\"). Nunca expõe credenciais.",
+        "tags": [
+          "profile"
+        ]
+      },
+      "put": {
+        "operationId": "updateProfile",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateProfileDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProfileDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Não autenticado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Falha de validação",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro interno",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Substitui o Profile inteiro.",
+        "tags": [
+          "profile"
+        ]
+      }
+    },
+    "/api/v1/profile/image": {
+      "put": {
+        "operationId": "updateProfileImage",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "file"
+                ],
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProfileDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Requisição malformada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Não autenticado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Arquivo acima do limite",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Tipo de arquivo não aceito",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro interno",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Substitui a foto (multipart, campo `file`; jpeg/png/webp até 5 MB).",
+        "tags": [
+          "profile"
+        ]
+      },
+      "delete": {
+        "operationId": "deleteProfileImage",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": ""
+          },
+          "401": {
+            "description": "Não autenticado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro interno",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Remove a foto.",
+        "tags": [
+          "profile"
+        ]
+      }
     }
   },
   "info": {
@@ -383,6 +614,209 @@
         "required": [
           "id",
           "email"
+        ]
+      },
+      "LocationDto": {
+        "type": "object",
+        "properties": {
+          "city": {
+            "type": "string",
+            "maxLength": 80,
+            "example": "São Paulo"
+          },
+          "state": {
+            "type": "string",
+            "maxLength": 80,
+            "example": "SP"
+          },
+          "country": {
+            "type": "string",
+            "maxLength": 80,
+            "example": "Brasil"
+          }
+        },
+        "required": [
+          "city",
+          "state",
+          "country"
+        ]
+      },
+      "Availability": {
+        "type": "string",
+        "enum": [
+          "CLT",
+          "PJ",
+          "FREELANCE",
+          "CONTRACT"
+        ]
+      },
+      "WorkMode": {
+        "type": "string",
+        "enum": [
+          "REMOTE",
+          "HYBRID",
+          "ON_SITE"
+        ]
+      },
+      "LanguageLevel": {
+        "type": "string",
+        "enum": [
+          "BASIC",
+          "INTERMEDIATE",
+          "ADVANCED",
+          "FLUENT",
+          "NATIVE"
+        ]
+      },
+      "LanguageDto": {
+        "type": "object",
+        "properties": {
+          "language": {
+            "type": "string",
+            "description": "Nome do idioma, texto livre em PT-BR.",
+            "maxLength": 60,
+            "example": "Inglês"
+          },
+          "level": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/LanguageLevel"
+              }
+            ]
+          }
+        },
+        "required": [
+          "language",
+          "level"
+        ]
+      },
+      "ProfileDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "headline": {
+            "type": "string"
+          },
+          "summary": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "location": {
+            "$ref": "#/components/schemas/LocationDto"
+          },
+          "availability": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Availability"
+            }
+          },
+          "workModes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WorkMode"
+            }
+          },
+          "languages": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LanguageDto"
+            }
+          },
+          "imageUrl": {
+            "type": "string",
+            "nullable": true,
+            "description": "URL pública permanente da foto, ou null."
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "headline",
+          "summary",
+          "description",
+          "location",
+          "availability",
+          "workModes",
+          "languages",
+          "imageUrl",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "UpdateProfileDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 120,
+            "example": "Nome Sobrenome"
+          },
+          "headline": {
+            "type": "string",
+            "description": "Uma linha acima do nome no hero.",
+            "maxLength": 160,
+            "example": "Desenvolvedor Full-Stack"
+          },
+          "summary": {
+            "type": "string",
+            "description": "Parágrafo curto do hero.",
+            "maxLength": 600
+          },
+          "description": {
+            "type": "string",
+            "description": "Texto longo do \"Sobre mim\"; parágrafos separados por linha em branco.",
+            "maxLength": 5000
+          },
+          "location": {
+            "$ref": "#/components/schemas/LocationDto"
+          },
+          "availability": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+              "$ref": "#/components/schemas/Availability"
+            }
+          },
+          "workModes": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+              "$ref": "#/components/schemas/WorkMode"
+            }
+          },
+          "languages": {
+            "maxItems": 10,
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LanguageDto"
+            }
+          }
+        },
+        "required": [
+          "name",
+          "headline",
+          "summary",
+          "description",
+          "location",
+          "availability",
+          "workModes",
+          "languages"
         ]
       }
     }

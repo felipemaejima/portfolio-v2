@@ -10,7 +10,12 @@ export default defineConfig({
     root: './',
     include: ['**/*.e2e-spec.ts'],
     globalSetup: ['./test/setup/global-setup.ts'],
-    env: { DATABASE_URL: testDatabaseUrl, NODE_ENV: 'test' },
+    env: {
+      DATABASE_URL: testDatabaseUrl,
+      NODE_ENV: 'test',
+      UPLOADS_DIR: '/tmp/portfolio-test-uploads',
+      PUBLIC_UPLOADS_BASE_URL: 'http://localhost/uploads',
+    },
     fileParallelism: false,
     testTimeout: 20_000,
     hookTimeout: 30_000,

@@ -145,7 +145,6 @@ Fonte única. `API.md` e `APP.md` referenciam esta tabela.
 | `CORS_ORIGINS` | api | *(vazio)* | mesma origem via edge; só preencher se expor a API direto |
 | `UPLOADS_DIR` | api | `/data/uploads` | |
 | `PUBLIC_UPLOADS_BASE_URL` | api | `http://localhost/uploads` | `https://<domínio>/uploads` em prod |
-| `MAX_UPLOAD_BYTES` | api | `5242880` | global seção 8 |
 | `ADMIN_EMAIL`, `ADMIN_PASSWORD` | api (seed) | — | seed idempotente |
 | `POSTGRES_USER/PASSWORD/DB` | db | `portfolio` | |
 | `SITE_ADDRESS` | edge | `:80` | `https://<domínio>` em prod |
