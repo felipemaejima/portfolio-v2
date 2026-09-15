@@ -1,0 +1,13 @@
+// Convenções (API.md §0): PK uuid gerada pela aplicação, colunas snake_case via @map,
+// timestamps created_at/updated_at em toda tabela. Modelos entram por fase.
+
+generator client {
+  provider            = "prisma-client"
+  output              = "../src/generated/prisma"
+  moduleFormat        = "esm"
+  importFileExtension = "js"
+}
+
+datasource db {
+  provider = "postgresql"
+}

@@ -33,7 +33,7 @@ de cache.
 
 | Lado | Escolha |
 |------|---------|
-| API | NestJS 11+, Node 22 LTS, TypeScript strict, Prisma 6+, PostgreSQL 16 |
+| API | NestJS 12 (ESM), Node 22 LTS, TypeScript 6 strict, Prisma 7, PostgreSQL 16 |
 | Auth | JWT access curto + refresh opaco rotativo (ADR 0002) |
 | Storage | Disco local atrás de port `FileStorage` (ADR 0003) |
 | PDF | pdfmake, sob demanda, em memória |

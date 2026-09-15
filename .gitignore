@@ -1,0 +1,24 @@
+# ambiente
+.env
+.env.*
+!.env.example
+
+# node / nest
+node_modules/
+dist/
+coverage/
+*.tsbuildinfo
+
+# prisma (client gerado)
+api/src/generated/
+
+# flutter (gerado)
+app/.dart_tool/
+app/build/
+app/.flutter-plugins*
+app/.packages
+app/android/key.properties
+app/android/*.jks
+
+# dados locais
+uploads/

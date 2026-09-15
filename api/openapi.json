@@ -1,0 +1,77 @@
+{
+  "openapi": "3.0.0",
+  "paths": {},
+  "info": {
+    "title": "Portfolio API",
+    "description": "Contrato da API do portfólio. Ver .specs/GLOBAL.md.",
+    "version": "1",
+    "contact": {}
+  },
+  "tags": [],
+  "servers": [],
+  "components": {
+    "securitySchemes": {
+      "bearer": {
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "type": "http"
+      }
+    },
+    "schemas": {
+      "ErrorCode": {
+        "type": "string",
+        "enum": [
+          "BAD_REQUEST",
+          "UNAUTHENTICATED",
+          "NOT_FOUND",
+          "PAYLOAD_TOO_LARGE",
+          "UNSUPPORTED_MEDIA_TYPE",
+          "VALIDATION_FAILED",
+          "RATE_LIMITED",
+          "INTERNAL"
+        ]
+      },
+      "ErrorResponseDto": {
+        "type": "object",
+        "properties": {
+          "statusCode": {
+            "type": "number",
+            "example": 422
+          },
+          "code": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ErrorCode"
+              }
+            ]
+          },
+          "message": {
+            "type": "string",
+            "description": "Texto exibível, em PT-BR.",
+            "example": "Dados inválidos."
+          },
+          "details": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "description": "Só em VALIDATION_FAILED: mensagens por campo.",
+            "example": {
+              "email": [
+                "deve ser um e-mail válido"
+              ]
+            }
+          }
+        },
+        "required": [
+          "statusCode",
+          "code",
+          "message"
+        ]
+      }
+    }
+  }
+}

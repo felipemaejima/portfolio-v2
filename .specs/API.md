@@ -17,7 +17,7 @@
   `@@map`; a fronteira HTTP nunca vê `snake_case` (global AD-12).
 - **Timestamps** `created_at` / `updated_at` em toda tabela (`@default(now())`,
   `@updatedAt`), `timestamptz`.
-- **TypeScript strict**, `noUncheckedIndexedAccess`, ESLint + Prettier do
+- **TypeScript strict**, `noUncheckedIndexedAccess`, oxlint + Prettier do
   scaffold Nest. Nada de `any` em DTO.
 
 ---
@@ -27,8 +27,8 @@
 | Papel | Escolha | Nota |
 |-------|---------|------|
 | Runtime | Node 22 LTS, pnpm | `.nvmrc` / `engines` no `package.json` |
-| Framework | NestJS 11+ (Express) | Fastify não vale o custo com multipart + cookie |
-| ORM | Prisma 6+ | `prisma migrate`, `prisma/seed.ts` |
+| Framework | NestJS 12 (ESM-only, Express 5) | Fastify não vale o custo com multipart + cookie. Imports relativos com `.js`; top-level `await` no bootstrap |
+| ORM | Prisma 7 | `prisma.config.ts` (url, migrations, seed), driver adapter `@prisma/adapter-pg`, cliente gerado em `src/generated/prisma` (gitignored; `postinstall` gera) |
 | Banco | PostgreSQL 16 | via compose (`INFRA.md`) |
 | Auth | `@nestjs/passport`, `passport-jwt`, `@nestjs/jwt`, `argon2`, `cookie-parser` | argon2id para senha; refresh é `randomBytes(32)` → hash SHA-256 no banco |
 | Validação | `class-validator`, `class-transformer` | `ValidationPipe` global |
@@ -39,7 +39,8 @@
 | PDF | `pdfmake` | fontes embutidas no repositório (`assets/fonts`) |
 | Rate limit | `@nestjs/throttler` | |
 | Slug | `slugify` | |
-| Testes | Jest, `supertest` | e2e contra o banco `portfolio_test` do Postgres do compose (sem Testcontainers: tudo já roda em Docker) |
+| Testes | Vitest 4, `supertest` | padrão do scaffold Nest 12 (ESM). e2e contra o banco `portfolio_test` do Postgres do compose (sem Testcontainers: tudo já roda em Docker) |
+| Lint / formato | oxlint, Prettier | padrão do scaffold Nest 12 |
 
 Versões exatas ficam no `package.json`; esta tabela fixa **majors** e razões.
 
@@ -65,17 +66,22 @@ api/
 │   ├── schema.prisma
 │   ├── migrations/
 │   └── seed.ts                     # admin idempotente via ADMIN_EMAIL/ADMIN_PASSWORD
+├── prisma.config.ts                # url do datasource, caminho das migrations, comando de seed
 ├── openapi.json                    # EMITIDO; versionado; nunca editado à mão
 ├── assets/fonts/                   # fontes do pdfmake
 └── src/
-    ├── main.ts                     # bootstrap: prefix, pipes, filtros, swagger
+    ├── main.ts                     # bootstrap + Swagger UI em dev
+    ├── app.setup.ts                # configureApp(): prefixo, cookies, CORS — usado por main, emit e e2e
     ├── app.module.ts
+    ├── openapi/                    # document.ts (DocumentBuilder) + emit.ts (grava openapi.json)
+    ├── generated/prisma/           # GERADO pelo Prisma; gitignored
     ├── shared/
     │   ├── config/                 # ConfigModule + schema zod + tipo AppConfig
     │   ├── prisma/                 # PrismaModule / PrismaService
     │   ├── storage/                # port FileStorage + LocalDiskStorage
-    │   ├── auth/                   # JwtAuthGuard (global), @Public(), @CurrentAdmin()
-    │   └── http/                   # ErrorResponseDto, exception filter, ReorderDto, decorators de upload
+    │   ├── auth/                   # JwtAuthGuard (global), JwtStrategy, @Public(), @CurrentAdmin(), JwtModule exportado
+    │   ├── health/                 # GET /health (público, fora do OpenAPI)
+    │   └── http/                   # ErrorResponseDto, exceções de domínio, exception filter, ValidationPipe, ReorderDto, @ApiErrorResponses()
     └── modules/
         ├── auth/
         ├── profile/
@@ -220,7 +226,10 @@ Implementa a global seção 5 / ADR 0002.
 ## 5. Convenções transversais
 
 ### Prefixo, versionamento, CORS
-- `app.setGlobalPrefix('api/v1')`. Nenhum controller repete o prefixo.
+- `app.setGlobalPrefix('/api/v1')` — **com barra inicial**: o Nest monta o
+  handler de 404 no Express com o prefixo cru, e sem a barra rotas
+  inexistentes caem no 404 HTML do Express em vez do `ErrorResponse`.
+  Nenhum controller repete o prefixo.
 - CORS: `origin: CORS_ORIGINS` (lista explícita), `credentials: true`.
   A borda torna tudo mesma origem em dev e prod; `CORS_ORIGINS` fica vazio
   e o middleware só existe como salvaguarda.
@@ -235,8 +244,12 @@ Implementa a global seção 5 / ADR 0002.
   método Dart.
 - `ErrorResponseDto` declarado em todos os handlers via decorators
   compartilhados (`@ApiStandardErrors()` em `shared/http`).
-- Script `pnpm openapi:emit`: cria a app sem `listen()`, gera o documento e
-  grava `api/openapi.json`. CI roda e falha se `git diff` acusar mudança.
+- Script `pnpm openapi:emit` (= `nest build && node dist/openapi/emit.js`):
+  cria a app sem `init()`/`listen()` (não toca o banco), gera o documento e
+  grava `api/openapi.json`. Roda sobre o `dist/` porque o CLI plugin só age
+  no `nest build`. CI roda e falha se `git diff` acusar mudança.
+- `ErrorResponseDto` entra como `extraModels`: está no contrato mesmo antes
+  de qualquer rota referenciá-lo.
 - Swagger UI em `/api/docs` só em `development`.
 
 ### Validação e erros
@@ -316,7 +329,7 @@ DTOs, controller, testes) antes do próximo. Pré-requisitos vêm antes.
 5. `shared/auth`: guard global + `@Public()` (o guard nasce antes do módulo
    `auth` para que **nenhuma** rota nasça desprotegida).
 6. OpenAPI: `DocumentBuilder`, CLI plugin, `openapi:emit`, check no CI.
-7. Base de testes: Jest unit; e2e apontando `DATABASE_URL` para
+7. Base de testes: Vitest unit; e2e apontando `DATABASE_URL` para
    `portfolio_test` (criado pelo init script do Postgres, ver `INFRA.md`),
    `prisma migrate deploy` + `TRUNCATE` no `globalSetup`; helper
    `createTestApp()`. Roda com `docker compose exec api pnpm test:e2e`.
@@ -361,7 +374,7 @@ de testes por módulo, índices (`slug` único, `position` por escopo,
 
 ## 7. Testes
 
-- **Unit (Jest):** services com repositórios em memória (`InMemory*Repository`
+- **Unit (Vitest):** services com repositórios em memória (`InMemory*Repository`
   implementando o port, vivendo em `test/`). Cobrem regra: slug único,
   `reorder` inválido, limite de imagens, rotação/reuso de refresh.
 - **E2E (supertest):** por módulo, contra o Postgres do compose (banco
