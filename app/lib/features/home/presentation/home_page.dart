@@ -7,10 +7,14 @@ import '../../../core/ui/async_value_view.dart';
 import '../../../core/ui/breakpoints.dart';
 import '../../../core/ui/theme.dart';
 import '../../../l10n/generated/app_localizations.dart';
+import '../../educations/presentation/education_section.dart';
+import '../../experiences/presentation/experience_section.dart';
+import '../../offerings/presentation/offerings_section.dart';
 import '../../profile/application/profile_provider.dart';
 import '../../profile/presentation/about_section.dart';
 import '../../profile/presentation/hero_section.dart';
 import '../../projects/presentation/projects_section.dart';
+import '../../skills/presentation/skills_section.dart';
 
 /// Âncoras da home; as seções entram conforme as features chegam (APP.md §9).
 enum HomeAnchor { about, projects, skills, experience, education, offerings, contact }
@@ -59,8 +63,12 @@ class _HomePageState extends ConsumerState<HomePage> {
                     onContact: () => _scrollTo(HomeAnchor.contact),
                   ),
                   KeyedSubtree(key: _keys[HomeAnchor.about], child: AboutSection(profile: p)),
+                  KeyedSubtree(key: _keys[HomeAnchor.skills], child: const SkillsSection()),
                   KeyedSubtree(key: _keys[HomeAnchor.projects], child: const ProjectsSection()),
-                  for (final a in HomeAnchor.values.skip(2)) KeyedSubtree(key: _keys[a], child: const SizedBox.shrink()),
+                  KeyedSubtree(key: _keys[HomeAnchor.experience], child: const ExperienceSection()),
+                  KeyedSubtree(key: _keys[HomeAnchor.education], child: const EducationSection()),
+                  KeyedSubtree(key: _keys[HomeAnchor.offerings], child: const OfferingsSection()),
+                  KeyedSubtree(key: _keys[HomeAnchor.contact], child: const SizedBox.shrink()),
                   _Footer(name: p.name),
                 ],
               ),
