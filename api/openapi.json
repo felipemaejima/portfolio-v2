@@ -3132,7 +3132,7 @@
         "type": "object",
         "properties": {
           "statusCode": {
-            "type": "number",
+            "type": "integer",
             "example": 422
           },
           "code": {

@@ -1,0 +1,15 @@
+# Gera lib/api a partir do contrato emitido pela API (ADR 0004).
+# Rodar via `make app-gen` (copia api/openapi.json para cá antes).
+swagger_parser:
+  schema_path: openapi.json
+  output_directory: lib/api
+  name: api
+  json_serializer: freezed
+  root_client: true
+  root_client_name: RestClient
+  put_clients_in_folder: true
+  client_postfix: Client
+  enums_to_json: true
+  unknown_enum_value: true
+  default_content_type: application/json
+  use_freezed3: true

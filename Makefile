@@ -15,7 +15,7 @@ APP          := $(COMPOSE) --profile app run --rm app
 
 .PHONY: help setup up down restart logs ps clean \
         api-sh api-install api-generate api-lint api-format api-build api-test api-e2e migrate migrate-deploy migrate-status seed openapi openapi-check \
-        app-sh app-gen app-test app-android \
+        app-sh app-gen app-gen-check app-analyze app-test app-build-web app-android \
         check build-web build-aab prod-up prod-down prod-logs
 
 help: ## lista os alvos
@@ -93,28 +93,38 @@ openapi-check: ## falha se api/openapi.json estiver desatualizado
 	$(MAKE) openapi
 	git diff --exit-code -- api/openapi.json
 
+app-gen-check: ## falha se app/lib/api estiver desatualizado em relação ao contrato
+	$(MAKE) app-gen
+	git diff --exit-code -- app/lib/api
+
 ## ---------- app (flutter) ----------
 app-sh: ## bash no toolchain flutter
 	$(APP) bash
 
-app-gen: ## gera o cliente dart a partir de api/openapi.json
-	cp api/openapi.json app/openapi.json
-	$(APP) sh -c "dart run swagger_parser && dart run build_runner build -d"
+app-gen: ## gera cliente dart (api/openapi.json → lib/api; multipart fica à mão) e l10n
+	cp api/openapi.json app/openapi.source.json
+	$(APP) sh -c "dart run tool/prepare_openapi.dart openapi.source.json openapi.json && dart run swagger_parser && dart run build_runner build -d && flutter gen-l10n"
+
+app-analyze: ## flutter analyze (gera l10n antes)
+	$(APP) sh -c "flutter gen-l10n && flutter analyze"
 
 app-test: ## flutter test
 	$(APP) flutter test
 
-app-android: ## roda no dispositivo: make app-android DEVICE=<id> API_BASE_URL=http://<ip>/api/v1
+app-build-web: ## flutter build web (release, mesma origem)
+	$(APP) flutter build web --release
+
+app-android: ## roda no dispositivo: make app-android DEVICE=<id> API_BASE_URL=http://<ip-da-maquina>
 	$(APP) flutter run -d $(DEVICE) --dart-define=API_BASE_URL=$(API_BASE_URL)
 
 ## ---------- verificação (o que o CI roda) ----------
-check: api-lint api-build api-test api-e2e openapi-check ## lint + build + unit + e2e + contrato em dia
+check: api-lint api-build api-test api-e2e openapi-check app-gen-check app-analyze app-test ## api: lint + build + unit + e2e + contrato · app: cliente em dia + analyze + test
 
 ## ---------- release ----------
 build-web: ## imagem do edge com o flutter web embutido
 	$(COMPOSE_PROD) build edge
 
-build-aab: ## android app bundle: make build-aab API_BASE_URL=https://<dominio>/api/v1
+build-aab: ## android app bundle: make build-aab API_BASE_URL=https://<dominio>
 	$(APP) flutter build appbundle --dart-define=API_BASE_URL=$(API_BASE_URL)
 
 prod-up: ## sobe prod (build + migrate no entrypoint)

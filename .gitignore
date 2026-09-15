@@ -22,3 +22,13 @@ app/android/*.jks
 
 # dados locais
 uploads/
+
+# cópias do contrato (fonte: api/openapi.json)
+app/openapi.source.json
+app/openapi.json
+
+# l10n gerado (flutter gen-l10n via make app-gen)
+app/lib/l10n/generated/
+
+# IDE
+app/*.iml

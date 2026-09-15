@@ -13,7 +13,7 @@ export enum ErrorCode {
 }
 
 export class ErrorResponseDto {
-  @ApiProperty({ example: 422 })
+  @ApiProperty({ type: 'integer', example: 422 })
   statusCode: number;
 
   @ApiProperty({ enum: ErrorCode, enumName: 'ErrorCode' })

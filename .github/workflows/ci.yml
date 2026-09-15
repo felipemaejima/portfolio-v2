@@ -51,3 +51,26 @@ jobs:
       - name: Derruba tudo
         if: always()
         run: make down
+
+  app:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: .env de CI
+        run: cp .env.example .env
+
+      - name: Imagem do toolchain Flutter
+        run: docker compose --profile app build app
+
+      - name: Cliente gerado em dia com o contrato
+        run: make app-gen-check
+
+      - name: Analyze
+        run: make app-analyze
+
+      - name: Testes
+        run: make app-test
+
+      - name: Build web (o que o edge embute)
+        run: make app-build-web

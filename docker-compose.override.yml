@@ -19,17 +19,24 @@ services:
     ports:
       - "${API_PORT:-3000}:3000"
 
-  # Toolchain Flutter. Só sobe com `--profile app` (a pasta app/ nasce na fase do app).
+  # Toolchain Flutter (tools/flutter). Só sobe com `--profile app`.
   app:
-    image: ghcr.io/cirruslabs/flutter:${FLUTTER_VERSION:-stable}
+    build:
+      context: ./tools/flutter
+      args:
+        FLUTTER_VERSION: ${FLUTTER_VERSION:-stable}
+    image: portfolio-flutter
     profiles: ["app"]
     working_dir: /app
+    environment:
+      HOST_UID: ${HOST_UID:-1000}
+      HOST_GID: ${HOST_GID:-1000}
     volumes:
       - ./app:/app
       - pub_cache:/root/.pub-cache
-    command: >
-      flutter run -d web-server --web-port 8080 --web-hostname 0.0.0.0
-      --dart-define=API_BASE_URL=/api/v1
+    # API_BASE_URL vazio = mesma origem (o Caddy serve app e API). Os paths
+    # gerados já incluem /api/v1.
+    command: flutter run -d web-server --web-port 8080 --web-hostname 0.0.0.0
     stdin_open: true
     tty: true
 
