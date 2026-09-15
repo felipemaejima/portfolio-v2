@@ -1,0 +1,13 @@
+# Contexto do edge/Dockerfile é a raiz: só app/ e edge/ interessam.
+.git
+api
+db
+docs
+tools
+.specs
+.agents
+app/build
+app/.dart_tool
+app/android
+app/openapi.source.json
+app/openapi.json
