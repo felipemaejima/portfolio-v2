@@ -13,6 +13,7 @@ class AdminDestination {
 List<AdminDestination> adminDestinations(AppLocalizations l10n) => [
       AdminDestination(path: '/admin', icon: Icons.dashboard_outlined, label: l10n.adminTitle),
       AdminDestination(path: '/admin/profile', icon: Icons.person_outline, label: l10n.adminProfileTitle),
+      AdminDestination(path: '/admin/projects', icon: Icons.work_outline, label: l10n.navProjects),
     ];
 
 int selectedDestination(List<AdminDestination> items, String location) {

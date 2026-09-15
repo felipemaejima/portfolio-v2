@@ -10,6 +10,7 @@ import '../../../l10n/generated/app_localizations.dart';
 import '../../profile/application/profile_provider.dart';
 import '../../profile/presentation/about_section.dart';
 import '../../profile/presentation/hero_section.dart';
+import '../../projects/presentation/projects_section.dart';
 
 /// Âncoras da home; as seções entram conforme as features chegam (APP.md §9).
 enum HomeAnchor { about, projects, skills, experience, education, offerings, contact }
@@ -58,7 +59,8 @@ class _HomePageState extends ConsumerState<HomePage> {
                     onContact: () => _scrollTo(HomeAnchor.contact),
                   ),
                   KeyedSubtree(key: _keys[HomeAnchor.about], child: AboutSection(profile: p)),
-                  for (final a in HomeAnchor.values.skip(1)) KeyedSubtree(key: _keys[a], child: const SizedBox.shrink()),
+                  KeyedSubtree(key: _keys[HomeAnchor.projects], child: const ProjectsSection()),
+                  for (final a in HomeAnchor.values.skip(2)) KeyedSubtree(key: _keys[a], child: const SizedBox.shrink()),
                   _Footer(name: p.name),
                 ],
               ),
