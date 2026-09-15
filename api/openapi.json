@@ -3132,7 +3132,7 @@
         "type": "object",
         "properties": {
           "statusCode": {
-            "type": "number",
+            "type": "integer",
             "example": 422
           },
           "code": {
@@ -3288,6 +3288,11 @@
           "description": {
             "type": "string"
           },
+          "contactIntro": {
+            "type": "string",
+            "nullable": true,
+            "description": "Texto de abertura da seção Contato, ou null."
+          },
           "location": {
             "$ref": "#/components/schemas/LocationDto"
           },
@@ -3329,6 +3334,7 @@
           "headline",
           "summary",
           "description",
+          "contactIntro",
           "location",
           "availability",
           "workModes",
@@ -3361,6 +3367,12 @@
             "type": "string",
             "description": "Texto longo do \"Sobre mim\"; parágrafos separados por linha em branco.",
             "maxLength": 5000
+          },
+          "contactIntro": {
+            "type": "string",
+            "nullable": true,
+            "description": "Texto de abertura da seção Contato; null = sem texto.",
+            "maxLength": 600
           },
           "location": {
             "$ref": "#/components/schemas/LocationDto"

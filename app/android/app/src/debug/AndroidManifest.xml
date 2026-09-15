@@ -1,0 +1,5 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Só no build de debug: permite http://<ip-da-máquina> (INFRA.md §6).
+         Release continua https-only. -->
+    <application android:usesCleartextTraffic="true" />
+</manifest>

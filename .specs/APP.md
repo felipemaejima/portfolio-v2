@@ -15,7 +15,8 @@
 - **Código em inglês, UI em PT-BR.** Todo texto exibido vem de ARB (`intl` /
   `flutter_localizations`), inclusive os **rótulos dos enums** da API
   (`ON_SITE` → "Presencial"). Um único locale hoje; a estrutura existe para
-  não espalhar strings.
+  não espalhar strings. `flutter gen-l10n` escreve em `lib/l10n/generated/`
+  (gitignored; `make app-gen` gera).
 - **Nada do host** (global AD-13): `flutter`, `dart run build_runner`,
   `flutter test`, builds — tudo via `docker compose run --rm app …`.
 - Lint: `flutter_lints` + regras estritas (`prefer_final_locals`,
@@ -29,16 +30,16 @@
 
 | Papel | Pacote | Nota |
 |-------|--------|------|
-| Estado / DI | `flutter_riverpod`, `riverpod_annotation` (+ `riverpod_generator`) | `AsyncNotifier` para dados da API |
+| Estado / DI | `flutter_riverpod` 3 | providers escritos à mão (`Provider`, `AsyncNotifierProvider`); sem codegen do Riverpod — o único gerador do projeto é o do contrato |
 | Rotas | `go_router` | path URL strategy no web |
 | HTTP | `dio` | interceptors de auth/refresh/erro |
-| Cliente gerado | `retrofit`, `freezed`, `json_serializable`; gerador `swagger_parser` (dev) | ADR 0004; `lib/api/` é gerado |
+| Cliente gerado | `retrofit`, `freezed` 3+ (`use_freezed3`), `json_serializable`; gerador `swagger_parser` (dev) | ADR 0004; `lib/api/` é gerado e versionado |
 | Token store | `flutter_secure_storage` | só mobile; no web o refresh é cookie |
 | Imagens | `cached_network_image`, `image_picker` | URLs são permanentes → cache agressivo |
 | Links | `url_launcher` | `ContactLink.url`, download do CV |
-| Reordenar | `ReorderableListView` (SDK) | nada externo |
+| Reordenar | `ReorderableListView` (SDK, `onReorderItem`) | `core/ui/reorderable_admin_list.dart` reutilizado por projetos, skills, serviços e canais |
 | i18n | `intl`, `flutter_localizations` | ARB em `lib/l10n/` |
-| Config | `--dart-define` (`API_BASE_URL`) | sem `.env` no app |
+| Config | `--dart-define` (`API_BASE_URL`) | **origem** da API, sem path (os paths gerados já incluem `/api/v1`): vazio no web (mesma origem), `http://<ip>`/`https://<domínio>` no Android |
 | Testes | `flutter_test`, `mocktail` | |
 
 ---
@@ -109,32 +110,39 @@ gerado e normalizar erros.
 - Fonte: `../api/openapi.json`. Config em `swagger_parser.yaml`:
   `output_directory: lib/api`, `json_serializer: freezed`, `root_client:
   true`, `put_clients_in_folder: true`.
-- Script `make app-gen` (ver `INFRA.md`): copia o `openapi.json`, roda
-  `swagger_parser`, depois `build_runner`. **`lib/api/` é versionado** (para o
-  CI não depender de gerar) e nunca editado à mão.
+- Script `make app-gen` (ver `INFRA.md`): copia `api/openapi.json` para
+  `app/openapi.source.json`, roda `tool/prepare_openapi.dart` (abaixo),
+  `swagger_parser`, `build_runner` e `flutter gen-l10n`. **`lib/api/` é
+  versionado** (para o CI não depender de gerar) e nunca editado à mão.
 - Um `RestClient` raiz recebe o `Dio` configurado em `core/network`.
-- **Exceção documentada:** se o gerador não produzir multipart utilizável
-  para `PUT /profile/image` e `POST /projects/{id}/images`, essas duas
-  chamadas são escritas à mão em `core/network/uploads.dart` com `FormData`.
-  São as únicas chamadas manuais permitidas.
+- **Multipart é escrito à mão, por regra automática:** o gerador traduz
+  `multipart/form-data` para `dart:io File`, que não existe no Flutter Web e
+  quebraria o build inteiro. `tool/prepare_openapi.dart` remove essas
+  operações do contrato antes da geração (hoje `PUT /profile/image` e
+  `POST /projects/{id}/images`), e `core/network/uploads.dart` as implementa
+  com `MultipartFile.fromBytes`. Nada mais é manual.
 
 ---
 
 ## 4. Rede e autenticação (global seção 5, ADR 0002)
 
 ### `Dio`
-- `baseUrl` = `AppConfig.apiBaseUrl` (em dev e prod, `/api/v1` relativo à
-  mesma origem no web; URL absoluta no Android).
-- Web: `BrowserHttpClientAdapter(withCredentials: true)` — obrigatório para o
-  cookie de refresh trafegar.
-- Interceptors, nesta ordem:
-  1. `AuthInterceptor`: anexa `Authorization: Bearer` se houver access em
-     memória.
-  2. `RefreshInterceptor`: em `401` de rota não-auth, executa **um único**
-     refresh em voo (single-flight, `Completer` compartilhado), repete a
-     request original uma vez; se o refresh falhar, `AuthNotifier.logout()`.
-  3. `ErrorInterceptor`: converte `DioException` em `ApiFailure` por `code`
-     do `ErrorResponse` (global seção 7). Rede/timeout → `ApiFailure.network`.
+- Dois `Dio`: `authDioProvider` (cru: login/refresh, sem bearer nem retry) e
+  `dioProvider` (principal). `baseUrl` = `AppConfig.apiBaseUrl` (origem;
+  vazio no web).
+- Web: `BaseOptions(extra: {'withCredentials': true})` — o adapter de browser
+  do Dio honra isso e o cookie de refresh trafega; ignorado fora do browser.
+- Interceptors do principal, nesta ordem:
+  1. bearer: anexa `Authorization` se houver access em memória
+     (`AccessTokenHolder`).
+  2. `QueuedInterceptorsWrapper.onError`: em `401` de rota não-auth ainda não
+     repetida, chama `AuthNotifier.refreshAccessToken()` e repete a request
+     uma vez. O `QueuedInterceptor` serializa as falhas concorrentes e o
+     notifier compartilha a mesma `Future` — single-flight sem estado extra.
+- Erros: `ApiFailure.from(e)` (sealed: `ApiNetwork`, `ApiUnauthenticated`,
+  `ApiNotFound`, `ApiValidation(details)`, `ApiRateLimited`, `ApiRejected`,
+  `ApiServer`, `ApiUnexpected`), aplicado na camada `data/` de cada feature.
+  Decide pelo `code` do `ErrorResponse`, nunca pelo status.
 
 ### `TokenStore` (port)
 ```dart
@@ -150,7 +158,8 @@ abstract class TokenStore {
 - Escolha por `kIsWeb` num provider.
 
 ### `AuthNotifier`
-Estado: `unknown → anonymous | authenticated(AdminDto)`.
+`AsyncNotifier<AuthState>`: o `AsyncLoading` do boot é o estado `unknown`
+(splash em `app.dart`); resolvido é `Anonymous | Authenticated(AdminDto)`.
 - **Boot:** chama `POST /auth/refresh` (web: cookie vai sozinho; mobile: com
   o refresh do store; sem refresh no store → `anonymous` direto). Sucesso →
   guarda access em memória, `GET /auth/me` → `authenticated`.
@@ -182,6 +191,10 @@ Estado: `unknown → anonymous | authenticated(AdminDto)`.
   boot de auth terminar.
 - Web: `usePathUrlStrategy()` — URLs sem `#`. Exige fallback para
   `index.html` na borda (`INFRA.md`).
+- Guarda: `routerProvider` cria o `GoRouter` uma vez e usa um
+  `ChangeNotifier` como `refreshListenable`, pingado via `ref.listen` no
+  `authProvider` — o roteador não é recriado (não perde navegação) e o
+  `redirect` lê o estado atual.
 - Android app links para o domínio: **fora da v2** (nota para depois).
 
 ---
@@ -253,16 +266,19 @@ Só tema escuro na v2.
 
 ### Web
 - `flutter build web --release` (CanvasKit; não há mais `--web-renderer`).
-  `--dart-define=API_BASE_URL=/api/v1` — mesma origem via Caddy.
-- `web/index.html`: `<title>`, `description`, `og:title`, `og:description`,
-  `og:image` (imagem estática em `web/`), `theme-color`. Splash simples em
-  CSS enquanto o engine carrega (ADR 0001, consequência do bundle).
+  Sem `API_BASE_URL` — mesma origem via Caddy.
+- `web/index.html`: `lang="pt-BR"`, `<title>`, `description`, `og:*`,
+  `theme-color`. Splash em CSS na cor do tema (`#161826`) enquanto o engine
+  carrega, removida no evento `flutter-first-frame` (ADR 0001, consequência
+  do bundle).
 - `base href` = `/`.
 
 ### Android
-- `applicationId` próprio; `minSdk 23`; permissão `INTERNET`;
-  `usesCleartextTraffic=false` (só HTTPS em release).
-- Release: `flutter build appbundle --dart-define=API_BASE_URL=https://<dom>/api/v1`.
+- `applicationId` `com.felipemaejima.portfolio_app`; `minSdk` do Flutter;
+  permissão `INTERNET`. `usesCleartextTraffic=true` **só no manifesto de
+  debug** (`android/app/src/debug/`), para o `http://<ip>` de dev; release
+  continua https-only.
+- Release: `flutter build appbundle --dart-define=API_BASE_URL=https://<dom>`.
   Keystore e senhas via secrets de CI, nunca no repositório (`INFRA.md`).
 - Dev: `flutter run` em **dispositivo físico via ADB Wi-Fi** a partir do
   container do toolchain (ADR 0005). Emulador não faz parte do fluxo.
@@ -274,11 +290,15 @@ Sem trabalho agora. Restrição vigente: nenhuma dependência sem suporte iOS.
 
 ## 8. Testes
 
-- **Unit:** notifiers (`AuthNotifier`, editores) com repositórios `mocktail`.
-  Cobrem: boot com/sem refresh, single-flight do refresh, reorder otimista com
-  rollback, mapeamento de `ApiFailure`.
-- **Widget:** login (erro `401` exibido), formulário de contato (`422` por
-  campo), uma lista admin com reorder.
+- **Unit:** `AuthNotifier` com repositório e store falsos (`test/support/`):
+  boot com/sem refresh, refresh recusado, login/logout, single-flight,
+  queda para Anonymous; `ApiFailure.from` por `code`.
+- **Widget:** login (campos vazios não chamam a API; `401` exibe a mensagem
+  da API), formulário de contato (ok, `422` por campo, `429`).
+- **Visual:** build release servido pelo `Caddyfile.prod` e fotografado com
+  Chrome headless na rede do compose (`zenika/alpine-chrome`), inclusive o
+  fluxo de login + reload por cookie. Não é automatizado no CI; é o
+  procedimento manual de verificação.
 - **Sem golden na v2.**
 - Tudo via `docker compose run --rm app flutter test`.
 
@@ -291,7 +311,10 @@ e admin, testes) antes da próxima, seguindo a ordem em que a API entrega os
 módulos.
 
 ### Fase 0 — Fundação
-1. Scaffold no container do toolchain; lints; l10n; tema.
+1. Scaffold no container do toolchain; lints; l10n; tema. **Pin de
+   `material_ui`/`cupertino_ui`:** versões publicadas em 15/09/2026 quebram o
+   build web no Flutter 3.44.0 apesar da constraint; teto no `pubspec` até
+   subir o `FLUTTER_VERSION`.
 2. Pipeline de geração: `swagger_parser.yaml`, `make app-gen`, `lib/api/`
    versionado, `build_runner`.
 3. `core/config`, `core/network` (Dio + interceptors), `core/errors`.

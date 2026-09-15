@@ -77,6 +77,8 @@ model Profile {
   headline     String         @default("")
   summary      String         @default("")
   description  String         @default("")
+  /// texto de abertura da seção Contato
+  contactIntro String?        @map("contact_intro")
   city         String         @default("")
   state        String         @default("")
   country      String         @default("")

@@ -1,4 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import {
   ArrayMaxSize,
@@ -6,6 +6,7 @@ import {
   IsArray,
   IsEnum,
   IsNotEmpty,
+  IsOptional,
   IsString,
   MaxLength,
   ValidateNested,
@@ -38,6 +39,13 @@ export class UpdateProfileDto {
   @IsString({ message: 'deve ser texto' })
   @MaxLength(5000, { message: 'no máximo 5000 caracteres' })
   description: string;
+
+  /** Texto de abertura da seção Contato; null = sem texto. */
+  @ApiPropertyOptional({ type: String, nullable: true })
+  @IsOptional()
+  @IsString({ message: 'deve ser texto' })
+  @MaxLength(600, { message: 'no máximo 600 caracteres' })
+  contactIntro?: string | null;
 
   @ApiProperty({ type: LocationDto })
   @ValidateNested()

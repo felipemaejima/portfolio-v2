@@ -35,7 +35,7 @@ origem para app e API (requisito do cookie de refresh, ADR 0002).
 | `edge` | `caddy:2`, `Caddyfile.dev`, `:80` | imagem própria: build do Flutter Web copiado para `/srv`, `Caddyfile.prod`, TLS automático |
 | `api` | `api/Dockerfile` target `dev`, bind mount `./api`, `pnpm start:dev` | target `prod`, `node dist/main.js`, `prisma migrate deploy` no entrypoint |
 | `db` | `postgres:16-alpine`, volume `pgdata`, init script cria `portfolio` e `portfolio_test` | idem, sem `portfolio_test` |
-| `app` | imagem do toolchain Flutter (`ghcr.io/cirruslabs/flutter:<versão fixa>`), bind mount `./app`, `flutter run -d web-server --web-port 8080 --web-hostname 0.0.0.0` | **não existe** — o build web vai para dentro da imagem do `edge`; o `.aab` é produzido pelo mesmo toolchain no CI |
+| `app` | `tools/flutter/Dockerfile` sobre `ghcr.io/cirruslabs/flutter:<FLUTTER_VERSION>`, bind mount `./app`, `flutter run -d web-server --web-port 8080 --web-hostname 0.0.0.0` | **não existe** — o build web vai para dentro da imagem do `edge`; o `.aab` é produzido pelo mesmo toolchain no CI |
 
 O Android em dev acessa `http://<ip-da-máquina>` (a borda). Em release acessa
 `https://<domínio>`.
@@ -57,7 +57,8 @@ O Android em dev acessa `http://<ip-da-máquina>` (a borda). Em release acessa
 │   └── Caddyfile.prod
 ├── api/Dockerfile                # targets: dev, prod
 ├── db/init/01-databases.sql      # CREATE DATABASE portfolio_test (dev)
-└── app/                          # sem Dockerfile próprio; usa a imagem do toolchain
+├── tools/flutter/                # Dockerfile + entrypoint do toolchain Flutter
+└── app/                          # projeto Flutter (sem Dockerfile próprio)
 ```
 
 ### `Caddyfile` (essência, igual em dev e prod salvo TLS)
@@ -100,12 +101,20 @@ certificado sozinho).
   entrypoint roda `prisma migrate deploy` e sobe. `HEALTHCHECK` em
   `/api/v1/health` (rota pública trivial, fora do OpenAPI).
 
+### `tools/flutter/Dockerfile` (toolchain)
+A imagem do cirruslabs roda como **root** e o SDK (checkout git em
+`/sdks/flutter`) precisa escrever no próprio cache — `chmod -R` no SDK
+duplicaria gigabytes numa camada. Solução: o container roda como root e um
+`entrypoint` faz `chown -R $HOST_UID:$HOST_GID /app` ao final de cada comando,
+entregando ao dono do host tudo que foi criado no bind mount. `git config
+--system safe.directory '*'` evita o "dubious ownership" do SDK.
+
 ### `edge/Dockerfile` (prod)
 ```
 FROM ghcr.io/cirruslabs/flutter:<versão> AS build
 WORKDIR /app
 COPY app/ .
-RUN flutter pub get && flutter build web --release --dart-define=API_BASE_URL=/api/v1
+RUN flutter pub get && flutter build web --release   # API_BASE_URL vazio: mesma origem
 FROM caddy:2-alpine
 COPY --from=build /app/build/web /srv
 COPY edge/Caddyfile.prod /etc/caddy/Caddyfile
@@ -149,7 +158,8 @@ Fonte única. `API.md` e `APP.md` referenciam esta tabela.
 | `POSTGRES_USER/PASSWORD/DB` | db | `portfolio` | |
 | `SITE_ADDRESS` | edge | `:80` | `https://<domínio>` em prod |
 | `HOST_UID`, `HOST_GID` | api (dev) | `id -u` / `id -g` | exportados pelo `Makefile` automaticamente; o container de dev roda com o seu uid para os arquivos do bind mount serem seus. Só precisa definir à mão se chamar `docker compose` direto |
-| `API_BASE_URL` | app (dart-define) | `/api/v1` | web sempre relativo; Android usa URL absoluta no build |
+| `API_BASE_URL` | app (dart-define) | *(vazio)* | **origem** da API, sem path (os paths gerados já têm `/api/v1`). Web: vazio = mesma origem. Android: `http://<ip-da-máquina>` em dev, `https://<domínio>` em release |
+| `FLUTTER_VERSION` | app, edge | `3.44.0` | tag da imagem `cirruslabs/flutter`; subir de versão é um PR (ver §8) |
 
 Segredos de prod ficam num `.env` no servidor, fora do git. Segredos de
 release Android (keystore, senhas) ficam em secrets do CI.
@@ -169,11 +179,12 @@ no host.
 | `make seed` | `exec api pnpm prisma db seed` |
 | `make api-test` / `make api-e2e` | Jest unit / e2e (`DATABASE_URL_TEST`) |
 | `make openapi` | `exec api pnpm openapi:emit` → `api/openapi.json` |
-| `make app-gen` | copia `openapi.json`, `run --rm app dart run swagger_parser`, `build_runner` |
+| `make app-gen` | copia `openapi.json`, remove operações multipart (`tool/prepare_openapi.dart`), `swagger_parser`, `build_runner`, `gen-l10n` |
 | `make app-test` | `run --rm app flutter test` |
+| `make app-analyze` / `make app-test` / `make app-build-web` | `flutter analyze` / `flutter test` / `flutter build web --release` |
 | `make app-android` | `run --rm app flutter run -d <device>` (ADB Wi-Fi; ver §6) |
 | `make build-web` | `docker compose -f docker-compose.yml -f docker-compose.prod.yml build edge` |
-| `make build-aab` | `run --rm app flutter build appbundle --dart-define=API_BASE_URL=…` |
+| `make build-apk` / `make build-aab` | `run --rm app flutter build apk|appbundle --release --dart-define=API_BASE_URL=…` (apk com assinatura de debug, para instalar direto) |
 | `make prod-up` | `-f docker-compose.yml -f docker-compose.prod.yml up -d` |
 
 Hot reload do Flutter Web: `make app-sh` → o `flutter run` já está rodando
@@ -188,7 +199,7 @@ O emulador não roda em Docker de forma prática (ADR 0005). Fluxo suportado:
 1. Dispositivo físico com **depuração Wi-Fi** ativada.
 2. No container `app`: `adb connect <ip-do-celular>:<porta>` (o container tem
    `adb` da imagem do toolchain; rede `host` não é necessária — é TCP).
-3. `flutter run -d <id> --dart-define=API_BASE_URL=http://<ip-da-máquina>/api/v1`.
+3. `flutter run -d <id> --dart-define=API_BASE_URL=http://<ip-da-máquina>`.
 
 Alternativa sem `flutter run`: `make build-apk` e instalar o `.apk` no
 aparelho.

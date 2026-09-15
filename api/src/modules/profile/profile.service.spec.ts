@@ -27,6 +27,7 @@ describe('ProfileService', () => {
       headline: 'Dev',
       summary: 's',
       description: 'd',
+      contactIntro: null,
       city: 'SP',
       state: 'SP',
       country: 'BR',

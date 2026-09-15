@@ -51,8 +51,10 @@ export class ProfileController {
   @ApiOkResponse({ type: ProfileDto })
   @ApiErrorResponses(HttpStatus.UNAUTHORIZED, HttpStatus.UNPROCESSABLE_ENTITY)
   async updateProfile(@Body() dto: UpdateProfileDto): Promise<ProfileDto> {
-    const { location, ...rest } = dto;
-    return ProfileDto.from(await this.profile.update({ ...rest, ...location }));
+    const { location, contactIntro, ...rest } = dto;
+    return ProfileDto.from(
+      await this.profile.update({ ...rest, ...location, contactIntro: contactIntro ?? null }),
+    );
   }
 
   /** Substitui a foto (multipart, campo `file`; jpeg/png/webp até 5 MB). */

@@ -12,6 +12,7 @@ export interface UpdateProfileData {
   headline: string;
   summary: string;
   description: string;
+  contactIntro: string | null;
   city: string;
   state: string;
   country: string;

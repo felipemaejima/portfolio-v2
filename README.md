@@ -20,8 +20,9 @@ Node, pnpm, Prisma, Dart e Flutter rodam em containers.
 
 ```sh
 make setup   # primeira vez: .env, imagens, deps, migrations, seed do admin
-make up      # http://localhost/api/v1/health · Swagger em http://localhost/api/docs
-make check   # lint + build + unit + e2e + contrato em dia (o que o CI roda)
+make up      # API em http://localhost/api/v1/health · Swagger em /api/docs
+docker compose --profile app up -d app   # dev server do Flutter Web em http://localhost/
+make check   # api: lint + build + unit + e2e + contrato · app: cliente em dia + analyze + test
 make help    # todos os alvos
 ```
 
@@ -31,5 +32,6 @@ Credenciais do admin vêm de `ADMIN_EMAIL`/`ADMIN_PASSWORD` no `.env`.
 
 - [x] API — fases 0 a 10 de `.specs/API.md` (auth, profile, projects, skills,
       experiences, educations, offerings, contact, cv)
-- [ ] App Flutter — `.specs/APP.md`
-- [ ] Release web e Android — `.specs/INFRA.md`
+- [x] App Flutter — fases 0 a 9 de `.specs/APP.md` (público + painel admin,
+      web e Android)
+- [ ] Release: domínio + TLS em produção, Play Console (`.specs/INFRA.md`)
