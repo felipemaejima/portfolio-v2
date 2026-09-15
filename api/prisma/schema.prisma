@@ -1,0 +1,238 @@
+// Convenções (API.md §0): PK uuid gerada pela aplicação, colunas snake_case via @map,
+// timestamps created_at/updated_at em toda tabela. Modelos entram por fase.
+
+generator client {
+  provider            = "prisma-client"
+  output              = "../src/generated/prisma"
+  moduleFormat        = "esm"
+  importFileExtension = "js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ---------- Identidade (fase 1) ----------
+
+model Admin {
+  id           String   @id @default(uuid()) @db.Uuid
+  email        String   @unique
+  passwordHash String   @map("password_hash")
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt    DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  refreshTokens RefreshToken[]
+
+  @@map("admins")
+}
+
+/// Refresh opaco: só o hash é persistido. `familyId` agrupa a cadeia de
+/// rotações de um login; reuso de um token já substituído revoga a família.
+model RefreshToken {
+  id           String    @id @default(uuid()) @db.Uuid
+  adminId      String    @map("admin_id") @db.Uuid
+  tokenHash    String    @unique @map("token_hash")
+  familyId     String    @map("family_id") @db.Uuid
+  expiresAt    DateTime  @map("expires_at") @db.Timestamptz
+  revokedAt    DateTime? @map("revoked_at") @db.Timestamptz
+  replacedById String?   @unique @map("replaced_by_id") @db.Uuid
+  createdAt    DateTime  @default(now()) @map("created_at") @db.Timestamptz
+
+  admin Admin @relation(fields: [adminId], references: [id], onDelete: Cascade)
+
+  @@index([familyId])
+  @@map("refresh_tokens")
+}
+
+// ---------- Enums de domínio (GLOBAL.md §3) — fonte única; shared/domain/enums.ts reexporta ----------
+
+enum Availability {
+  CLT
+  PJ
+  FREELANCE
+  CONTRACT
+}
+
+enum WorkMode {
+  REMOTE
+  HYBRID
+  ON_SITE
+}
+
+enum LanguageLevel {
+  BASIC
+  INTERMEDIATE
+  ADVANCED
+  FLUENT
+  NATIVE
+}
+
+// ---------- Profile (fase 2) ----------
+
+/// Singleton: `key` é sempre "default" e única. Seed cria a linha vazia.
+model Profile {
+  id           String         @id @default(uuid()) @db.Uuid
+  key          String         @default("default") @unique
+  name         String         @default("")
+  headline     String         @default("")
+  summary      String         @default("")
+  description  String         @default("")
+  city         String         @default("")
+  state        String         @default("")
+  country      String         @default("")
+  availability Availability[] @default([])
+  workModes    WorkMode[]     @default([]) @map("work_modes")
+  /// [{ language: string, level: LanguageLevel }]
+  languages    Json           @default("[]")
+  /// chave no FileStorage; a URL é derivada
+  imageKey     String?        @map("image_key")
+  createdAt    DateTime       @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt    DateTime       @updatedAt @map("updated_at") @db.Timestamptz
+
+  @@map("profiles")
+}
+
+// ---------- Project (fase 3) ----------
+
+model Project {
+  id               String   @id @default(uuid()) @db.Uuid
+  name             String
+  /// derivado de `name` na criação; imutável; único
+  slug             String   @unique
+  shortDescription String   @map("short_description")
+  fullDescription  String   @map("full_description")
+  technologies     String[] @default([])
+  codeUrl          String?  @map("code_url")
+  demoUrl          String?  @map("demo_url")
+  /// ordem editorial (GLOBAL.md AD-10)
+  position         Int
+  createdAt        DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt        DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  images ProjectImage[]
+
+  @@index([position])
+  @@map("projects")
+}
+
+model ProjectImage {
+  id        String   @id @default(uuid()) @db.Uuid
+  projectId String   @map("project_id") @db.Uuid
+  /// chave no FileStorage; a URL é derivada
+  imageKey  String   @map("image_key")
+  position  Int
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId, position])
+  @@map("project_images")
+}
+
+// ---------- Skills (fase 4) ----------
+
+model SkillCategory {
+  id        String   @id @default(uuid()) @db.Uuid
+  name      String
+  position  Int
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  skills Skill[]
+
+  @@index([position])
+  @@map("skill_categories")
+}
+
+model Skill {
+  id         String   @id @default(uuid()) @db.Uuid
+  categoryId String   @map("category_id") @db.Uuid
+  name       String
+  /// posição dentro da categoria
+  position   Int
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt  DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  category SkillCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@index([categoryId, position])
+  @@map("skills")
+}
+
+// ---------- Experience (fase 5) ----------
+
+model Experience {
+  id          String   @id @default(uuid()) @db.Uuid
+  role        String
+  companyName String   @map("company_name")
+  /// itens; viram bullets no CV
+  activities  String[] @default([])
+  /// "YYYY-MM"
+  startDate   String   @map("start_date") @db.VarChar(7)
+  /// "YYYY-MM"; null = atual
+  endDate     String?  @map("end_date") @db.VarChar(7)
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt   DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  @@map("experiences")
+}
+
+// ---------- Education (fase 6) ----------
+
+model Education {
+  id          String   @id @default(uuid()) @db.Uuid
+  courseName  String   @map("course_name")
+  institution String
+  startYear   Int      @map("start_year")
+  /// null = em andamento
+  endYear     Int?     @map("end_year")
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt   DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  @@map("educations")
+}
+
+// ---------- Offering (fase 7) ----------
+
+model Offering {
+  id          String   @id @default(uuid()) @db.Uuid
+  title       String
+  description String
+  position    Int
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt   DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  @@index([position])
+  @@map("offerings")
+}
+
+// ---------- Contact (fase 8) ----------
+
+model ContactLink {
+  id        String   @id @default(uuid()) @db.Uuid
+  /// nome do canal, ex.: "GitHub"
+  label     String
+  /// texto exibido, ex.: "github.com/usuario"
+  value     String
+  /// destino abrível: https://…, mailto:…, tel:…
+  url       String
+  position  Int
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  @@index([position])
+  @@map("contact_links")
+}
+
+/// Enviada por um Visitor; só persiste (GLOBAL.md AD-8).
+model ContactMessage {
+  id        String    @id @default(uuid()) @db.Uuid
+  name      String
+  email     String
+  message   String
+  readAt    DateTime? @map("read_at") @db.Timestamptz
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz
+
+  @@index([createdAt])
+  @@map("contact_messages")
+}

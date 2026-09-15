@@ -87,11 +87,17 @@ encode zstd gzip
 certificado sozinho).
 
 ### `api/Dockerfile`
-- `base`: `node:22-alpine`, `corepack enable`, `pnpm`.
-- `dev`: instala deps, **não** copia código (bind mount), `CMD pnpm start:dev`.
-- `build`: `pnpm install --frozen-lockfile`, `prisma generate`, `nest build`.
-- `prod`: copia `dist/`, `node_modules` (prod), `prisma/`; entrypoint roda
-  `prisma migrate deploy` e sobe. Usuário não-root. `HEALTHCHECK` em
+- `base`: `node:22-bookworm-slim` (glibc: Prisma e argon2 preferem a Debian
+  à Alpine), `openssl`, corepack com pnpm fixado, usuário `node` (uid 1000 =
+  dono dos arquivos no bind mount).
+- `dev`: **não** copia código nem instala deps (bind mount; `node_modules`
+  vive no bind mount, instalado via `make api-install`), `CMD pnpm start:dev`.
+- `build`: copia `package.json`, lockfile, `pnpm-workspace.yaml` (lista de
+  `allowBuilds` do pnpm 12), `prisma.config.ts` e `prisma/` **antes** do
+  `pnpm install --frozen-lockfile` (o `postinstall` roda `prisma generate`);
+  depois `nest build` e `pnpm prune --prod`.
+- `prod`: copia `dist/`, `node_modules` (prod), `prisma/`, `prisma.config.ts`;
+  entrypoint roda `prisma migrate deploy` e sobe. `HEALTHCHECK` em
   `/api/v1/health` (rota pública trivial, fora do OpenAPI).
 
 ### `edge/Dockerfile` (prod)
@@ -139,11 +145,10 @@ Fonte única. `API.md` e `APP.md` referenciam esta tabela.
 | `CORS_ORIGINS` | api | *(vazio)* | mesma origem via edge; só preencher se expor a API direto |
 | `UPLOADS_DIR` | api | `/data/uploads` | |
 | `PUBLIC_UPLOADS_BASE_URL` | api | `http://localhost/uploads` | `https://<domínio>/uploads` em prod |
-| `MAX_UPLOAD_BYTES` | api | `5242880` | global seção 8 |
 | `ADMIN_EMAIL`, `ADMIN_PASSWORD` | api (seed) | — | seed idempotente |
-| `THROTTLE_LOGIN_PER_MIN`, `THROTTLE_CONTACT_PER_MIN` | api | `5`, `3` | |
 | `POSTGRES_USER/PASSWORD/DB` | db | `portfolio` | |
 | `SITE_ADDRESS` | edge | `:80` | `https://<domínio>` em prod |
+| `HOST_UID`, `HOST_GID` | api (dev) | `id -u` / `id -g` | exportados pelo `Makefile` automaticamente; o container de dev roda com o seu uid para os arquivos do bind mount serem seus. Só precisa definir à mão se chamar `docker compose` direto |
 | `API_BASE_URL` | app (dart-define) | `/api/v1` | web sempre relativo; Android usa URL absoluta no build |
 
 Segredos de prod ficam num `.env` no servidor, fora do git. Segredos de

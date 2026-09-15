@@ -1,0 +1,20 @@
+{$SITE_ADDRESS}
+
+handle /api/* {
+	reverse_proxy api:3000
+}
+
+handle_path /uploads/* {
+	root * /data/uploads
+	file_server
+	header Cache-Control "public, max-age=31536000, immutable"
+}
+
+handle {
+	root * /srv
+	try_files {path} /index.html
+	file_server
+	header /flutter_service_worker.js Cache-Control "no-cache"
+}
+
+encode zstd gzip

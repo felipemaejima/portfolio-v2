@@ -1,0 +1,24 @@
+# PROD — docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+services:
+  api:
+    build:
+      target: prod
+    image: portfolio-api:latest
+    environment:
+      NODE_ENV: production
+    restart: unless-stopped
+
+  edge:
+    build:
+      context: .
+      dockerfile: edge/Dockerfile
+      args:
+        FLUTTER_VERSION: ${FLUTTER_VERSION:-stable}
+    image: portfolio-edge:latest
+    ports:
+      - "80:80"
+      - "443:443"
+    restart: unless-stopped
+
+  db:
+    restart: unless-stopped

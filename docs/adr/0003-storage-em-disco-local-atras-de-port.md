@@ -14,9 +14,9 @@ de arquivos — não uma reescrita.
 
 ## Consequences
 
-- O deploy precisa de volume persistente montado na API; o serviço de arquivos
-  estáticos (Caddy em prod, `ServeStaticModule` em dev) serve os bytes sob um prefixo público
-  configurado por `.env`.
+- O deploy precisa de volume persistente montado na API (escrita) e na borda
+  (leitura); o Caddy serve os bytes sob `/uploads` em dev e em prod. A API
+  nunca serve arquivos.
 - URL assinada/temporária deixa de ser regra geral (era na v1); imagens
   públicas são cacheáveis por CDN e pelo app.
 - Upload é sempre via API (multipart); não há upload direto do cliente para o

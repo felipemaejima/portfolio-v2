@@ -69,8 +69,8 @@ guardada até o Admin apagá-la; pode estar lida ou não lida.
 _Avoid_: mensagem de e-mail, ticket, inbox (como entidade)
 
 **CV**:
-O currículo em PDF, montado sob demanda a partir de Profile, Experiences,
-Educations, Skills e Offerings. Não é um arquivo armazenado.
+O currículo em PDF, montado sob demanda a partir de Profile, ContactLinks,
+Experiences, Educations, Skills e Offerings. Não é um arquivo armazenado.
 _Avoid_: resume (em código), currículo estático, upload de CV
 
 ### Ordenação

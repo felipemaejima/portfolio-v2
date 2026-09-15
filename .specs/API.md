@@ -17,7 +17,7 @@
   `@@map`; a fronteira HTTP nunca vê `snake_case` (global AD-12).
 - **Timestamps** `created_at` / `updated_at` em toda tabela (`@default(now())`,
   `@updatedAt`), `timestamptz`.
-- **TypeScript strict**, `noUncheckedIndexedAccess`, ESLint + Prettier do
+- **TypeScript strict**, `noUncheckedIndexedAccess`, oxlint + Prettier do
   scaffold Nest. Nada de `any` em DTO.
 
 ---
@@ -27,19 +27,19 @@
 | Papel | Escolha | Nota |
 |-------|---------|------|
 | Runtime | Node 22 LTS, pnpm | `.nvmrc` / `engines` no `package.json` |
-| Framework | NestJS 11+ (Express) | Fastify não vale o custo com multipart + cookie |
-| ORM | Prisma 6+ | `prisma migrate`, `prisma/seed.ts` |
+| Framework | NestJS 12 (ESM-only, Express 5) | Fastify não vale o custo com multipart + cookie. Imports relativos com `.js`; top-level `await` no bootstrap |
+| ORM | Prisma 7 | `prisma.config.ts` (url, migrations, seed), driver adapter `@prisma/adapter-pg`, cliente gerado em `src/generated/prisma` (gitignored; `postinstall` gera) |
 | Banco | PostgreSQL 16 | via compose (`INFRA.md`) |
 | Auth | `@nestjs/passport`, `passport-jwt`, `@nestjs/jwt`, `argon2`, `cookie-parser` | argon2id para senha; refresh é `randomBytes(32)` → hash SHA-256 no banco |
 | Validação | `class-validator`, `class-transformer` | `ValidationPipe` global |
 | Config | `@nestjs/config` + `zod` | schema valida `.env` no boot; falha rápido |
 | OpenAPI | `@nestjs/swagger` + CLI plugin | plugin em `nest-cli.json` com `introspectComments`, `dtoFileNameSuffix: ['.dto.ts']` |
-| Upload | `multer` via `@nestjs/platform-express`, `file-type` | limite e mime por magic bytes, não por extensão |
-| Estáticos (dev) | `@nestjs/serve-static` | só em `NODE_ENV=development`; em prod é a borda (`INFRA.md`) |
-| PDF | `pdfmake` | fontes embutidas no repositório (`assets/fonts`) |
+| Upload | `multer` via `@nestjs/platform-express`, `file-type` | limite e mime por magic bytes, não por extensão. A API **nunca serve bytes**: o Caddy serve `/uploads` em dev e prod (`INFRA.md`) |
+| PDF | `pdfmake` 0.3 | Roboto vem dentro do próprio pacote (`node_modules/pdfmake/fonts`); nada de TTF no repositório |
 | Rate limit | `@nestjs/throttler` | |
 | Slug | `slugify` | |
-| Testes | Jest, `supertest` | e2e contra o banco `portfolio_test` do Postgres do compose (sem Testcontainers: tudo já roda em Docker) |
+| Testes | Vitest 4, `supertest` | padrão do scaffold Nest 12 (ESM). e2e contra o banco `portfolio_test` do Postgres do compose (sem Testcontainers: tudo já roda em Docker) |
+| Lint / formato | oxlint, Prettier | padrão do scaffold Nest 12 |
 
 Versões exatas ficam no `package.json`; esta tabela fixa **majors** e razões.
 
@@ -65,17 +65,21 @@ api/
 │   ├── schema.prisma
 │   ├── migrations/
 │   └── seed.ts                     # admin idempotente via ADMIN_EMAIL/ADMIN_PASSWORD
+├── prisma.config.ts                # url do datasource, caminho das migrations, comando de seed
 ├── openapi.json                    # EMITIDO; versionado; nunca editado à mão
-├── assets/fonts/                   # fontes do pdfmake
 └── src/
-    ├── main.ts                     # bootstrap: prefix, pipes, filtros, swagger
+    ├── main.ts                     # bootstrap + Swagger UI em dev
+    ├── app.setup.ts                # configureApp(): prefixo, cookies, CORS — usado por main, emit e e2e
     ├── app.module.ts
+    ├── openapi/                    # document.ts (DocumentBuilder) + emit.ts (grava openapi.json)
+    ├── generated/prisma/           # GERADO pelo Prisma; gitignored
     ├── shared/
     │   ├── config/                 # ConfigModule + schema zod + tipo AppConfig
     │   ├── prisma/                 # PrismaModule / PrismaService
     │   ├── storage/                # port FileStorage + LocalDiskStorage
-    │   ├── auth/                   # JwtAuthGuard (global), @Public(), @CurrentAdmin()
-    │   └── http/                   # ErrorResponseDto, exception filter, ReorderDto, decorators de upload
+    │   ├── auth/                   # JwtAuthGuard (global), JwtStrategy, @Public(), @CurrentAdmin(), JwtModule exportado
+    │   ├── health/                 # GET /health (público, fora do OpenAPI)
+    │   └── http/                   # ErrorResponseDto, exceções de domínio, exception filter, ValidationPipe, ReorderDto, @ApiErrorResponses()
     └── modules/
         ├── auth/
         ├── profile/
@@ -220,7 +224,10 @@ Implementa a global seção 5 / ADR 0002.
 ## 5. Convenções transversais
 
 ### Prefixo, versionamento, CORS
-- `app.setGlobalPrefix('api/v1')`. Nenhum controller repete o prefixo.
+- `app.setGlobalPrefix('/api/v1')` — **com barra inicial**: o Nest monta o
+  handler de 404 no Express com o prefixo cru, e sem a barra rotas
+  inexistentes caem no 404 HTML do Express em vez do `ErrorResponse`.
+  Nenhum controller repete o prefixo.
 - CORS: `origin: CORS_ORIGINS` (lista explícita), `credentials: true`.
   A borda torna tudo mesma origem em dev e prod; `CORS_ORIGINS` fica vazio
   e o middleware só existe como salvaguarda.
@@ -235,8 +242,12 @@ Implementa a global seção 5 / ADR 0002.
   método Dart.
 - `ErrorResponseDto` declarado em todos os handlers via decorators
   compartilhados (`@ApiStandardErrors()` em `shared/http`).
-- Script `pnpm openapi:emit`: cria a app sem `listen()`, gera o documento e
-  grava `api/openapi.json`. CI roda e falha se `git diff` acusar mudança.
+- Script `pnpm openapi:emit` (= `nest build && node dist/openapi/emit.js`):
+  cria a app sem `init()`/`listen()` (não toca o banco), gera o documento e
+  grava `api/openapi.json`. Roda sobre o `dist/` porque o CLI plugin só age
+  no `nest build`. CI roda e falha se `git diff` acusar mudança.
+- `ErrorResponseDto` entra como `extraModels`: está no contrato mesmo antes
+  de qualquer rota referenciá-lo.
 - Swagger UI em `/api/docs` só em `development`.
 
 ### Validação e erros
@@ -248,20 +259,29 @@ Implementa a global seção 5 / ADR 0002.
   com stack, sem vazar mensagem.
 
 ### Enums
-`enum` TS em `shared/` ou no módulo dono, espelhados como `enum` no Prisma.
-Rótulo em PT não existe na API.
+A fonte é o `enum` do schema Prisma; `shared/domain/enums.ts` reexporta os
+objetos gerados (`Availability`, `WorkMode`, `LanguageLevel`) para DTOs e
+services — sem duplicar valores nem converter tipos. Rótulo em PT não existe
+na API.
 
 ### Slug
-No `create`, `slugify(name)` + sufixo `-2`, `-3`… até `slugExists` ser falso.
-Imutável em `update` (DTO de update não tem `slug`; o service ignora `name`
-para fins de slug).
+No `create`, `slugify(name)` (função própria em `shared/domain/slug.ts`:
+NFD, sem acentos, `[a-z0-9-]`) + sufixo `-2`, `-3`… até `slugExists` ser
+falso. Imutável em `update` (o DTO de entrada é o mesmo do create e não tem
+`slug`).
+
+### Parâmetros `:id`
+`UuidParam` (`ParseUUIDPipe` com `errorHttpStatusCode: 404`): id malformado é
+"recurso inexistente" para o app, e nunca chega ao Postgres (coluna `uuid`),
+onde viraria 500.
 
 ### `position` e `reorder`
 - Novo item: `position = max(position) + 1` no escopo, dentro da transação de
   criação.
-- `reorder`: service carrega os ids do escopo, compara com o set recebido
-  (igualdade exata, sem duplicatas) → senão `ValidationError` (`422`). O
-  repositório aplica `position = index` em transação.
+- `reorder`: service carrega os ids do escopo e chama `assertSameIdSet`
+  (`shared/domain/reorder.ts`): igualdade exata, sem duplicatas, senão
+  `ValidationError` (`422`) com as mensagens em `details.ids`. O repositório
+  aplica `position = index` em transação.
 - Após `delete`, não é preciso compactar: ordenação é relativa.
 
 ### Storage (ADR 0003)
@@ -271,29 +291,43 @@ export abstract class FileStorage {
   abstract delete(key: string): Promise<void>;
 }
 ```
-- `LocalDiskStorage`: grava em `UPLOADS_DIR/<keyPrefix>/<uuid>.<ext>`; `url` =
-  `PUBLIC_UPLOADS_BASE_URL + '/' + key`. Extensão vem do mime detectado.
+- `LocalDiskStorage`: grava em `UPLOADS_DIR/<keyPrefix>/<uuid>.<ext>` com
+  `flag: 'wx'` (chave nova nunca sobrescreve) e recusa chave que escape da
+  raiz; `url` = `PUBLIC_UPLOADS_BASE_URL + '/' + key`. Extensão vem do mime
+  detectado. O banco guarda a **chave** (`imageKey`); a URL é derivada na
+  leitura via `FileStorage.urlFor`, então mudar a base URL não exige migração.
 - Upload: `FileInterceptor('file')` / `FilesInterceptor('files', 12)` com
-  `limits.fileSize = 5 MB`; depois `file-type` confirma o mime real; recusa →
-  `415`. O service chama `put` e só então persiste a linha; se persistir
-  falhar, faz `delete` do arquivo (compensação).
-- `ServeStaticModule` serve `UPLOADS_DIR` em `/uploads` **só em
-  development**.
+  `limits.fileSize = MAX_UPLOAD_BYTES` (constante de contrato em
+  `shared/storage/image-type.ts`, não variável de ambiente); depois
+  `detectImage` (`file-type`) confirma o mime real; recusa → `415`; sem
+  arquivo → `400`. O service chama `put`, persiste a chave e **só então**
+  apaga a imagem anterior; se persistir falhar, apaga o arquivo novo
+  (compensação). Controllers recebem só `{ buffer }` do multer — sem
+  `@types/multer`.
+- Ninguém na API serve `/uploads`: é o Caddy, em dev e prod.
 
 ### CV (global AD-11)
-- `CvService` agrega Profile + Experiences + Educations + SkillCategories +
-  Offerings num `CvDocument` (objeto de dados puro, sem pdfmake).
+- `CvService` agrega Profile + ContactLinks + Experiences + Educations +
+  SkillCategories + Offerings (via os services exportados pelos módulos) e
+  `buildCvDocument` produz um `CvDocument`: objeto de dados puro, **já em
+  texto de apresentação PT-BR** (períodos `jan/2023 — atual`, `2017 — 2021`,
+  ano único; rótulos dos enums). É a única fronteira da API com rótulos em
+  PT, porque o PDF é apresentação. Categorias sem skills ficam de fora.
 - `CvRenderer.render(doc): Promise<Buffer>`; `PdfmakeCvRenderer` monta a
-  definição de documento. Layout: uma coluna, seções na ordem acima, fontes
-  em `assets/fonts`.
-- Controller responde `application/pdf`, `Content-Disposition: attachment;
-  filename="cv-<slug do nome>.pdf"`, `Cache-Control: no-store`. Sem storage,
-  sem cache — o tráfego não justifica.
+  definição de documento (uma coluna, seções na ordem acima, Roboto do
+  pacote pdfmake). Sob `nodenext`, `@types/pdfmake` não expõe
+  `pdfmake/interfaces`: o tipo da definição é inferido de `createPdf`.
+- Controller responde `StreamableFile` `application/pdf`,
+  `Content-Disposition: attachment; filename="cv-<slug do nome>.pdf"`,
+  `Cache-Control: no-store`. Sem storage, sem cache — o tráfego não
+  justifica.
 
 ### Rate limit
-`ThrottlerModule` global permissivo (ex.: 100/min) e `@Throttle()` estrito em
+`ThrottlerModule` global permissivo (100/min) e `@Throttle()` estrito em
 `POST /auth/login` (5/min por IP) e `POST /contact-messages` (3/min por IP).
-Resposta `429 RATE_LIMITED` pelo filtro.
+Limites são constantes em `shared/http/throttle.ts`, não variáveis de
+ambiente. Atrás do Caddy o IP real vem de `X-Forwarded-For`: `trust proxy`
+restrito a loopback/redes privadas. Resposta `429 RATE_LIMITED` pelo filtro.
 
 ### Config
 `shared/config` valida com zod e expõe `AppConfig` tipado. Variáveis: ver
@@ -316,7 +350,7 @@ DTOs, controller, testes) antes do próximo. Pré-requisitos vêm antes.
 5. `shared/auth`: guard global + `@Public()` (o guard nasce antes do módulo
    `auth` para que **nenhuma** rota nasça desprotegida).
 6. OpenAPI: `DocumentBuilder`, CLI plugin, `openapi:emit`, check no CI.
-7. Base de testes: Jest unit; e2e apontando `DATABASE_URL` para
+7. Base de testes: Vitest unit; e2e apontando `DATABASE_URL` para
    `portfolio_test` (criado pelo init script do Postgres, ver `INFRA.md`),
    `prisma migrate deploy` + `TRUNCATE` no `globalSetup`; helper
    `createTestApp()`. Roda com `docker compose exec api pnpm test:e2e`.
@@ -328,13 +362,19 @@ rotação e detecção de reuso. Testes e2e cobrem: login web (cookie) e mobile
 
 ### Fase 2 — Profile
 `GET/PUT /profile`, `PUT/DELETE /profile/image`. Primeiro uso de
-`FileStorage` (o caso mais simples: um arquivo). Seed cria Profile vazio junto
-com o Admin.
+`FileStorage` (o caso mais simples: um arquivo). Singleton garantido por
+coluna `key = 'default'` única; o repositório faz `upsert` na leitura, então
+funciona mesmo sem seed. `languages` é coluna `Json` (lista pequena, só a
+API escreve) lida com parser defensivo. Seed cria Profile vazio junto com o
+Admin.
 
 ### Fase 3 — Projects
-CRUD, slug, `position`/`reorder`, galeria (`ProjectImage`), limite de 12,
-`reorder` de imagens, cascata no delete (linhas + arquivos). Exercita todos os
-padrões; depois dele o resto é repetição.
+CRUD, slug, `position`/`reorder`, galeria (`ProjectImage`), limite de 12
+(cumulativo, `422` em `details.files`; mais de 12 numa única request é `400`
+do multer), `reorder` de imagens, cascata no delete (linhas em cascata no
+banco, depois os arquivos). Upload múltiplo valida **todos** os arquivos
+antes de gravar qualquer um. Exercita todos os padrões; depois dele o resto
+é repetição.
 
 ### Fase 4 — Skills
 `SkillCategory` 1:N `Skill`, dois `reorder` (categorias; skills dentro da
@@ -355,13 +395,20 @@ Depende de todos os anteriores. `CvDocument`, `CvRenderer`, `PdfmakeCvRenderer`,
 ### Fase 10 — Fechamento
 `openapi.json` final revisado (nomes de `operationId`, enums, erros), cobertura
 de testes por módulo, índices (`slug` único, `position` por escopo,
-`token_hash` único), `Dockerfile` multi-stage (ver `INFRA.md`).
+`token_hash` único), `Dockerfile` multi-stage (ver `INFRA.md`), workflow de
+CI (`.github/workflows/ci.yml`) espelhando `make check` e subindo a imagem
+de produção.
+
+**Nota de prod:** o entrypoint chama `./node_modules/.bin/prisma migrate
+deploy` diretamente — nunca `pnpm …`: sem lockfile na imagem, o pnpm 12
+tenta "sincronizar" dependências antes de rodar qualquer script, o que
+significaria instalar pacotes em runtime.
 
 ---
 
 ## 7. Testes
 
-- **Unit (Jest):** services com repositórios em memória (`InMemory*Repository`
+- **Unit (Vitest):** services com repositórios em memória (`InMemory*Repository`
   implementando o port, vivendo em `test/`). Cobrem regra: slug único,
   `reorder` inválido, limite de imagens, rotação/reuso de refresh.
 - **E2E (supertest):** por módulo, contra o Postgres do compose (banco

@@ -33,7 +33,7 @@ de cache.
 
 | Lado | Escolha |
 |------|---------|
-| API | NestJS 11+, Node 22 LTS, TypeScript strict, Prisma 6+, PostgreSQL 16 |
+| API | NestJS 12 (ESM), Node 22 LTS, TypeScript 6 strict, Prisma 7, PostgreSQL 16 |
 | Auth | JWT access curto + refresh opaco rotativo (ADR 0002) |
 | Storage | Disco local atrás de port `FileStorage` (ADR 0003) |
 | PDF | pdfmake, sob demanda, em memória |
@@ -231,7 +231,7 @@ Mesmo padrão CRUD para `{recurso}` ∈ { `experiences`, `educations`,
 ### CV
 | Método | Rota | Acesso |
 |--------|------|--------|
-| GET | `/cv` | Público — `application/pdf`, `Content-Disposition: attachment` |
+| GET | `/cv` | Público — `application/pdf`, `Content-Disposition: attachment; filename="cv-<slug do nome>.pdf"`, `Cache-Control: no-store`. Conteúdo: Profile + ContactLinks + Experiences + Educations + Skills + Offerings, no estado atual. |
 
 ### Operacional
 | Método | Rota | Acesso |
@@ -273,9 +273,9 @@ explícito na API. Como só existe um Admin, não há `403` por falta de permiss
 ## 6. Ordenação e paginação
 
 - **Sem paginação.** Volume de portfólio é pequeno e limitado por natureza.
-- **Cronológicas:** `experiences` por `endDate` nulo primeiro, depois
-  `startDate` desc; `educations` por `endYear` nulo primeiro, depois
-  `startYear` desc. `contact-messages` por `createdAt` desc.
+- **Cronológicas:** `experiences` por `endDate` nulo primeiro (atual),
+  depois `endDate` desc, depois `startDate` desc; `educations` idem com
+  `endYear`/`startYear`. `contact-messages` por `createdAt` desc.
 - **Editoriais (`position` asc):** `projects`, `projects/{id}/images`,
   `skill-categories`, `skills` (dentro da categoria), `offerings`,
   `contact-links`.
