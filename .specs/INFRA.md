@@ -194,15 +194,26 @@ como processo do serviço; usar `docker compose attach app` e teclar `r`/`R`.
 
 ## 6. Android a partir do container
 
-O emulador não roda em Docker de forma prática (ADR 0005). Fluxo suportado:
+O emulador não roda em Docker de forma prática (ADR 0005). Pré-requisitos
+comuns aos dois fluxos: celular e máquina na **mesma rede**, `make up` no ar,
+e `PUBLIC_UPLOADS_BASE_URL=http://<ip-da-máquina>/uploads` no `.env` (senão
+as imagens apontam para `localhost` e não carregam no aparelho) — `make
+restart` depois de mudar.
 
-1. Dispositivo físico com **depuração Wi-Fi** ativada.
-2. No container `app`: `adb connect <ip-do-celular>:<porta>` (o container tem
-   `adb` da imagem do toolchain; rede `host` não é necessária — é TCP).
-3. `flutter run -d <id> --dart-define=API_BASE_URL=http://<ip-da-máquina>`.
+**A. APK de debug (sem ADB):** `make build-apk-dev
+API_BASE_URL=http://<ip-da-máquina>` gera
+`app/build/app/outputs/flutter-apk/app-debug.apk`; copie para o aparelho e
+instale ("fontes desconhecidas"). Só o build de **debug** aceita `http`
+(manifesto de debug); o release é https-only.
 
-Alternativa sem `flutter run`: `make build-apk` e instalar o `.apk` no
-aparelho.
+**B. `flutter run` com hot reload (ADB Wi-Fi):** no celular, Opções do
+desenvolvedor → Depuração por Wi-Fi → "Parear com código". Depois
+`make app-sh` e, dentro do container: `adb pair <ip>:<porta-de-pareamento>`,
+`adb connect <ip>:<porta>`, `adb devices`, e
+`flutter run -d <ip>:<porta> --dart-define=API_BASE_URL=http://<ip-da-máquina>`
+(`r` recarrega). As chaves do pareamento ficam no volume `adb_keys`, então
+nas próximas vezes basta `adb connect`. Rede `host` não é necessária: é
+TCP de saída.
 
 ---
 

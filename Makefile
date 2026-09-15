@@ -16,7 +16,7 @@ APP          := $(COMPOSE) --profile app run --rm app
 .PHONY: help setup up down restart logs ps clean \
         api-sh api-install api-generate api-lint api-format api-build api-test api-e2e migrate migrate-deploy migrate-status seed openapi openapi-check \
         app-sh app-gen app-gen-check app-analyze app-test app-build-web app-android \
-        check build-web build-apk build-aab prod-up prod-down prod-logs
+        check build-web build-apk-dev build-apk build-aab prod-up prod-down prod-logs
 
 help: ## lista os alvos
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-16s\033[0m %s\n", $$1, $$2}'
@@ -123,6 +123,11 @@ check: api-lint api-build api-test api-e2e openapi-check app-gen-check app-analy
 ## ---------- release ----------
 build-web: ## imagem do edge com o flutter web embutido
 	$(COMPOSE_PROD) build edge
+
+build-apk-dev: ## apk de DEBUG para testar na rede local (aceita http): make build-apk-dev API_BASE_URL=http://<ip-da-maquina>
+	@test -n "$(API_BASE_URL)" || (echo "uso: make build-apk-dev API_BASE_URL=http://<ip-da-maquina>" && exit 1)
+	$(APP) flutter build apk --debug --dart-define=API_BASE_URL=$(API_BASE_URL)
+	@echo "apk: app/build/app/outputs/flutter-apk/app-debug.apk"
 
 build-apk: ## apk release (assinatura de debug): make build-apk API_BASE_URL=https://<dominio>
 	$(APP) flutter build apk --release --dart-define=API_BASE_URL=$(API_BASE_URL)

@@ -34,6 +34,7 @@ services:
     volumes:
       - ./app:/app
       - pub_cache:/root/.pub-cache
+      - adb_keys:/root/.android   # pareamento ADB Wi-Fi sobrevive entre `run`s
     # API_BASE_URL vazio = mesma origem (o Caddy serve app e API). Os paths
     # gerados já incluem /api/v1.
     command: flutter run -d web-server --web-port 8080 --web-hostname 0.0.0.0

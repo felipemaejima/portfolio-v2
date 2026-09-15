@@ -42,3 +42,4 @@ volumes:
   uploads:
   caddy_data:
   pub_cache:
+  adb_keys:
