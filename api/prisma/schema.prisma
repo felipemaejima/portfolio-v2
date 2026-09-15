@@ -128,3 +128,33 @@ model ProjectImage {
   @@index([projectId, position])
   @@map("project_images")
 }
+
+// ---------- Skills (fase 4) ----------
+
+model SkillCategory {
+  id        String   @id @default(uuid()) @db.Uuid
+  name      String
+  position  Int
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  skills Skill[]
+
+  @@index([position])
+  @@map("skill_categories")
+}
+
+model Skill {
+  id         String   @id @default(uuid()) @db.Uuid
+  categoryId String   @map("category_id") @db.Uuid
+  name       String
+  /// posição dentro da categoria
+  position   Int
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt  DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  category SkillCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@index([categoryId, position])
+  @@map("skills")
+}
