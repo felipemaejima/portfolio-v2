@@ -28,7 +28,8 @@ ThemeData buildTheme() {
     error: Color(0xFFFF8A80),
     outline: AppColors.divider,
   );
-  final base = ThemeData(useMaterial3: true, colorScheme: scheme, brightness: Brightness.dark);
+  // Inter variável, embutida (APP.md §6): sem google_fonts em runtime.
+  final base = ThemeData(useMaterial3: true, colorScheme: scheme, brightness: Brightness.dark, fontFamily: 'Inter');
   return base.copyWith(
     scaffoldBackgroundColor: AppColors.bg,
     dividerColor: AppColors.divider,

@@ -37,7 +37,7 @@
 | Token store | `flutter_secure_storage` | só mobile; no web o refresh é cookie |
 | Imagens | `cached_network_image`, `image_picker` | URLs são permanentes → cache agressivo |
 | Links | `url_launcher` | `ContactLink.url`, download do CV |
-| Reordenar | `ReorderableListView` (SDK) | nada externo |
+| Reordenar | `ReorderableListView` (SDK, `onReorderItem`) | `core/ui/reorderable_admin_list.dart` reutilizado por projetos, skills, serviços e canais |
 | i18n | `intl`, `flutter_localizations` | ARB em `lib/l10n/` |
 | Config | `--dart-define` (`API_BASE_URL`) | **origem** da API, sem path (os paths gerados já incluem `/api/v1`): vazio no web (mesma origem), `http://<ip>`/`https://<domínio>` no Android |
 | Testes | `flutter_test`, `mocktail` | |
@@ -267,14 +267,17 @@ Só tema escuro na v2.
 ### Web
 - `flutter build web --release` (CanvasKit; não há mais `--web-renderer`).
   Sem `API_BASE_URL` — mesma origem via Caddy.
-- `web/index.html`: `<title>`, `description`, `og:title`, `og:description`,
-  `og:image` (imagem estática em `web/`), `theme-color`. Splash simples em
-  CSS enquanto o engine carrega (ADR 0001, consequência do bundle).
+- `web/index.html`: `lang="pt-BR"`, `<title>`, `description`, `og:*`,
+  `theme-color`. Splash em CSS na cor do tema (`#161826`) enquanto o engine
+  carrega, removida no evento `flutter-first-frame` (ADR 0001, consequência
+  do bundle).
 - `base href` = `/`.
 
 ### Android
-- `applicationId` próprio; `minSdk 23`; permissão `INTERNET`;
-  `usesCleartextTraffic=false` (só HTTPS em release).
+- `applicationId` `com.felipemaejima.portfolio_app`; `minSdk` do Flutter;
+  permissão `INTERNET`. `usesCleartextTraffic=true` **só no manifesto de
+  debug** (`android/app/src/debug/`), para o `http://<ip>` de dev; release
+  continua https-only.
 - Release: `flutter build appbundle --dart-define=API_BASE_URL=https://<dom>`.
   Keystore e senhas via secrets de CI, nunca no repositório (`INFRA.md`).
 - Dev: `flutter run` em **dispositivo físico via ADB Wi-Fi** a partir do
@@ -287,11 +290,15 @@ Sem trabalho agora. Restrição vigente: nenhuma dependência sem suporte iOS.
 
 ## 8. Testes
 
-- **Unit:** notifiers (`AuthNotifier`, editores) com repositórios `mocktail`.
-  Cobrem: boot com/sem refresh, single-flight do refresh, reorder otimista com
-  rollback, mapeamento de `ApiFailure`.
-- **Widget:** login (erro `401` exibido), formulário de contato (`422` por
-  campo), uma lista admin com reorder.
+- **Unit:** `AuthNotifier` com repositório e store falsos (`test/support/`):
+  boot com/sem refresh, refresh recusado, login/logout, single-flight,
+  queda para Anonymous; `ApiFailure.from` por `code`.
+- **Widget:** login (campos vazios não chamam a API; `401` exibe a mensagem
+  da API), formulário de contato (ok, `422` por campo, `429`).
+- **Visual:** build release servido pelo `Caddyfile.prod` e fotografado com
+  Chrome headless na rede do compose (`zenika/alpine-chrome`), inclusive o
+  fluxo de login + reload por cookie. Não é automatizado no CI; é o
+  procedimento manual de verificação.
 - **Sem golden na v2.**
 - Tudo via `docker compose run --rm app flutter test`.
 

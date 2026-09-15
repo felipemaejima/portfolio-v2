@@ -184,7 +184,7 @@ no host.
 | `make app-analyze` / `make app-test` / `make app-build-web` | `flutter analyze` / `flutter test` / `flutter build web --release` |
 | `make app-android` | `run --rm app flutter run -d <device>` (ADB Wi-Fi; ver §6) |
 | `make build-web` | `docker compose -f docker-compose.yml -f docker-compose.prod.yml build edge` |
-| `make build-aab` | `run --rm app flutter build appbundle --dart-define=API_BASE_URL=…` |
+| `make build-apk` / `make build-aab` | `run --rm app flutter build apk|appbundle --release --dart-define=API_BASE_URL=…` (apk com assinatura de debug, para instalar direto) |
 | `make prod-up` | `-f docker-compose.yml -f docker-compose.prod.yml up -d` |
 
 Hot reload do Flutter Web: `make app-sh` → o `flutter run` já está rodando
