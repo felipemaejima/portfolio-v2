@@ -19,6 +19,7 @@ export function sampleSources(): CvSources {
       headline: 'Dev',
       summary: 'Resumo.',
       description: 'Parágrafo 1.\n\nParágrafo 2.',
+      contactIntro: null,
       city: 'São Paulo',
       state: 'SP',
       country: 'Brasil',

@@ -112,5 +112,18 @@
   "newOffering": "Novo serviço",
   "editOffering": "Editar serviço",
   "offeringTitle": "Título",
-  "offeringDescription": "Descrição"
+  "offeringDescription": "Descrição",
+  "profileContactIntro": "Texto de abertura do Contato",
+  "contactName": "Nome",
+  "contactEmail": "E-mail",
+  "contactMessage": "Mensagem",
+  "contactSend": "Enviar mensagem",
+  "contactSent": "Mensagem enviada. Obrigado!",
+  "adminContactLinks": "Canais de contato",
+  "adminMessages": "Mensagens",
+  "newContactLink": "Novo canal",
+  "editContactLink": "Editar canal",
+  "contactLinkLabel": "Rótulo",
+  "contactLinkValue": "Texto exibido",
+  "contactLinkUrl": "Destino (URL)"
 }

@@ -49,6 +49,7 @@ class _ProfileFormState extends ConsumerState<_ProfileForm> {
   late final _headline = TextEditingController(text: widget.initial.headline);
   late final _summary = TextEditingController(text: widget.initial.summary);
   late final _description = TextEditingController(text: widget.initial.description);
+  late final _contactIntro = TextEditingController(text: widget.initial.contactIntro);
   late final _city = TextEditingController(text: widget.initial.location.city);
   late final _state = TextEditingController(text: widget.initial.location.state);
   late final _country = TextEditingController(text: widget.initial.location.country);
@@ -67,7 +68,7 @@ class _ProfileFormState extends ConsumerState<_ProfileForm> {
 
   @override
   void dispose() {
-    for (final c in [_name, _headline, _summary, _description, _city, _state, _country]) {
+    for (final c in [_name, _headline, _summary, _description, _contactIntro, _city, _state, _country]) {
       c.dispose();
     }
     for (final l in _languages) {
@@ -102,6 +103,7 @@ class _ProfileFormState extends ConsumerState<_ProfileForm> {
                 headline: _headline.text.trim(),
                 summary: _summary.text.trim(),
                 description: _description.text.trim(),
+                contactIntro: _contactIntro.text.trim().isEmpty ? null : _contactIntro.text.trim(),
                 location: LocationDto(city: _city.text.trim(), state: _state.text.trim(), country: _country.text.trim()),
                 availability: _availability.toList(),
                 workModes: _workModes.toList(),
@@ -144,6 +146,7 @@ class _ProfileFormState extends ConsumerState<_ProfileForm> {
         _text(_headline, l10n.profileHeadline, 'headline'),
         _text(_summary, l10n.profileSummary, 'summary', lines: 3),
         _text(_description, l10n.profileDescription, 'description', lines: 8),
+        _text(_contactIntro, l10n.profileContactIntro, 'contactIntro', lines: 3),
         Text(l10n.aboutLocation, style: Theme.of(context).textTheme.titleSmall),
         const SizedBox(height: 8),
         Row(

@@ -29,6 +29,9 @@ abstract class UpdateProfileDto with _$UpdateProfileDto {
     required List<Availability> availability,
     required List<WorkMode> workModes,
     required List<LanguageDto> languages,
+
+    /// Texto de abertura da seção Contato; null = sem texto.
+    String? contactIntro,
   }) = _UpdateProfileDto;
   
   factory UpdateProfileDto.fromJson(Map<String, Object?> json) => _$UpdateProfileDtoFromJson(json);

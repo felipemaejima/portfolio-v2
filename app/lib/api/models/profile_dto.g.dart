@@ -12,6 +12,7 @@ _ProfileDto _$ProfileDtoFromJson(Map<String, dynamic> json) => _ProfileDto(
   headline: json['headline'] as String,
   summary: json['summary'] as String,
   description: json['description'] as String,
+  contactIntro: json['contactIntro'] as String?,
   location: LocationDto.fromJson(json['location'] as Map<String, dynamic>),
   availability: (json['availability'] as List<dynamic>)
       .map((e) => Availability.fromJson(e as String))
@@ -34,6 +35,7 @@ Map<String, dynamic> _$ProfileDtoToJson(_ProfileDto instance) =>
       'headline': instance.headline,
       'summary': instance.summary,
       'description': instance.description,
+      'contactIntro': instance.contactIntro,
       'location': instance.location,
       'availability': instance.availability,
       'workModes': instance.workModes,

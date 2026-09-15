@@ -5,6 +5,9 @@ import 'package:go_router/go_router.dart';
 import '../../features/admin_shell/presentation/admin_dashboard_page.dart';
 import '../../features/admin_shell/presentation/admin_shell_page.dart';
 import '../../features/admin_shell/presentation/login_page.dart';
+import '../../features/contact/presentation/admin/contact_links_admin_page.dart';
+import '../../features/contact/presentation/admin/messages_admin_page.dart';
+import '../../features/contact/presentation/contact_page.dart';
 import '../../features/educations/presentation/admin/education_form_page.dart';
 import '../../features/educations/presentation/admin/educations_admin_page.dart';
 import '../../features/experiences/presentation/admin/experience_form_page.dart';
@@ -48,6 +51,7 @@ final routerProvider = Provider<GoRouter>((ref) {
     routes: [
       GoRoute(path: '/', builder: (_, _) => const HomePage()),
       GoRoute(path: '/projects', builder: (_, _) => const ProjectsPage()),
+      GoRoute(path: '/contact', builder: (_, _) => const ContactPage()),
       GoRoute(path: '/projects/:slug', builder: (_, state) => ProjectDetailPage(slug: state.pathParameters['slug']!)),
       GoRoute(path: '/admin/login', builder: (_, _) => const LoginPage()),
       ShellRoute(
@@ -66,6 +70,8 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(path: '/admin/educations/new', builder: (_, _) => const EducationFormPage()),
           GoRoute(path: '/admin/educations/:id', builder: (_, state) => EducationFormPage(id: state.pathParameters['id'])),
           GoRoute(path: '/admin/offerings', builder: (_, _) => const OfferingsAdminPage()),
+          GoRoute(path: '/admin/contact-links', builder: (_, _) => const ContactLinksAdminPage()),
+          GoRoute(path: '/admin/messages', builder: (_, _) => const MessagesAdminPage()),
         ],
       ),
     ],

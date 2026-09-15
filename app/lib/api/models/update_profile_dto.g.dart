@@ -22,6 +22,7 @@ _UpdateProfileDto _$UpdateProfileDtoFromJson(Map<String, dynamic> json) =>
       languages: (json['languages'] as List<dynamic>)
           .map((e) => LanguageDto.fromJson(e as Map<String, dynamic>))
           .toList(),
+      contactIntro: json['contactIntro'] as String?,
     );
 
 Map<String, dynamic> _$UpdateProfileDtoToJson(_UpdateProfileDto instance) =>
@@ -34,4 +35,5 @@ Map<String, dynamic> _$UpdateProfileDtoToJson(_UpdateProfileDto instance) =>
       'availability': instance.availability,
       'workModes': instance.workModes,
       'languages': instance.languages,
+      'contactIntro': instance.contactIntro,
     };

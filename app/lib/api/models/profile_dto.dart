@@ -20,6 +20,9 @@ abstract class ProfileDto with _$ProfileDto {
     required String headline,
     required String summary,
     required String description,
+
+    /// Texto de abertura da seção Contato, ou null.
+    required String? contactIntro,
     required LocationDto location,
     required List<Availability> availability,
     required List<WorkMode> workModes,

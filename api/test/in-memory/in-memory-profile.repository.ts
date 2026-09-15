@@ -13,6 +13,7 @@ export class InMemoryProfileRepository extends ProfileRepository {
     headline: '',
     summary: '',
     description: '',
+    contactIntro: null,
     city: '',
     state: '',
     country: '',

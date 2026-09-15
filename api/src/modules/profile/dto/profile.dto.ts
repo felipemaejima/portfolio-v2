@@ -19,6 +19,10 @@ export class ProfileDto {
   @ApiProperty()
   description: string;
 
+  /** Texto de abertura da seção Contato, ou null. */
+  @ApiProperty({ type: String, nullable: true })
+  contactIntro: string | null;
+
   @ApiProperty({ type: LocationDto })
   location: LocationDto;
 
@@ -48,6 +52,7 @@ export class ProfileDto {
     dto.headline = view.headline;
     dto.summary = view.summary;
     dto.description = view.description;
+    dto.contactIntro = view.contactIntro;
     dto.location = { city: view.city, state: view.state, country: view.country };
     dto.availability = view.availability;
     dto.workModes = view.workModes;

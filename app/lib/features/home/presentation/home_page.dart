@@ -7,6 +7,8 @@ import '../../../core/ui/async_value_view.dart';
 import '../../../core/ui/breakpoints.dart';
 import '../../../core/ui/theme.dart';
 import '../../../l10n/generated/app_localizations.dart';
+import '../../contact/application/contact_provider.dart';
+import '../../contact/presentation/contact_section.dart';
 import '../../educations/presentation/education_section.dart';
 import '../../experiences/presentation/experience_section.dart';
 import '../../offerings/presentation/offerings_section.dart';
@@ -59,6 +61,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                 children: [
                   HeroSection(
                     profile: p,
+                    contacts: ref.watch(contactLinksProvider).value ?? const [],
                     onSeeProjects: () => _scrollTo(HomeAnchor.projects),
                     onContact: () => _scrollTo(HomeAnchor.contact),
                   ),
@@ -68,7 +71,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                   KeyedSubtree(key: _keys[HomeAnchor.experience], child: const ExperienceSection()),
                   KeyedSubtree(key: _keys[HomeAnchor.education], child: const EducationSection()),
                   KeyedSubtree(key: _keys[HomeAnchor.offerings], child: const OfferingsSection()),
-                  KeyedSubtree(key: _keys[HomeAnchor.contact], child: const SizedBox.shrink()),
+                  KeyedSubtree(key: _keys[HomeAnchor.contact], child: ContactSection(intro: p.contactIntro)),
                   _Footer(name: p.name),
                 ],
               ),

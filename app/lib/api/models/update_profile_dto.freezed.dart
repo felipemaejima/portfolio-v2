@@ -19,7 +19,8 @@ mixin _$UpdateProfileDto {
  String get name;/// Uma linha acima do nome no hero.
  String get headline;/// Parágrafo curto do hero.
  String get summary;/// Texto longo do "Sobre mim"; parágrafos separados por linha em branco.
- String get description; LocationDto get location; List<Availability> get availability; List<WorkMode> get workModes; List<LanguageDto> get languages;
+ String get description; LocationDto get location; List<Availability> get availability; List<WorkMode> get workModes; List<LanguageDto> get languages;/// Texto de abertura da seção Contato; null = sem texto.
+ String? get contactIntro;
 /// Create a copy of UpdateProfileDto
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -32,16 +33,16 @@ $UpdateProfileDtoCopyWith<UpdateProfileDto> get copyWith => _$UpdateProfileDtoCo
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is UpdateProfileDto&&(identical(other.name, name) || other.name == name)&&(identical(other.headline, headline) || other.headline == headline)&&(identical(other.summary, summary) || other.summary == summary)&&(identical(other.description, description) || other.description == description)&&(identical(other.location, location) || other.location == location)&&const DeepCollectionEquality().equals(other.availability, availability)&&const DeepCollectionEquality().equals(other.workModes, workModes)&&const DeepCollectionEquality().equals(other.languages, languages));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is UpdateProfileDto&&(identical(other.name, name) || other.name == name)&&(identical(other.headline, headline) || other.headline == headline)&&(identical(other.summary, summary) || other.summary == summary)&&(identical(other.description, description) || other.description == description)&&(identical(other.location, location) || other.location == location)&&const DeepCollectionEquality().equals(other.availability, availability)&&const DeepCollectionEquality().equals(other.workModes, workModes)&&const DeepCollectionEquality().equals(other.languages, languages)&&(identical(other.contactIntro, contactIntro) || other.contactIntro == contactIntro));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,name,headline,summary,description,location,const DeepCollectionEquality().hash(availability),const DeepCollectionEquality().hash(workModes),const DeepCollectionEquality().hash(languages));
+int get hashCode => Object.hash(runtimeType,name,headline,summary,description,location,const DeepCollectionEquality().hash(availability),const DeepCollectionEquality().hash(workModes),const DeepCollectionEquality().hash(languages),contactIntro);
 
 @override
 String toString() {
-  return 'UpdateProfileDto(name: $name, headline: $headline, summary: $summary, description: $description, location: $location, availability: $availability, workModes: $workModes, languages: $languages)';
+  return 'UpdateProfileDto(name: $name, headline: $headline, summary: $summary, description: $description, location: $location, availability: $availability, workModes: $workModes, languages: $languages, contactIntro: $contactIntro)';
 }
 
 
@@ -52,7 +53,7 @@ abstract mixin class $UpdateProfileDtoCopyWith<$Res>  {
   factory $UpdateProfileDtoCopyWith(UpdateProfileDto value, $Res Function(UpdateProfileDto) _then) = _$UpdateProfileDtoCopyWithImpl;
 @useResult
 $Res call({
- String name, String headline, String summary, String description, LocationDto location, List<Availability> availability, List<WorkMode> workModes, List<LanguageDto> languages
+ String name, String headline, String summary, String description, LocationDto location, List<Availability> availability, List<WorkMode> workModes, List<LanguageDto> languages, String? contactIntro
 });
 
 
@@ -69,7 +70,7 @@ class _$UpdateProfileDtoCopyWithImpl<$Res>
 
 /// Create a copy of UpdateProfileDto
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? name = null,Object? headline = null,Object? summary = null,Object? description = null,Object? location = null,Object? availability = null,Object? workModes = null,Object? languages = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? name = null,Object? headline = null,Object? summary = null,Object? description = null,Object? location = null,Object? availability = null,Object? workModes = null,Object? languages = null,Object? contactIntro = freezed,}) {
   return _then(UpdateProfileDto(
 name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
 as String,headline: null == headline ? _self.headline : headline // ignore: cast_nullable_to_non_nullable
@@ -79,7 +80,8 @@ as String,location: null == location ? _self.location : location // ignore: cast
 as LocationDto,availability: null == availability ? _self.availability : availability // ignore: cast_nullable_to_non_nullable
 as List<Availability>,workModes: null == workModes ? _self.workModes : workModes // ignore: cast_nullable_to_non_nullable
 as List<WorkMode>,languages: null == languages ? _self.languages : languages // ignore: cast_nullable_to_non_nullable
-as List<LanguageDto>,
+as List<LanguageDto>,contactIntro: freezed == contactIntro ? _self.contactIntro : contactIntro // ignore: cast_nullable_to_non_nullable
+as String?,
   ));
 }
 /// Create a copy of UpdateProfileDto
@@ -173,10 +175,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String name,  String headline,  String summary,  String description,  LocationDto location,  List<Availability> availability,  List<WorkMode> workModes,  List<LanguageDto> languages)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String name,  String headline,  String summary,  String description,  LocationDto location,  List<Availability> availability,  List<WorkMode> workModes,  List<LanguageDto> languages,  String? contactIntro)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _UpdateProfileDto() when $default != null:
-return $default(_that.name,_that.headline,_that.summary,_that.description,_that.location,_that.availability,_that.workModes,_that.languages);case _:
+return $default(_that.name,_that.headline,_that.summary,_that.description,_that.location,_that.availability,_that.workModes,_that.languages,_that.contactIntro);case _:
   return orElse();
 
 }
@@ -194,10 +196,10 @@ return $default(_that.name,_that.headline,_that.summary,_that.description,_that.
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String name,  String headline,  String summary,  String description,  LocationDto location,  List<Availability> availability,  List<WorkMode> workModes,  List<LanguageDto> languages)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String name,  String headline,  String summary,  String description,  LocationDto location,  List<Availability> availability,  List<WorkMode> workModes,  List<LanguageDto> languages,  String? contactIntro)  $default,) {final _that = this;
 switch (_that) {
 case _UpdateProfileDto():
-return $default(_that.name,_that.headline,_that.summary,_that.description,_that.location,_that.availability,_that.workModes,_that.languages);case _:
+return $default(_that.name,_that.headline,_that.summary,_that.description,_that.location,_that.availability,_that.workModes,_that.languages,_that.contactIntro);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -214,10 +216,10 @@ return $default(_that.name,_that.headline,_that.summary,_that.description,_that.
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String name,  String headline,  String summary,  String description,  LocationDto location,  List<Availability> availability,  List<WorkMode> workModes,  List<LanguageDto> languages)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String name,  String headline,  String summary,  String description,  LocationDto location,  List<Availability> availability,  List<WorkMode> workModes,  List<LanguageDto> languages,  String? contactIntro)?  $default,) {final _that = this;
 switch (_that) {
 case _UpdateProfileDto() when $default != null:
-return $default(_that.name,_that.headline,_that.summary,_that.description,_that.location,_that.availability,_that.workModes,_that.languages);case _:
+return $default(_that.name,_that.headline,_that.summary,_that.description,_that.location,_that.availability,_that.workModes,_that.languages,_that.contactIntro);case _:
   return null;
 
 }
@@ -229,7 +231,7 @@ return $default(_that.name,_that.headline,_that.summary,_that.description,_that.
 @JsonSerializable()
 
 class _UpdateProfileDto implements UpdateProfileDto {
-  const _UpdateProfileDto({required this.name, required this.headline, required this.summary, required this.description, required this.location, required  List<Availability> availability, required  List<WorkMode> workModes, required  List<LanguageDto> languages}): _availability = availability,_workModes = workModes,_languages = languages;
+  const _UpdateProfileDto({required this.name, required this.headline, required this.summary, required this.description, required this.location, required  List<Availability> availability, required  List<WorkMode> workModes, required  List<LanguageDto> languages, this.contactIntro}): _availability = availability,_workModes = workModes,_languages = languages;
   factory _UpdateProfileDto.fromJson(Map<String, dynamic> json) => _$UpdateProfileDtoFromJson(json);
 
 @override final  String name;
@@ -261,6 +263,8 @@ class _UpdateProfileDto implements UpdateProfileDto {
   return EqualUnmodifiableListView(_languages);
 }
 
+/// Texto de abertura da seção Contato; null = sem texto.
+@override final  String? contactIntro;
 
 /// Create a copy of UpdateProfileDto
 /// with the given fields replaced by the non-null parameter values.
@@ -275,16 +279,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _UpdateProfileDto&&(identical(other.name, name) || other.name == name)&&(identical(other.headline, headline) || other.headline == headline)&&(identical(other.summary, summary) || other.summary == summary)&&(identical(other.description, description) || other.description == description)&&(identical(other.location, location) || other.location == location)&&const DeepCollectionEquality().equals(other._availability, _availability)&&const DeepCollectionEquality().equals(other._workModes, _workModes)&&const DeepCollectionEquality().equals(other._languages, _languages));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _UpdateProfileDto&&(identical(other.name, name) || other.name == name)&&(identical(other.headline, headline) || other.headline == headline)&&(identical(other.summary, summary) || other.summary == summary)&&(identical(other.description, description) || other.description == description)&&(identical(other.location, location) || other.location == location)&&const DeepCollectionEquality().equals(other._availability, _availability)&&const DeepCollectionEquality().equals(other._workModes, _workModes)&&const DeepCollectionEquality().equals(other._languages, _languages)&&(identical(other.contactIntro, contactIntro) || other.contactIntro == contactIntro));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,name,headline,summary,description,location,const DeepCollectionEquality().hash(_availability),const DeepCollectionEquality().hash(_workModes),const DeepCollectionEquality().hash(_languages));
+int get hashCode => Object.hash(runtimeType,name,headline,summary,description,location,const DeepCollectionEquality().hash(_availability),const DeepCollectionEquality().hash(_workModes),const DeepCollectionEquality().hash(_languages),contactIntro);
 
 @override
 String toString() {
-  return 'UpdateProfileDto(name: $name, headline: $headline, summary: $summary, description: $description, location: $location, availability: $availability, workModes: $workModes, languages: $languages)';
+  return 'UpdateProfileDto(name: $name, headline: $headline, summary: $summary, description: $description, location: $location, availability: $availability, workModes: $workModes, languages: $languages, contactIntro: $contactIntro)';
 }
 
 
@@ -295,7 +299,7 @@ abstract mixin class _$UpdateProfileDtoCopyWith<$Res> implements $UpdateProfileD
   factory _$UpdateProfileDtoCopyWith(_UpdateProfileDto value, $Res Function(_UpdateProfileDto) _then) = __$UpdateProfileDtoCopyWithImpl;
 @override @useResult
 $Res call({
- String name, String headline, String summary, String description, LocationDto location, List<Availability> availability, List<WorkMode> workModes, List<LanguageDto> languages
+ String name, String headline, String summary, String description, LocationDto location, List<Availability> availability, List<WorkMode> workModes, List<LanguageDto> languages, String? contactIntro
 });
 
 
@@ -312,7 +316,7 @@ class __$UpdateProfileDtoCopyWithImpl<$Res>
 
 /// Create a copy of UpdateProfileDto
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? name = null,Object? headline = null,Object? summary = null,Object? description = null,Object? location = null,Object? availability = null,Object? workModes = null,Object? languages = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? name = null,Object? headline = null,Object? summary = null,Object? description = null,Object? location = null,Object? availability = null,Object? workModes = null,Object? languages = null,Object? contactIntro = freezed,}) {
   return _then(_UpdateProfileDto(
 name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
 as String,headline: null == headline ? _self.headline : headline // ignore: cast_nullable_to_non_nullable
@@ -322,7 +326,8 @@ as String,location: null == location ? _self.location : location // ignore: cast
 as LocationDto,availability: null == availability ? _self._availability : availability // ignore: cast_nullable_to_non_nullable
 as List<Availability>,workModes: null == workModes ? _self._workModes : workModes // ignore: cast_nullable_to_non_nullable
 as List<WorkMode>,languages: null == languages ? _self._languages : languages // ignore: cast_nullable_to_non_nullable
-as List<LanguageDto>,
+as List<LanguageDto>,contactIntro: freezed == contactIntro ? _self.contactIntro : contactIntro // ignore: cast_nullable_to_non_nullable
+as String?,
   ));
 }
 
