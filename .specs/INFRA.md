@@ -149,6 +149,7 @@ Fonte única. `API.md` e `APP.md` referenciam esta tabela.
 | `ADMIN_EMAIL`, `ADMIN_PASSWORD` | api (seed) | — | seed idempotente |
 | `POSTGRES_USER/PASSWORD/DB` | db | `portfolio` | |
 | `SITE_ADDRESS` | edge | `:80` | `https://<domínio>` em prod |
+| `HOST_UID`, `HOST_GID` | api (dev) | `1000` | uid/gid do host (`id -u`/`id -g`) para o bind mount; no Docker Desktop (macOS/Windows) o mapeamento é automático e o valor não importa |
 | `API_BASE_URL` | app (dart-define) | `/api/v1` | web sempre relativo; Android usa URL absoluta no build |
 
 Segredos de prod ficam num `.env` no servidor, fora do git. Segredos de

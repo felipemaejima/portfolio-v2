@@ -11,7 +11,13 @@ USER node
 
 # --- dev: código vem por bind mount; node_modules vive no bind mount ---
 FROM base AS dev
-ENV NODE_ENV=development
+ENV NODE_ENV=development \
+    HOME=/home/node
+# O compose pode rodar este target com qualquer uid (UID/GID do host, ver
+# INFRA.md): HOME e as pastas de trabalho ficam graváveis para todos.
+USER root
+RUN chmod -R a+rwX /home/node /app /data/uploads
+USER node
 EXPOSE 3000
 CMD ["pnpm", "start:dev"]
 

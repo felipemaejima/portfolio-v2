@@ -9,6 +9,8 @@ services:
   api:
     build:
       target: dev
+    # uid/gid do host, para os arquivos criados no bind mount serem seus
+    user: "${HOST_UID:-1000}:${HOST_GID:-1000}"
     environment:
       NODE_ENV: development
     volumes:
