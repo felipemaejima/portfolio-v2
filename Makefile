@@ -3,6 +3,10 @@
 SHELL := /bin/sh
 .DEFAULT_GOAL := help
 
+# Containers de dev rodam com o seu uid/gid: arquivos criados no bind mount são seus.
+export HOST_UID ?= $(shell id -u)
+export HOST_GID ?= $(shell id -g)
+
 COMPOSE      := docker compose
 COMPOSE_PROD := docker compose -f docker-compose.yml -f docker-compose.prod.yml
 API_RUN      := $(COMPOSE) run --rm -T api           # sobe o db (depends_on)

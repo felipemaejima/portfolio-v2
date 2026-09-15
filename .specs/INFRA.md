@@ -149,7 +149,7 @@ Fonte única. `API.md` e `APP.md` referenciam esta tabela.
 | `ADMIN_EMAIL`, `ADMIN_PASSWORD` | api (seed) | — | seed idempotente |
 | `POSTGRES_USER/PASSWORD/DB` | db | `portfolio` | |
 | `SITE_ADDRESS` | edge | `:80` | `https://<domínio>` em prod |
-| `HOST_UID`, `HOST_GID` | api (dev) | `1000` | uid/gid do host (`id -u`/`id -g`) para o bind mount; no Docker Desktop (macOS/Windows) o mapeamento é automático e o valor não importa |
+| `HOST_UID`, `HOST_GID` | api (dev) | `id -u` / `id -g` | exportados pelo `Makefile` automaticamente; o container de dev roda com o seu uid para os arquivos do bind mount serem seus. Só precisa definir à mão se chamar `docker compose` direto |
 | `API_BASE_URL` | app (dart-define) | `/api/v1` | web sempre relativo; Android usa URL absoluta no build |
 
 Segredos de prod ficam num `.env` no servidor, fora do git. Segredos de
