@@ -14,5 +14,6 @@ import { ContactMessageRepository } from './ports/contact-message.repository.js'
     { provide: ContactLinkRepository, useClass: PrismaContactLinkRepository },
     { provide: ContactMessageRepository, useClass: PrismaContactMessageRepository },
   ],
+  exports: [ContactService],
 })
 export class ContactModule {}

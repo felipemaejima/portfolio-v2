@@ -14,5 +14,6 @@ import { SkillsService } from './skills.service.js';
     { provide: SkillCategoryRepository, useClass: PrismaSkillCategoryRepository },
     { provide: SkillRepository, useClass: PrismaSkillRepository },
   ],
+  exports: [SkillsService],
 })
 export class SkillsModule {}

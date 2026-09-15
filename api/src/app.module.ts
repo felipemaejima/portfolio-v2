@@ -7,6 +7,7 @@ import { ExperiencesModule } from './modules/experiences/experiences.module.js';
 import { EducationsModule } from './modules/educations/educations.module.js';
 import { OfferingsModule } from './modules/offerings/offerings.module.js';
 import { ContactModule } from './modules/contact/contact.module.js';
+import { CvModule } from './modules/cv/cv.module.js';
 import { JwtAuthModule } from './shared/auth/jwt-auth.module.js';
 import { AppConfigModule } from './shared/config/app-config.module.js';
 import { HealthModule } from './shared/health/health.module.js';
@@ -31,6 +32,7 @@ import { StorageModule } from './shared/storage/storage.module.js';
     EducationsModule,
     OfferingsModule,
     ContactModule,
+    CvModule,
   ],
 })
 export class AppModule {}

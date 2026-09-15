@@ -3008,6 +3008,39 @@
           "contact"
         ]
       }
+    },
+    "/api/v1/cv": {
+      "get": {
+        "operationId": "downloadCv",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "PDF",
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro interno",
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "PDF do currículo, gerado agora a partir dos dados atuais.",
+        "tags": [
+          "cv"
+        ]
+      }
     }
   },
   "info": {

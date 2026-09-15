@@ -35,7 +35,7 @@
 | Config | `@nestjs/config` + `zod` | schema valida `.env` no boot; falha rápido |
 | OpenAPI | `@nestjs/swagger` + CLI plugin | plugin em `nest-cli.json` com `introspectComments`, `dtoFileNameSuffix: ['.dto.ts']` |
 | Upload | `multer` via `@nestjs/platform-express`, `file-type` | limite e mime por magic bytes, não por extensão. A API **nunca serve bytes**: o Caddy serve `/uploads` em dev e prod (`INFRA.md`) |
-| PDF | `pdfmake` | fontes embutidas no repositório (`assets/fonts`) |
+| PDF | `pdfmake` 0.3 | Roboto vem dentro do próprio pacote (`node_modules/pdfmake/fonts`); nada de TTF no repositório |
 | Rate limit | `@nestjs/throttler` | |
 | Slug | `slugify` | |
 | Testes | Vitest 4, `supertest` | padrão do scaffold Nest 12 (ESM). e2e contra o banco `portfolio_test` do Postgres do compose (sem Testcontainers: tudo já roda em Docker) |
@@ -67,7 +67,6 @@ api/
 │   └── seed.ts                     # admin idempotente via ADMIN_EMAIL/ADMIN_PASSWORD
 ├── prisma.config.ts                # url do datasource, caminho das migrations, comando de seed
 ├── openapi.json                    # EMITIDO; versionado; nunca editado à mão
-├── assets/fonts/                   # fontes do pdfmake
 └── src/
     ├── main.ts                     # bootstrap + Swagger UI em dev
     ├── app.setup.ts                # configureApp(): prefixo, cookies, CORS — usado por main, emit e e2e
@@ -308,14 +307,20 @@ export abstract class FileStorage {
 - Ninguém na API serve `/uploads`: é o Caddy, em dev e prod.
 
 ### CV (global AD-11)
-- `CvService` agrega Profile + Experiences + Educations + SkillCategories +
-  Offerings num `CvDocument` (objeto de dados puro, sem pdfmake).
+- `CvService` agrega Profile + ContactLinks + Experiences + Educations +
+  SkillCategories + Offerings (via os services exportados pelos módulos) e
+  `buildCvDocument` produz um `CvDocument`: objeto de dados puro, **já em
+  texto de apresentação PT-BR** (períodos `jan/2023 — atual`, `2017 — 2021`,
+  ano único; rótulos dos enums). É a única fronteira da API com rótulos em
+  PT, porque o PDF é apresentação. Categorias sem skills ficam de fora.
 - `CvRenderer.render(doc): Promise<Buffer>`; `PdfmakeCvRenderer` monta a
-  definição de documento. Layout: uma coluna, seções na ordem acima, fontes
-  em `assets/fonts`.
-- Controller responde `application/pdf`, `Content-Disposition: attachment;
-  filename="cv-<slug do nome>.pdf"`, `Cache-Control: no-store`. Sem storage,
-  sem cache — o tráfego não justifica.
+  definição de documento (uma coluna, seções na ordem acima, Roboto do
+  pacote pdfmake). Sob `nodenext`, `@types/pdfmake` não expõe
+  `pdfmake/interfaces`: o tipo da definição é inferido de `createPdf`.
+- Controller responde `StreamableFile` `application/pdf`,
+  `Content-Disposition: attachment; filename="cv-<slug do nome>.pdf"`,
+  `Cache-Control: no-store`. Sem storage, sem cache — o tráfego não
+  justifica.
 
 ### Rate limit
 `ThrottlerModule` global permissivo (100/min) e `@Throttle()` estrito em

@@ -231,7 +231,7 @@ Mesmo padrão CRUD para `{recurso}` ∈ { `experiences`, `educations`,
 ### CV
 | Método | Rota | Acesso |
 |--------|------|--------|
-| GET | `/cv` | Público — `application/pdf`, `Content-Disposition: attachment` |
+| GET | `/cv` | Público — `application/pdf`, `Content-Disposition: attachment; filename="cv-<slug do nome>.pdf"`, `Cache-Control: no-store`. Conteúdo: Profile + ContactLinks + Experiences + Educations + Skills + Offerings, no estado atual. |
 
 ### Operacional
 | Método | Rota | Acesso |
