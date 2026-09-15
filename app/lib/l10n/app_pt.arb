@@ -9,7 +9,13 @@
   "logout": "Sair",
   "adminTitle": "Painel",
   "adminWelcome": "Olá, {email}",
-  "@adminWelcome": { "placeholders": { "email": { "type": "String" } } },
+  "@adminWelcome": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
   "errorNetwork": "Sem conexão com o servidor.",
   "errorUnexpected": "Algo deu errado. Tente novamente.",
   "errorRateLimited": "Muitas tentativas. Aguarde um instante.",
@@ -26,5 +32,39 @@
   "languageLevelIntermediate": "Intermediário",
   "languageLevelAdvanced": "Avançado",
   "languageLevelFluent": "Fluente",
-  "languageLevelNative": "Nativo"
+  "languageLevelNative": "Nativo",
+  "navAbout": "Sobre",
+  "navProjects": "Projetos",
+  "navSkills": "Habilidades",
+  "navExperience": "Experiência",
+  "navEducation": "Formação",
+  "navOfferings": "Serviços",
+  "navContact": "Contato",
+  "downloadCv": "Baixar CV",
+  "heroSeeProjects": "Ver projetos",
+  "heroContact": "Falar comigo",
+  "aboutTitle": "Sobre mim",
+  "aboutLocation": "Localização",
+  "aboutAvailability": "Disponibilidade",
+  "aboutWorkMode": "Modalidade",
+  "aboutLanguages": "Idiomas",
+  "save": "Salvar",
+  "saved": "Salvo.",
+  "remove": "Remover",
+  "cancel": "Cancelar",
+  "delete": "Apagar",
+  "confirmDelete": "Apagar este item?",
+  "adminProfileTitle": "Perfil",
+  "profileName": "Nome",
+  "profileHeadline": "Título (uma linha)",
+  "profileSummary": "Resumo (hero)",
+  "profileDescription": "Sobre mim (parágrafos separados por linha em branco)",
+  "profileCity": "Cidade",
+  "profileState": "UF",
+  "profileCountry": "País",
+  "profileLanguage": "Idioma",
+  "profileAddLanguage": "Adicionar idioma",
+  "profileChangePhoto": "Trocar foto",
+  "footerMadeWith": "Feito com Flutter & carinho",
+  "homeLink": "Ver o site"
 }

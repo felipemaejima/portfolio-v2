@@ -4,10 +4,11 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/auth/auth_notifier.dart';
 import '../../../core/auth/auth_state.dart';
+import '../../../core/ui/breakpoints.dart';
 import '../../../l10n/generated/app_localizations.dart';
+import 'admin_destinations.dart';
 
-/// Layout do painel (APP.md §5): nav lateral no web/desktop, bottom nav no mobile.
-/// Os destinos entram conforme as features chegam.
+/// Layout do painel (APP.md §5): rail lateral no web/desktop, barra inferior no mobile.
 class AdminShellPage extends ConsumerWidget {
   const AdminShellPage({required this.child, super.key});
   final Widget child;
@@ -15,38 +16,42 @@ class AdminShellPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
-    final admin = ref.watch(authProvider).value;
-    final email = admin is Authenticated ? admin.admin.email : '';
-    final wide = MediaQuery.sizeOf(context).width >= 900;
-
-    final body = Row(
-      children: [
-        if (wide)
-          NavigationRail(
-            selectedIndex: 0,
-            labelType: NavigationRailLabelType.all,
-            destinations: [
-              NavigationRailDestination(icon: const Icon(Icons.dashboard_outlined), label: Text(l10n.adminTitle)),
-            ],
-            onDestinationSelected: (_) => context.go('/admin'),
-          ),
-        Expanded(child: child),
-      ],
-    );
+    final auth = ref.watch(authProvider).value;
+    final email = auth is Authenticated ? auth.admin.email : '';
+    final wide = Breakpoints.isWide(context);
+    final items = adminDestinations(l10n);
+    final selected = selectedDestination(items, GoRouterState.of(context).matchedLocation);
 
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.adminTitle),
         actions: [
-          if (email.isNotEmpty) Padding(padding: const EdgeInsets.only(right: 12), child: Center(child: Text(email))),
-          IconButton(
-            tooltip: l10n.logout,
-            icon: const Icon(Icons.logout),
-            onPressed: () => ref.read(authProvider.notifier).logout(),
-          ),
+          if (email.isNotEmpty && wide) Padding(padding: const EdgeInsets.only(right: 12), child: Center(child: Text(email))),
+          IconButton(tooltip: l10n.homeLink, icon: const Icon(Icons.public), onPressed: () => context.go('/')),
+          IconButton(tooltip: l10n.logout, icon: const Icon(Icons.logout), onPressed: () => ref.read(authProvider.notifier).logout()),
         ],
       ),
-      body: body,
+      body: wide
+          ? Row(
+              children: [
+                NavigationRail(
+                  selectedIndex: selected,
+                  labelType: NavigationRailLabelType.all,
+                  onDestinationSelected: (i) => context.go(items[i].path),
+                  destinations: [for (final d in items) NavigationRailDestination(icon: Icon(d.icon), label: Text(d.label))],
+                ),
+                const VerticalDivider(width: 1),
+                Expanded(child: child),
+              ],
+            )
+          : child,
+      bottomNavigationBar: wide
+          ? null
+          : NavigationBar(
+              selectedIndex: selected,
+              onDestinationSelected: (i) => context.go(items[i].path),
+              destinations: [for (final d in items) NavigationDestination(icon: Icon(d.icon), label: d.label)],
+            ),
     );
   }
 }

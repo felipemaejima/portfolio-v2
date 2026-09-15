@@ -6,6 +6,7 @@ import '../../features/admin_shell/presentation/admin_dashboard_page.dart';
 import '../../features/admin_shell/presentation/admin_shell_page.dart';
 import '../../features/admin_shell/presentation/login_page.dart';
 import '../../features/home/presentation/home_page.dart';
+import '../../features/profile/presentation/admin/profile_form_page.dart';
 import '../auth/auth_notifier.dart';
 import '../auth/auth_state.dart';
 
@@ -41,6 +42,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (_, _, child) => AdminShellPage(child: child),
         routes: [
           GoRoute(path: '/admin', builder: (_, _) => const AdminDashboardPage()),
+          GoRoute(path: '/admin/profile', builder: (_, _) => const ProfileFormPage()),
         ],
       ),
     ],

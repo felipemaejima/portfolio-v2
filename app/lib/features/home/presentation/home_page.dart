@@ -1,25 +1,142 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:url_launcher/url_launcher.dart';
 
+import '../../../core/config/app_config.dart';
+import '../../../core/ui/async_value_view.dart';
+import '../../../core/ui/breakpoints.dart';
+import '../../../core/ui/theme.dart';
 import '../../../l10n/generated/app_localizations.dart';
+import '../../profile/application/profile_provider.dart';
+import '../../profile/presentation/about_section.dart';
+import '../../profile/presentation/hero_section.dart';
 
-/// Placeholder da fase 0; a home real chega com as features (APP.md §9).
-class HomePage extends StatelessWidget {
+/// Âncoras da home; as seções entram conforme as features chegam (APP.md §9).
+enum HomeAnchor { about, projects, skills, experience, education, offerings, contact }
+
+class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
+
+  @override
+  ConsumerState<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends ConsumerState<HomePage> {
+  final _keys = {for (final a in HomeAnchor.values) a: GlobalKey()};
+
+  void _scrollTo(HomeAnchor anchor) {
+    final ctx = _keys[anchor]!.currentContext;
+    if (ctx != null) {
+      Scrollable.ensureVisible(ctx, duration: const Duration(milliseconds: 400), curve: Curves.easeInOut);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final profile = ref.watch(profileProvider);
+    final name = profile.value?.name ?? '';
+
+    return Scaffold(
+      body: CustomScrollView(
+        slivers: [
+          SliverAppBar(
+            pinned: true,
+            titleSpacing: Breakpoints.isWide(context) ? 64 : 20,
+            title: Text(name, style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
+            actions: [_Nav(onSelect: _scrollTo), const SizedBox(width: 8)],
+          ),
+          SliverToBoxAdapter(
+            child: AsyncValueView(
+              value: profile,
+              onRetry: () => ref.invalidate(profileProvider),
+              data: (p) => Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  HeroSection(
+                    profile: p,
+                    onSeeProjects: () => _scrollTo(HomeAnchor.projects),
+                    onContact: () => _scrollTo(HomeAnchor.contact),
+                  ),
+                  KeyedSubtree(key: _keys[HomeAnchor.about], child: AboutSection(profile: p)),
+                  for (final a in HomeAnchor.values.skip(1)) KeyedSubtree(key: _keys[a], child: const SizedBox.shrink()),
+                  _Footer(name: p.name),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _Nav extends StatelessWidget {
+  const _Nav({required this.onSelect});
+  final void Function(HomeAnchor) onSelect;
+
+  static List<(HomeAnchor, String)> _items(AppLocalizations l10n) => [
+        (HomeAnchor.about, l10n.navAbout),
+        (HomeAnchor.projects, l10n.navProjects),
+        (HomeAnchor.skills, l10n.navSkills),
+        (HomeAnchor.experience, l10n.navExperience),
+        (HomeAnchor.education, l10n.navEducation),
+        (HomeAnchor.offerings, l10n.navOfferings),
+        (HomeAnchor.contact, l10n.navContact),
+      ];
+
+  static Future<void> _downloadCv() =>
+      launchUrl(Uri.parse('${AppConfig.apiBaseUrl}/api/v1/cv'), mode: LaunchMode.externalApplication);
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    return Scaffold(
-      body: Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(l10n.homePlaceholder, style: Theme.of(context).textTheme.headlineSmall),
-            const SizedBox(height: 16),
-            TextButton(onPressed: () => context.go('/admin'), child: Text(l10n.adminTitle)),
-          ],
-        ),
+    final cv = OutlinedButton(onPressed: _downloadCv, child: Text(l10n.downloadCv));
+
+    if (!Breakpoints.isWide(context)) {
+      return Row(
+        children: [
+          cv,
+          PopupMenuButton<HomeAnchor>(
+            icon: const Icon(Icons.menu),
+            onSelected: onSelect,
+            itemBuilder: (_) => [for (final (a, label) in _items(l10n)) PopupMenuItem(value: a, child: Text(label))],
+          ),
+        ],
+      );
+    }
+    return Row(
+      children: [
+        for (final (a, label) in _items(l10n))
+          TextButton(
+            onPressed: () => onSelect(a),
+            style: TextButton.styleFrom(foregroundColor: AppColors.text),
+            child: Text(label),
+          ),
+        const SizedBox(width: 16),
+        cv,
+        const SizedBox(width: 56),
+      ],
+    );
+  }
+}
+
+class _Footer extends StatelessWidget {
+  const _Footer({required this.name});
+  final String name;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final style = Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.neutral500);
+    return Padding(
+      padding: Breakpoints.pagePadding(context).copyWith(top: 32, bottom: 32),
+      child: Wrap(
+        alignment: WrapAlignment.spaceBetween,
+        runSpacing: 8,
+        children: [
+          Text('© ${DateTime.now().year} $name', style: style),
+          Text(l10n.footerMadeWith, style: style),
+        ],
       ),
     );
   }
