@@ -273,9 +273,9 @@ explícito na API. Como só existe um Admin, não há `403` por falta de permiss
 ## 6. Ordenação e paginação
 
 - **Sem paginação.** Volume de portfólio é pequeno e limitado por natureza.
-- **Cronológicas:** `experiences` por `endDate` nulo primeiro, depois
-  `startDate` desc; `educations` por `endYear` nulo primeiro, depois
-  `startYear` desc. `contact-messages` por `createdAt` desc.
+- **Cronológicas:** `experiences` por `endDate` nulo primeiro (atual),
+  depois `endDate` desc, depois `startDate` desc; `educations` idem com
+  `endYear`/`startYear`. `contact-messages` por `createdAt` desc.
 - **Editoriais (`position` asc):** `projects`, `projects/{id}/images`,
   `skill-categories`, `skills` (dentro da categoria), `offerings`,
   `contact-links`.

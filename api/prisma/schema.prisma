@@ -158,3 +158,50 @@ model Skill {
   @@index([categoryId, position])
   @@map("skills")
 }
+
+// ---------- Experience (fase 5) ----------
+
+model Experience {
+  id          String   @id @default(uuid()) @db.Uuid
+  role        String
+  companyName String   @map("company_name")
+  /// itens; viram bullets no CV
+  activities  String[] @default([])
+  /// "YYYY-MM"
+  startDate   String   @map("start_date") @db.VarChar(7)
+  /// "YYYY-MM"; null = atual
+  endDate     String?  @map("end_date") @db.VarChar(7)
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt   DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  @@map("experiences")
+}
+
+// ---------- Education (fase 6) ----------
+
+model Education {
+  id          String   @id @default(uuid()) @db.Uuid
+  courseName  String   @map("course_name")
+  institution String
+  startYear   Int      @map("start_year")
+  /// null = em andamento
+  endYear     Int?     @map("end_year")
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt   DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  @@map("educations")
+}
+
+// ---------- Offering (fase 7) ----------
+
+model Offering {
+  id          String   @id @default(uuid()) @db.Uuid
+  title       String
+  description String
+  position    Int
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt   DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  @@index([position])
+  @@map("offerings")
+}
