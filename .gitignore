@@ -32,3 +32,6 @@ app/lib/l10n/generated/
 
 # IDE
 app/*.iml
+
+# dumps locais (make db-backup / uploads-backup)
+backups/

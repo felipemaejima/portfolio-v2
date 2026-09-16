@@ -1,6 +1,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- O app é um cliente da API: precisa de rede em todos os builds (o template
+         do Flutter só declara INTERNET em debug/profile). -->
+    <uses-permission android:name="android.permission.INTERNET" />
     <application
-        android:label="portfolio_app"
+        android:label="Portfólio Admin"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

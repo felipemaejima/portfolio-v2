@@ -3,10 +3,14 @@
  * ambiente (upsert por e-mail; a senha é re-hasheada a cada execução) e o
  * Profile singleton vazio. Não há rota de registro — este é o único caminho
  * para criar o Admin.
+ *
+ * Dev: `pnpm prisma db seed` (tsx src/seed.ts). Prod: o entrypoint roda
+ * `node dist/seed.js` após as migrations, a cada boot — trocar
+ * ADMIN_PASSWORD no .env e reiniciar rotaciona a senha.
  */
 import { PrismaPg } from '@prisma/adapter-pg';
 import argon2 from 'argon2';
-import { PrismaClient } from '../src/generated/prisma/client.js';
+import { PrismaClient } from './generated/prisma/client.js';
 
 const email = process.env['ADMIN_EMAIL'];
 const password = process.env['ADMIN_PASSWORD'];

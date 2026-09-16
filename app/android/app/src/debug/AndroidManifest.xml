@@ -1,4 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Necessário ao hot reload / debugger do Flutter (template). -->
+    <uses-permission android:name="android.permission.INTERNET" />
     <!-- Só no build de debug: permite http://<ip-da-máquina> (INFRA.md §6).
          Release continua https-only. -->
     <application android:usesCleartextTraffic="true" />

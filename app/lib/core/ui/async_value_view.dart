@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -30,6 +31,11 @@ class AsyncValueView<T> extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(failureText(l10n, error), textAlign: TextAlign.center),
+              if (kDebugMode) ...[
+                const SizedBox(height: 8),
+                // Só em debug: a causa técnica (ex.: DioException connection error), para diagnosticar no aparelho.
+                Text('$error', textAlign: TextAlign.center, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Theme.of(context).colorScheme.error)),
+              ],
               if (onRetry != null) ...[
                 const SizedBox(height: 12),
                 OutlinedButton(onPressed: onRetry, child: Text(l10n.retry)),

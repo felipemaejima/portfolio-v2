@@ -21,9 +21,10 @@ edita tudo.
 Arquitetura: **monorepo** com dois artefatos independentes:
 
 - **`api/`** — API REST em **NestJS** (TypeScript), PostgreSQL via Prisma.
-- **`app/`** — **um único app Flutter** que contém a área pública e o painel
-  admin, entregue como **Flutter Web** e como app **Android**; iOS é fase
-  posterior (ADR 0001).
+- **`app/`** — **um único app Flutter**: no **web** contém a área pública e o
+  painel admin (é o artefato hospedado); no **Android** é só o painel admin,
+  instalado por APK para uso próprio, sem loja (ADR 0001, emenda). iOS fora
+  do escopo.
 
 Não há SSR nem site indexável: o link do portfólio é compartilhado
 diretamente. A API é a única fonte de dados; o app não tem estado próprio além
@@ -52,7 +53,7 @@ ADR, o ADR é a fonte; a linha aqui é só o resumo.
 
 | # | Decisão | Fonte |
 |---|---------|-------|
-| AD-1 | **Um app Flutter para público + admin, web + mobile; SEO zero aceito.** | [ADR 0001](../docs/adr/0001-flutter-unico-para-publico-e-admin.md) |
+| AD-1 | **Um app Flutter: web = público + admin (hospedado); Android = só admin, APK próprio. SEO zero aceito.** | [ADR 0001](../docs/adr/0001-flutter-unico-para-publico-e-admin.md) |
 | AD-2 | **Só o Admin autentica.** Não há registro, outros papéis nem campo `role`. Autenticado ⇔ Admin. | CONTEXT.md |
 | AD-3 | **JWT access + refresh rotativo.** Refresh em cookie httpOnly no web, no body no mobile. Web e API same-site. | [ADR 0002](../docs/adr/0002-jwt-com-refresh-rotativo-e-cookie-so-no-web.md) |
 | AD-4 | **Versionamento sob `/api/v1`.** | — |

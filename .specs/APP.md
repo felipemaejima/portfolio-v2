@@ -21,8 +21,11 @@
   `flutter test`, builds — tudo via `docker compose run --rm app …`.
 - Lint: `flutter_lints` + regras estritas (`prefer_final_locals`,
   `always_declare_return_types`, `avoid_dynamic_calls`).
-- **Sem iOS na v2** (ADR 0001, decisão de plataformas), mas **sem dependência
-  que não tenha suporte iOS**: quando iOS entrar, é build, não refatoração.
+- **Mobile = painel admin** (ADR 0001, emenda): no Android o app abre em
+  `/admin` e as rotas públicas redirecionam para lá; "Ver o site" só existe
+  no web. Distribuição por APK (`make build-apk`), sem loja.
+- **Sem iOS**, mas **sem dependência que não tenha suporte iOS**: se um dia
+  entrar, é build, não refatoração.
 
 ---
 
@@ -191,6 +194,8 @@ abstract class TokenStore {
   boot de auth terminar.
 - Web: `usePathUrlStrategy()` — URLs sem `#`. Exige fallback para
   `index.html` na borda (`INFRA.md`).
+- Mobile: `initialLocation` é `/admin` e qualquer rota fora de `/admin` redireciona
+  para lá (`kIsWeb` decide).
 - Guarda: `routerProvider` cria o `GoRouter` uma vez e usa um
   `ChangeNotifier` como `refreshListenable`, pingado via `ref.listen` no
   `authProvider` — o roteador não é recriado (não perde navegação) e o
@@ -278,13 +283,14 @@ Só tema escuro na v2.
   permissão `INTERNET`. `usesCleartextTraffic=true` **só no manifesto de
   debug** (`android/app/src/debug/`), para o `http://<ip>` de dev; release
   continua https-only.
-- Release: `flutter build appbundle --dart-define=API_BASE_URL=https://<dom>`.
-  Keystore e senhas via secrets de CI, nunca no repositório (`INFRA.md`).
+- Release: `make build-apk API_BASE_URL=https://<dom>` (`--split-per-abi`;
+  instala-se o `arm64-v8a`). Assinatura de debug basta: o APK é de uso
+  próprio, sem loja. `build-aab` existe só por precaução.
 - Dev: `flutter run` em **dispositivo físico via ADB Wi-Fi** a partir do
   container do toolchain (ADR 0005). Emulador não faz parte do fluxo.
 
-### iOS (fase posterior)
-Sem trabalho agora. Restrição vigente: nenhuma dependência sem suporte iOS.
+### iOS
+Fora do escopo. Restrição vigente: nenhuma dependência sem suporte iOS.
 
 ---
 
@@ -342,5 +348,8 @@ Botão público.
 `index.html` com OG, splash, build via compose, servido pelo Caddy
 (`INFRA.md`). Teste manual de cookie/refresh em produção.
 
-### Fase 10 — Android release
-Assinatura, `.aab`, Play Console (trilha interna primeiro).
+### Fase 10 — Android
+APK de uso próprio (`make build-apk`), sem loja. `gradle.properties` com
+heap para máquinas reais; `INTERNET` declarado no manifesto principal (o
+template do Flutter só declara em debug/profile — sem isso o release não
+tem rede).

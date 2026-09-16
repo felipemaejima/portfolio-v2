@@ -33,7 +33,7 @@ origem para app e API (requisito do cookie de refresh, ADR 0002).
 | Serviço | Dev | Prod |
 |---------|-----|------|
 | `edge` | `caddy:2`, `Caddyfile.dev`, `:80` | imagem própria: build do Flutter Web copiado para `/srv`, `Caddyfile.prod`, TLS automático |
-| `api` | `api/Dockerfile` target `dev`, bind mount `./api`, `pnpm start:dev` | target `prod`, `node dist/main.js`, `prisma migrate deploy` no entrypoint |
+| `api` | `api/Dockerfile` target `dev`, bind mount `./api`, `pnpm start:dev` | target `prod`; entrypoint: `prisma migrate deploy` → `node dist/seed.js` (admin idempotente) → `node dist/main.js` |
 | `db` | `postgres:16-alpine`, volume `pgdata`, init script cria `portfolio` e `portfolio_test` | idem, sem `portfolio_test` |
 | `app` | `tools/flutter/Dockerfile` sobre `ghcr.io/cirruslabs/flutter:<FLUTTER_VERSION>`, bind mount `./app`, `flutter run -d web-server --web-port 8080 --web-hostname 0.0.0.0` | **não existe** — o build web vai para dentro da imagem do `edge`; o `.aab` é produzido pelo mesmo toolchain no CI |
 
@@ -61,7 +61,13 @@ O Android em dev acessa `http://<ip-da-máquina>` (a borda). Em release acessa
 └── app/                          # projeto Flutter (sem Dockerfile próprio)
 ```
 
-### `Caddyfile` (essência, igual em dev e prod salvo TLS)
+### `Caddyfile` (essência, igual em dev e prod salvo TLS e headers)
+
+Prod acrescenta `header { Strict-Transport-Security, X-Content-Type-Options,
+X-Frame-Options DENY, Referrer-Policy, Permissions-Policy, -Server }`. Sem
+CSP: o Flutter Web carrega CanvasKit de gstatic e usa script inline no
+`index.html`. A API adiciona os headers do `helmet` (sem CSP e sem HSTS,
+que é do Caddy).
 ```
 {$SITE_ADDRESS}
 
@@ -161,8 +167,11 @@ Fonte única. `API.md` e `APP.md` referenciam esta tabela.
 | `API_BASE_URL` | app (dart-define) | *(vazio)* | **origem** da API, sem path (os paths gerados já têm `/api/v1`). Web: vazio = mesma origem. Android: `http://<ip-da-máquina>` em dev, `https://<domínio>` em release |
 | `FLUTTER_VERSION` | app, edge | `3.44.0` | tag da imagem `cirruslabs/flutter`; subir de versão é um PR (ver §8) |
 
-Segredos de prod ficam num `.env` no servidor, fora do git. Segredos de
-release Android (keystore, senhas) ficam em secrets do CI.
+Segredos de prod ficam num `.env` no servidor, fora do git. **A API recusa
+subir em `NODE_ENV=production`** com placeholder em `JWT_ACCESS_SECRET` ou
+`ADMIN_PASSWORD`, `COOKIE_SECURE=false` ou `PUBLIC_UPLOADS_BASE_URL` sem
+https (`config.schema.ts`). `make secret` gera um segredo aleatório; `make
+setup` já preenche o do JWT.
 
 ---
 
@@ -227,7 +236,7 @@ Os jobs usam os **mesmos containers** do compose; nenhum `setup-node` /
 | `api` | `docker compose build api` → `run --rm api pnpm lint` → `pnpm test` → sobe `db` → `pnpm test:e2e` → `pnpm openapi:emit` + `git diff --exit-code api/openapi.json` |
 | `app` | `run --rm app flutter analyze` → `flutter test` → `git diff --exit-code app/lib/api` (cliente gerado em dia) |
 | `release-web` (tag) | `build edge` → push da imagem para o registry → deploy |
-| `release-android` (tag) | `flutter build appbundle` com keystore dos secrets → artefato `.aab` (upload à Play é manual na v2) |
+| `release-android` | não existe: o APK é de uso próprio, gerado localmente com `make build-apk` |
 
 Deploy: servidor com Docker; `docker compose pull && up -d` via SSH no job de
 release. Migrations rodam no entrypoint da API (idempotente).

@@ -1,5 +1,5 @@
 ---
-status: accepted
+status: accepted (emendado em 2026-09-16)
 ---
 
 # Um único app Flutter (público + admin) para web e mobile, aceitando SEO zero
@@ -29,3 +29,13 @@ de link são resolvidos por meta tags estáticas no `index.html` do build web.
   tratar splash/loading como parte do design, não como acidente.
 - A API é consumida por um único cliente com dois modos (visitante / admin), o
   que simplifica versionamento de contrato: não há cliente legado a preservar.
+
+## Emenda (2026-09-16)
+
+Depois de usar o app: **o mobile é só o painel admin**, para uso próprio,
+distribuído por APK — não vai para loja. Só o web é hospedado, e é ele que
+tem a área pública. Continua um único codebase: no web o app abre na home
+pública; no Android abre direto em `/admin` e as rotas públicas redirecionam
+para lá. O que muda na prática: nada de Play Console, `applicationId` e
+assinatura são de uso interno, e o `API_BASE_URL` do APK aponta para o
+domínio hospedado.

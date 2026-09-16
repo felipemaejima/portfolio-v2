@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { configSchema } from './config.schema.js';
+import { configSchemaWithProductionRules } from './config.schema.js';
 
 /**
  * Variáveis vêm do ambiente do container (compose), nunca de arquivo .env
@@ -11,7 +11,7 @@ import { configSchema } from './config.schema.js';
     ConfigModule.forRoot({
       isGlobal: true,
       ignoreEnvFile: true,
-      validationSchema: configSchema,
+      validationSchema: configSchemaWithProductionRules,
     }),
   ],
 })

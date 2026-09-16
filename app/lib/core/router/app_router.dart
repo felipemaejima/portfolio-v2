@@ -24,13 +24,14 @@ import '../auth/auth_notifier.dart';
 import '../auth/auth_state.dart';
 
 /// Rotas (APP.md §5). `/admin/**` exige sessão; `/admin/login` com sessão volta ao painel.
+/// No mobile o app é só o painel: abre em `/admin` e as rotas públicas redirecionam para lá.
 final routerProvider = Provider<GoRouter>((ref) {
   final authChanged = _AuthChanged();
   ref.listen(authProvider, (_, _) => authChanged.ping());
   ref.onDispose(authChanged.dispose);
 
   return GoRouter(
-    initialLocation: '/',
+    initialLocation: kIsWeb ? '/' : '/admin',
     refreshListenable: authChanged,
     redirect: (context, state) {
       final auth = ref.read(authProvider);
@@ -39,6 +40,8 @@ final routerProvider = Provider<GoRouter>((ref) {
       final location = state.matchedLocation;
       final isLogin = location == '/admin/login';
       final isAdmin = location.startsWith('/admin');
+
+      if (!kIsWeb && !isAdmin) return '/admin';
 
       if (isAdmin && !isLogin && !loggedIn) {
         return Uri(path: '/admin/login', queryParameters: {'from': state.uri.toString()}).toString();

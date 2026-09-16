@@ -36,3 +36,25 @@ export const configSchema = z.object({
 });
 
 export type AppConfig = z.infer<typeof configSchema>;
+
+/** Valores que o .env.example traz de fábrica: aceitos em dev, proibidos em produção. */
+const PLACEHOLDER = /troque/i;
+
+/**
+ * Regras que só fazem sentido em produção. Falham o boot em vez de subir
+ * uma API com segredo de exemplo, senha de exemplo ou cookie sem `Secure`.
+ */
+export const configSchemaWithProductionRules = configSchema.superRefine((env, ctx) => {
+  if (env.NODE_ENV !== 'production') return;
+  const fail = (path: keyof AppConfig, message: string) =>
+    ctx.addIssue({ code: 'custom', path: [path], message });
+
+  if (PLACEHOLDER.test(env.JWT_ACCESS_SECRET))
+    fail('JWT_ACCESS_SECRET', 'segredo de exemplo em produção');
+  if (PLACEHOLDER.test(env.ADMIN_PASSWORD)) fail('ADMIN_PASSWORD', 'senha de exemplo em produção');
+  if (!env.COOKIE_SECURE)
+    fail('COOKIE_SECURE', 'deve ser true em produção (cookie de refresh só via HTTPS)');
+  if (!env.PUBLIC_UPLOADS_BASE_URL.startsWith('https://')) {
+    fail('PUBLIC_UPLOADS_BASE_URL', 'deve ser https:// em produção');
+  }
+});

@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -27,7 +28,7 @@ class AdminShellPage extends ConsumerWidget {
         title: Text(l10n.adminTitle),
         actions: [
           if (email.isNotEmpty && wide) Padding(padding: const EdgeInsets.only(right: 12), child: Center(child: Text(email))),
-          IconButton(tooltip: l10n.homeLink, icon: const Icon(Icons.public), onPressed: () => context.go('/')),
+          if (kIsWeb) IconButton(tooltip: l10n.homeLink, icon: const Icon(Icons.public), onPressed: () => context.go('/')),
           IconButton(tooltip: l10n.logout, icon: const Icon(Icons.logout), onPressed: () => ref.read(authProvider.notifier).logout()),
         ],
       ),

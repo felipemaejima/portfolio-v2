@@ -40,8 +40,12 @@ jobs:
         run: |
           docker compose -f docker-compose.yml -f docker-compose.prod.yml build api
           docker compose up -d db
+          # Valores válidos de produção: a API recusa placeholders do .env.example.
           docker run --rm -d --name api-prod --network portfolio_default \
             --env-file .env -e NODE_ENV=production -e COOKIE_SECURE=true \
+            -e JWT_ACCESS_SECRET=$(head -c 48 /dev/urandom | base64 | tr -d '\n') \
+            -e ADMIN_PASSWORD=senha-de-ci-nao-usada-em-lugar-nenhum \
+            -e PUBLIC_UPLOADS_BASE_URL=https://ci.example/uploads \
             -e DATABASE_URL=postgresql://portfolio:portfolio@db:5432/portfolio_test \
             -p 3100:3000 portfolio-api:latest
           for i in $(seq 1 30); do curl -sf http://localhost:3100/api/v1/health && break; sleep 1; done

@@ -2,7 +2,7 @@
 
 Portfólio profissional de uma única pessoa, com área pública de leitura e um
 painel de administração para editar todo o conteúdo. Um único cliente (app
-Flutter) serve as duas áreas.
+Flutter): no web serve as duas áreas; no celular só o painel.
 
 ## Language
 
