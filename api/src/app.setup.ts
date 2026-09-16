@@ -20,6 +20,8 @@ export function configureApp<T extends INestApplication>(app: T): T {
   // Headers de segurança. CSP desligado: a API só responde JSON/PDF e a
   // Swagger UI (dev) usa scripts inline; HSTS vem do Caddy (INFRA.md).
   app.use(helmet({ contentSecurityPolicy: false, hsts: false }));
+  // helmet 8 não remove mais o X-Powered-By.
+  (app as unknown as NestExpressApplication).disable('x-powered-by');
   app.use(cookieParser());
   // Atrás do Caddy (rede do compose) o IP do cliente vem de X-Forwarded-For.
   (app as unknown as NestExpressApplication).set('trust proxy', 'loopback, linklocal, uniquelocal');
