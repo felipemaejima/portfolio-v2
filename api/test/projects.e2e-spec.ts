@@ -10,7 +10,7 @@ import { createTestApp } from './setup/create-test-app.js';
 import { adminToken } from './setup/login.js';
 
 const UPLOADS_DIR = process.env['UPLOADS_DIR']!;
-const BASE_URL = process.env['PUBLIC_UPLOADS_BASE_URL']!;
+const BASE_URL = '/uploads';
 const keyOf = (url: string) => url.slice(BASE_URL.length + 1);
 const exists = (file: string) =>
   access(file).then(

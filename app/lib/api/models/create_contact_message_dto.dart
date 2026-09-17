@@ -14,6 +14,7 @@ abstract class CreateContactMessageDto with _$CreateContactMessageDto {
     required String email,
     required String message,
   }) = _CreateContactMessageDto;
-  
-  factory CreateContactMessageDto.fromJson(Map<String, Object?> json) => _$CreateContactMessageDtoFromJson(json);
+
+  factory CreateContactMessageDto.fromJson(Map<String, Object?> json) =>
+      _$CreateContactMessageDtoFromJson(json);
 }

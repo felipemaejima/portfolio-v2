@@ -9,9 +9,9 @@ part 'skill_category_input_dto.g.dart';
 
 @Freezed()
 abstract class SkillCategoryInputDto with _$SkillCategoryInputDto {
-  const factory SkillCategoryInputDto({
-    required String name,
-  }) = _SkillCategoryInputDto;
-  
-  factory SkillCategoryInputDto.fromJson(Map<String, Object?> json) => _$SkillCategoryInputDtoFromJson(json);
+  const factory SkillCategoryInputDto({required String name}) =
+      _SkillCategoryInputDto;
+
+  factory SkillCategoryInputDto.fromJson(Map<String, Object?> json) =>
+      _$SkillCategoryInputDtoFromJson(json);
 }

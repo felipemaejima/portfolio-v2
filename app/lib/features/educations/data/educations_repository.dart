@@ -11,9 +11,14 @@ class EducationsRepository {
   final RestClient _api;
 
   Future<List<EducationDto>> list() => guard(_api.educations.listEducations);
-  Future<EducationDto> create(EducationInputDto body) => guard(() => _api.educations.createEducation(body: body));
-  Future<EducationDto> update(String id, EducationInputDto body) => guard(() => _api.educations.updateEducation(id: id, body: body));
-  Future<void> delete(String id) => guard(() => _api.educations.deleteEducation(id: id));
+  Future<EducationDto> create(EducationInputDto body) =>
+      guard(() => _api.educations.createEducation(body: body));
+  Future<EducationDto> update(String id, EducationInputDto body) =>
+      guard(() => _api.educations.updateEducation(id: id, body: body));
+  Future<void> delete(String id) =>
+      guard(() => _api.educations.deleteEducation(id: id));
 }
 
-final educationsRepositoryProvider = Provider<EducationsRepository>((ref) => EducationsRepository(ref.watch(restClientProvider)));
+final educationsRepositoryProvider = Provider<EducationsRepository>(
+  (ref) => EducationsRepository(ref.watch(restClientProvider)),
+);

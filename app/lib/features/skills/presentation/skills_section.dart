@@ -24,9 +24,12 @@ class SkillsSection extends ConsumerWidget {
           if (visible.isEmpty) return Text(l10n.emptyList);
           return LayoutBuilder(
             builder: (context, constraints) {
-              final columns = constraints.maxWidth >= 1000 ? 4 : (constraints.maxWidth >= 600 ? 2 : 1);
+              final columns = constraints.maxWidth >= 1000
+                  ? 4
+                  : (constraints.maxWidth >= 600 ? 2 : 1);
               const gap = 32.0;
-              final width = (constraints.maxWidth - gap * (columns - 1)) / columns;
+              final width =
+                  (constraints.maxWidth - gap * (columns - 1)) / columns;
               return Wrap(
                 spacing: gap,
                 runSpacing: gap,
@@ -39,10 +42,20 @@ class SkillsSection extends ConsumerWidget {
                         children: [
                           Text(
                             c.name.toUpperCase(),
-                            style: Theme.of(context).textTheme.labelSmall?.copyWith(color: AppColors.accent300, letterSpacing: 1.2),
+                            style: Theme.of(context).textTheme.labelSmall
+                                ?.copyWith(
+                                  color: AppColors.accent300,
+                                  letterSpacing: 1.2,
+                                ),
                           ),
                           const SizedBox(height: 12),
-                          Wrap(spacing: 8, runSpacing: 8, children: [for (final s in c.skills) TagChip(s.name)]),
+                          Wrap(
+                            spacing: 8,
+                            runSpacing: 8,
+                            children: [
+                              for (final s in c.skills) TagChip(s.name),
+                            ],
+                          ),
                         ],
                       ),
                     ),

@@ -103,7 +103,7 @@ dados** que os dois lados precisam concordar. Convenções:
 - `availability` — `Availability[]`
 - `workModes` — `WorkMode[]`
 - `languages` — `{ language: string, level: LanguageLevel }[]`
-- `imageUrl` — nullable; URL pública permanente
+- `imageUrl` — nullable; caminho público permanente (`/uploads/...`)
 
 **Project** *(coleção, ordenada por `position`)*
 - `name`
@@ -322,9 +322,11 @@ Toda resposta de erro tem o mesmo corpo, tipado no OpenAPI como
 - Entidades com imagem: `Profile` (uma) e `Project` (galeria).
 - Tipos aceitos: `image/jpeg`, `image/png`, `image/webp`. Tamanho máximo por
   arquivo: **5 MB**. Máximo de **12** imagens por projeto.
-- A API devolve sempre **URLs absolutas, públicas e permanentes**. A chave é
-  imutável: substituir a foto de perfil gera nova URL. O app pode cachear por
-  URL indefinidamente.
+- A API devolve **caminhos absolutos relativos à sua origem**
+  (`/uploads/<chave>`), públicos e permanentes; o cliente prefixa com a origem
+  que usa para falar com a API (mesma origem no web; `API_BASE_URL` no
+  Android). A chave é imutável: substituir a foto de perfil gera novo caminho.
+  O app pode cachear por URL indefinidamente.
 - Apagar a entidade (ou a imagem) apaga o arquivo.
 
 ---

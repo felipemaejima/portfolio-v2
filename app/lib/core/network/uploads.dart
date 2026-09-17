@@ -24,17 +24,26 @@ class Uploads {
   /// PUT /profile/image
   Future<ProfileDto> updateProfileImage(PickedImage image) async {
     final form = FormData.fromMap({'file': _part(image)});
-    final res = await _dio.put<Map<String, Object?>>('/api/v1/profile/image', data: form);
+    final res = await _dio.put<Map<String, Object?>>(
+      '/api/v1/profile/image',
+      data: form,
+    );
     return ProfileDto.fromJson(res.data!);
   }
 
   /// POST /projects/{id}/images
-  Future<ProjectDto> addProjectImages(String projectId, List<PickedImage> images) async {
+  Future<ProjectDto> addProjectImages(
+    String projectId,
+    List<PickedImage> images,
+  ) async {
     final form = FormData();
     for (final image in images) {
       form.files.add(MapEntry('files', _part(image)));
     }
-    final res = await _dio.post<Map<String, Object?>>('/api/v1/projects/$projectId/images', data: form);
+    final res = await _dio.post<Map<String, Object?>>(
+      '/api/v1/projects/$projectId/images',
+      data: form,
+    );
     return ProjectDto.fromJson(res.data!);
   }
 
@@ -42,4 +51,6 @@ class Uploads {
       MultipartFile.fromBytes(image.bytes, filename: image.filename);
 }
 
-final uploadsProvider = Provider<Uploads>((ref) => Uploads(ref.watch(dioProvider)));
+final uploadsProvider = Provider<Uploads>(
+  (ref) => Uploads(ref.watch(dioProvider)),
+);

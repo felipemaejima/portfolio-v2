@@ -13,16 +13,27 @@ class ContactRepository {
   ContactRepository(this._api);
   final RestClient _api;
 
-  Future<List<ContactLinkDto>> listLinks() => guard(_api.contact.listContactLinks);
-  Future<ContactLinkDto> createLink(ContactLinkInputDto body) => guard(() => _api.contact.createContactLink(body: body));
-  Future<ContactLinkDto> updateLink(String id, ContactLinkInputDto body) => guard(() => _api.contact.updateContactLink(id: id, body: body));
-  Future<void> deleteLink(String id) => guard(() => _api.contact.deleteContactLink(id: id));
-  Future<void> reorderLinks(List<String> ids) => guard(() => _api.contact.reorderContactLinks(body: ReorderDto(ids: ids)));
+  Future<List<ContactLinkDto>> listLinks() =>
+      guard(_api.contact.listContactLinks);
+  Future<ContactLinkDto> createLink(ContactLinkInputDto body) =>
+      guard(() => _api.contact.createContactLink(body: body));
+  Future<ContactLinkDto> updateLink(String id, ContactLinkInputDto body) =>
+      guard(() => _api.contact.updateContactLink(id: id, body: body));
+  Future<void> deleteLink(String id) =>
+      guard(() => _api.contact.deleteContactLink(id: id));
+  Future<void> reorderLinks(List<String> ids) =>
+      guard(() => _api.contact.reorderContactLinks(body: ReorderDto(ids: ids)));
 
-  Future<void> sendMessage(CreateContactMessageDto body) => guard(() => _api.contact.sendContactMessage(body: body));
-  Future<List<ContactMessageDto>> listMessages() => guard(_api.contact.listContactMessages);
-  Future<ContactMessageDto> markRead(String id) => guard(() => _api.contact.markContactMessageRead(id: id));
-  Future<void> deleteMessage(String id) => guard(() => _api.contact.deleteContactMessage(id: id));
+  Future<void> sendMessage(CreateContactMessageDto body) =>
+      guard(() => _api.contact.sendContactMessage(body: body));
+  Future<List<ContactMessageDto>> listMessages() =>
+      guard(_api.contact.listContactMessages);
+  Future<ContactMessageDto> markRead(String id) =>
+      guard(() => _api.contact.markContactMessageRead(id: id));
+  Future<void> deleteMessage(String id) =>
+      guard(() => _api.contact.deleteContactMessage(id: id));
 }
 
-final contactRepositoryProvider = Provider<ContactRepository>((ref) => ContactRepository(ref.watch(restClientProvider)));
+final contactRepositoryProvider = Provider<ContactRepository>(
+  (ref) => ContactRepository(ref.watch(restClientProvider)),
+);

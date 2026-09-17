@@ -16,6 +16,7 @@ abstract class LanguageDto with _$LanguageDto {
     required String language,
     required LanguageLevel level,
   }) = _LanguageDto;
-  
-  factory LanguageDto.fromJson(Map<String, Object?> json) => _$LanguageDtoFromJson(json);
+
+  factory LanguageDto.fromJson(Map<String, Object?> json) =>
+      _$LanguageDtoFromJson(json);
 }

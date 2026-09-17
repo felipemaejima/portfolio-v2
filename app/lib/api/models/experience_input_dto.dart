@@ -22,6 +22,7 @@ abstract class ExperienceInputDto with _$ExperienceInputDto {
     /// Mês/ano, `YYYY-MM`; null = atual.
     String? endDate,
   }) = _ExperienceInputDto;
-  
-  factory ExperienceInputDto.fromJson(Map<String, Object?> json) => _$ExperienceInputDtoFromJson(json);
+
+  factory ExperienceInputDto.fromJson(Map<String, Object?> json) =>
+      _$ExperienceInputDtoFromJson(json);
 }

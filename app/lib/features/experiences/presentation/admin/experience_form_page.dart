@@ -18,7 +18,12 @@ class ExperienceFormPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
-    if (id == null) return AdminPage(title: l10n.newExperience, child: const _Form(initial: null));
+    if (id == null) {
+      return AdminPage(
+        title: l10n.newExperience,
+        child: const _Form(initial: null),
+      );
+    }
     return AdminPage(
       title: l10n.editExperience,
       child: AsyncValueView(
@@ -26,7 +31,9 @@ class ExperienceFormPage extends ConsumerWidget {
         onRetry: () => ref.invalidate(experiencesProvider),
         data: (_) {
           final item = ref.watch(experienceByIdProvider(id!));
-          return item == null ? Text(l10n.notFound) : _Form(key: ValueKey(item.updatedAt), initial: item);
+          return item == null
+              ? Text(l10n.notFound)
+              : _Form(key: ValueKey(item.updatedAt), initial: item);
         },
       ),
     );
@@ -43,8 +50,12 @@ class _Form extends ConsumerStatefulWidget {
 
 class _FormState extends ConsumerState<_Form> {
   late final _role = TextEditingController(text: widget.initial?.role);
-  late final _company = TextEditingController(text: widget.initial?.companyName);
-  late final _activities = TextEditingController(text: widget.initial?.activities.join('\n'));
+  late final _company = TextEditingController(
+    text: widget.initial?.companyName,
+  );
+  late final _activities = TextEditingController(
+    text: widget.initial?.activities.join('\n'),
+  );
   late final _start = TextEditingController(text: widget.initial?.startDate);
   late final _end = TextEditingController(text: widget.initial?.endDate);
   FormErrors _errors = FormErrors.none;
@@ -67,7 +78,11 @@ class _FormState extends ConsumerState<_Form> {
     final input = ExperienceInputDto(
       role: _role.text.trim(),
       companyName: _company.text.trim(),
-      activities: _activities.text.split('\n').map((s) => s.trim()).where((s) => s.isNotEmpty).toList(),
+      activities: _activities.text
+          .split('\n')
+          .map((s) => s.trim())
+          .where((s) => s.isNotEmpty)
+          .toList(),
       startDate: _start.text.trim(),
       endDate: _end.text.trim().isEmpty ? null : _end.text.trim(),
     );
@@ -112,8 +127,21 @@ class _FormState extends ConsumerState<_Form> {
     );
   }
 
-  Widget _text(TextEditingController c, String label, String field, {int lines = 1}) => Padding(
-        padding: const EdgeInsets.only(bottom: 16),
-        child: TextField(controller: c, maxLines: lines, decoration: InputDecoration(labelText: label, errorText: _errors[field], alignLabelWithHint: lines > 1)),
-      );
+  Widget _text(
+    TextEditingController c,
+    String label,
+    String field, {
+    int lines = 1,
+  }) => Padding(
+    padding: const EdgeInsets.only(bottom: 16),
+    child: TextField(
+      controller: c,
+      maxLines: lines,
+      decoration: InputDecoration(
+        labelText: label,
+        errorText: _errors[field],
+        alignLabelWithHint: lines > 1,
+      ),
+    ),
+  );
 }

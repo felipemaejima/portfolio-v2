@@ -12,10 +12,16 @@ class OfferingsRepository {
   final RestClient _api;
 
   Future<List<OfferingDto>> list() => guard(_api.offerings.listOfferings);
-  Future<OfferingDto> create(OfferingInputDto body) => guard(() => _api.offerings.createOffering(body: body));
-  Future<OfferingDto> update(String id, OfferingInputDto body) => guard(() => _api.offerings.updateOffering(id: id, body: body));
-  Future<void> delete(String id) => guard(() => _api.offerings.deleteOffering(id: id));
-  Future<void> reorder(List<String> ids) => guard(() => _api.offerings.reorderOfferings(body: ReorderDto(ids: ids)));
+  Future<OfferingDto> create(OfferingInputDto body) =>
+      guard(() => _api.offerings.createOffering(body: body));
+  Future<OfferingDto> update(String id, OfferingInputDto body) =>
+      guard(() => _api.offerings.updateOffering(id: id, body: body));
+  Future<void> delete(String id) =>
+      guard(() => _api.offerings.deleteOffering(id: id));
+  Future<void> reorder(List<String> ids) =>
+      guard(() => _api.offerings.reorderOfferings(body: ReorderDto(ids: ids)));
 }
 
-final offeringsRepositoryProvider = Provider<OfferingsRepository>((ref) => OfferingsRepository(ref.watch(restClientProvider)));
+final offeringsRepositoryProvider = Provider<OfferingsRepository>(
+  (ref) => OfferingsRepository(ref.watch(restClientProvider)),
+);

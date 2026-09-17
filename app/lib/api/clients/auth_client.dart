@@ -18,21 +18,15 @@ abstract class AuthClient {
 
   /// Autentica o Admin. WEB recebe o refresh em cookie httpOnly; MOBILE, no body.
   @POST('/api/v1/auth/login')
-  Future<AuthTokensDto> login({
-    @Body() required LoginDto body,
-  });
+  Future<AuthTokensDto> login({@Body() required LoginDto body});
 
   /// Rotaciona o refresh (cookie primeiro, body como fallback) e devolve um par novo.
   @POST('/api/v1/auth/refresh')
-  Future<AuthTokensDto> refresh({
-    @Body() required RefreshDto body,
-  });
+  Future<AuthTokensDto> refresh({@Body() required RefreshDto body});
 
   /// Revoga a família do refresh atual e limpa o cookie.
   @POST('/api/v1/auth/logout')
-  Future<void> logout({
-    @Body() required RefreshDto body,
-  });
+  Future<void> logout({@Body() required RefreshDto body});
 
   /// O Admin autenticado. O app usa no boot para validar a sessão.
   @GET('/api/v1/auth/me')

@@ -14,9 +14,20 @@ import '../../application/projects_provider.dart';
 class ProjectsAdminPage extends ConsumerWidget {
   const ProjectsAdminPage({super.key});
 
-  Future<void> _delete(BuildContext context, WidgetRef ref, ProjectDto p) async {
+  Future<void> _delete(
+    BuildContext context,
+    WidgetRef ref,
+    ProjectDto p,
+  ) async {
     final l10n = AppLocalizations.of(context);
-    if (!await confirm(context, title: l10n.confirmDelete, confirmLabel: l10n.delete, cancelLabel: l10n.cancel)) return;
+    if (!await confirm(
+      context,
+      title: l10n.confirmDelete,
+      confirmLabel: l10n.delete,
+      cancelLabel: l10n.cancel,
+    )) {
+      return;
+    }
     try {
       await ref.read(projectsEditorProvider).delete(p.id);
     } on Object catch (e) {
@@ -30,7 +41,11 @@ class ProjectsAdminPage extends ConsumerWidget {
     return AdminPage(
       title: l10n.navProjects,
       actions: [
-        FilledButton.icon(onPressed: () => context.go('/admin/projects/new'), icon: const Icon(Icons.add), label: Text(l10n.newItem)),
+        FilledButton.icon(
+          onPressed: () => context.go('/admin/projects/new'),
+          icon: const Icon(Icons.add),
+          label: Text(l10n.newItem),
+        ),
       ],
       child: AsyncValueView(
         value: ref.watch(projectsProvider),
@@ -41,11 +56,21 @@ class ProjectsAdminPage extends ConsumerWidget {
           onReorder: ref.read(projectsEditorProvider).reorder,
           itemBuilder: (context, p) => ListTile(
             contentPadding: EdgeInsets.zero,
-            leading: CircleAvatar(backgroundColor: AppColors.surface2, child: Text('${p.images.length}')),
+            leading: CircleAvatar(
+              backgroundColor: AppColors.surface2,
+              child: Text('${p.images.length}'),
+            ),
             title: Text(p.name),
-            subtitle: Text('/${p.slug}', style: const TextStyle(color: AppColors.neutral500)),
+            subtitle: Text(
+              '/${p.slug}',
+              style: const TextStyle(color: AppColors.neutral500),
+            ),
             onTap: () => context.go('/admin/projects/${p.id}'),
-            trailing: IconButton(icon: const Icon(Icons.delete_outline), tooltip: l10n.delete, onPressed: () => _delete(context, ref, p)),
+            trailing: IconButton(
+              icon: const Icon(Icons.delete_outline),
+              tooltip: l10n.delete,
+              onPressed: () => _delete(context, ref, p),
+            ),
           ),
         ),
       ),

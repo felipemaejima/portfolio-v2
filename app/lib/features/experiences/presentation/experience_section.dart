@@ -39,14 +39,21 @@ class _Entry extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     final text = Theme.of(context).textTheme;
     final period = Text(
-      formatExperiencePeriod(experience.startDate, experience.endDate, current: l10n.periodCurrent),
+      formatExperiencePeriod(
+        experience.startDate,
+        experience.endDate,
+        current: l10n.periodCurrent,
+      ),
       style: text.bodySmall?.copyWith(color: AppColors.neutral500),
     );
     final body = Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(experience.role, style: text.titleMedium),
-        Text(experience.companyName, style: text.bodyMedium?.copyWith(color: AppColors.neutral400)),
+        Text(
+          experience.companyName,
+          style: text.bodyMedium?.copyWith(color: AppColors.neutral400),
+        ),
         const SizedBox(height: 8),
         for (final a in experience.activities)
           Padding(
@@ -54,8 +61,18 @@ class _Entry extends StatelessWidget {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('•  ', style: TextStyle(color: AppColors.neutral500)),
-                Expanded(child: Text(a, style: text.bodyMedium?.copyWith(color: AppColors.neutral300))),
+                const Text(
+                  '•  ',
+                  style: TextStyle(color: AppColors.neutral500),
+                ),
+                Expanded(
+                  child: Text(
+                    a,
+                    style: text.bodyMedium?.copyWith(
+                      color: AppColors.neutral300,
+                    ),
+                  ),
+                ),
               ],
             ),
           ),
@@ -64,8 +81,17 @@ class _Entry extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(bottom: 32),
       child: Breakpoints.isWide(context)
-          ? Row(crossAxisAlignment: CrossAxisAlignment.start, children: [SizedBox(width: 180, child: period), Expanded(child: body)])
-          : Column(crossAxisAlignment: CrossAxisAlignment.start, children: [period, const SizedBox(height: 6), body]),
+          ? Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SizedBox(width: 180, child: period),
+                Expanded(child: body),
+              ],
+            )
+          : Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [period, const SizedBox(height: 6), body],
+            ),
     );
   }
 }

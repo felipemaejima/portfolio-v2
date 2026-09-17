@@ -7,8 +7,7 @@ import { LocalDiskStorage } from './local-disk.storage.js';
 
 function makeStorage(root: string) {
   const config = {
-    get: (key: string) =>
-      ({ UPLOADS_DIR: root, PUBLIC_UPLOADS_BASE_URL: 'http://localhost/uploads/' })[key],
+    get: (key: string) => ({ UPLOADS_DIR: root })[key],
   } as unknown as ConfigService<AppConfig, true>;
   return new LocalDiskStorage(config);
 }
@@ -22,12 +21,12 @@ describe('LocalDiskStorage', () => {
     await rm(root, { recursive: true, force: true });
   });
 
-  it('grava sob o prefixo com chave uuid.ext e devolve URL pública', async () => {
+  it('grava sob o prefixo com chave uuid.ext e devolve o caminho público', async () => {
     const storage = makeStorage(root);
     const stored = await storage.put({ buffer: Buffer.from('png!'), mime: 'image/png' }, 'profile');
 
     expect(stored.key).toMatch(/^profile\/[0-9a-f-]{36}\.png$/);
-    expect(stored.url).toBe(`http://localhost/uploads/${stored.key}`);
+    expect(stored.url).toBe(`/uploads/${stored.key}`);
     expect(await readFile(path.join(root, stored.key), 'utf8')).toBe('png!');
   });
 

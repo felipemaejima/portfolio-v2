@@ -6,12 +6,12 @@ import '../auth/auth_notifier.dart';
 import '../config/app_config.dart';
 
 BaseOptions _baseOptions() => BaseOptions(
-      baseUrl: AppConfig.apiBaseUrl,
-      connectTimeout: const Duration(seconds: 10),
-      receiveTimeout: const Duration(seconds: 30),
-      // Web: cookie de refresh trafega (ADR 0002). Ignorado fora do browser.
-      extra: const {'withCredentials': true},
-    );
+  baseUrl: AppConfig.apiBaseUrl,
+  connectTimeout: const Duration(seconds: 10),
+  receiveTimeout: const Duration(seconds: 30),
+  // Web: cookie de refresh trafega (ADR 0002). Ignorado fora do browser.
+  extra: const {'withCredentials': true},
+);
 
 /// Dio "cru" para login/refresh/logout: sem bearer automático, sem retry.
 final authDioProvider = Provider<Dio>((ref) => Dio(_baseOptions()));
@@ -43,7 +43,9 @@ final dioProvider = Provider<Dio>((ref) {
           return handler.next(error);
         }
 
-        final token = await ref.read(authProvider.notifier).refreshAccessToken();
+        final token = await ref
+            .read(authProvider.notifier)
+            .refreshAccessToken();
         if (token == null) return handler.next(error);
 
         options.extra['retried'] = true;

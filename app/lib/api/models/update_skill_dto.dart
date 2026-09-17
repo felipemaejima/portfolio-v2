@@ -13,6 +13,7 @@ abstract class UpdateSkillDto with _$UpdateSkillDto {
     required String name,
     required String categoryId,
   }) = _UpdateSkillDto;
-  
-  factory UpdateSkillDto.fromJson(Map<String, Object?> json) => _$UpdateSkillDtoFromJson(json);
+
+  factory UpdateSkillDto.fromJson(Map<String, Object?> json) =>
+      _$UpdateSkillDtoFromJson(json);
 }

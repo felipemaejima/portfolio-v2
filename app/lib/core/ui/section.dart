@@ -5,7 +5,12 @@ import 'theme.dart';
 
 /// Uma seção da home: título opcional, padding responsivo e divisor.
 class Section extends StatelessWidget {
-  const Section({required this.child, this.title, this.divider = true, super.key});
+  const Section({
+    required this.child,
+    this.title,
+    this.divider = true,
+    super.key,
+  });
 
   final String? title;
   final Widget child;
@@ -46,7 +51,12 @@ class _GradientDivider extends StatelessWidget {
       margin: EdgeInsets.symmetric(horizontal: inset),
       decoration: const BoxDecoration(
         gradient: LinearGradient(
-          colors: [Colors.transparent, AppColors.divider, AppColors.divider, Colors.transparent],
+          colors: [
+            Colors.transparent,
+            AppColors.divider,
+            AppColors.divider,
+            Colors.transparent,
+          ],
           stops: [0, 0.08, 0.92, 1],
         ),
       ),
@@ -61,9 +71,12 @@ class Eyebrow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Text(
-        text.toUpperCase(),
-        style: Theme.of(context).textTheme.labelSmall?.copyWith(color: AppColors.neutral500, letterSpacing: 1.2),
-      );
+    text.toUpperCase(),
+    style: Theme.of(context).textTheme.labelSmall?.copyWith(
+      color: AppColors.neutral500,
+      letterSpacing: 1.2,
+    ),
+  );
 }
 
 /// Chip de texto (skills, tecnologias).
@@ -73,8 +86,11 @@ class TagChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
-        decoration: BoxDecoration(color: AppColors.surface, borderRadius: BorderRadius.circular(6)),
-        child: Text(text, style: Theme.of(context).textTheme.bodySmall),
-      );
+    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+    decoration: BoxDecoration(
+      color: AppColors.surface,
+      borderRadius: BorderRadius.circular(6),
+    ),
+    child: Text(text, style: Theme.of(context).textTheme.bodySmall),
+  );
 }

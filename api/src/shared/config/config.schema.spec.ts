@@ -3,7 +3,6 @@ import { configSchemaWithProductionRules } from './config.schema.js';
 const base = {
   DATABASE_URL: 'postgresql://u:p@db:5432/x',
   JWT_ACCESS_SECRET: 'a'.repeat(40),
-  PUBLIC_UPLOADS_BASE_URL: 'https://portfolio.example/uploads',
   ADMIN_EMAIL: 'admin@example.com',
   ADMIN_PASSWORD: 'senha-forte-de-verdade',
   COOKIE_SECURE: 'true',
@@ -20,10 +19,10 @@ describe('regras de produção do .env', () => {
       issues({
         ...base,
         NODE_ENV: 'development',
+        DATABASE_URL: 'postgresql://portfolio:portfolio@db:5432/portfolio',
         JWT_ACCESS_SECRET: 'troque-por-32-bytes-aleatorios-em-base64',
         ADMIN_PASSWORD: 'troque-esta-senha',
         COOKIE_SECURE: 'false',
-        PUBLIC_UPLOADS_BASE_URL: 'http://localhost/uploads',
       }),
     ).toEqual([]);
   });
@@ -36,9 +35,9 @@ describe('regras de produção do .env', () => {
         JWT_ACCESS_SECRET: 'troque-por-32-bytes-aleatorios-em-base64',
         ADMIN_PASSWORD: 'troque-esta-senha',
         COOKIE_SECURE: 'false',
-        PUBLIC_UPLOADS_BASE_URL: 'http://localhost/uploads',
+        DATABASE_URL: 'postgresql://portfolio:portfolio@db:5432/portfolio',
       }).sort(),
-    ).toEqual(['ADMIN_PASSWORD', 'COOKIE_SECURE', 'JWT_ACCESS_SECRET', 'PUBLIC_UPLOADS_BASE_URL']);
+    ).toEqual(['ADMIN_PASSWORD', 'COOKIE_SECURE', 'DATABASE_URL', 'JWT_ACCESS_SECRET']);
   });
 
   it('em production um .env correto passa', () => {

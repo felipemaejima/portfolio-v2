@@ -19,16 +19,22 @@ void main(List<String> args) {
     final operations = entry.value as Map<String, dynamic>;
     for (final method in operations.keys.toList()) {
       final op = operations[method] as Map<String, dynamic>;
-      final content = (op['requestBody'] as Map<String, dynamic>?)?['content'] as Map<String, dynamic>?;
+      final content =
+          (op['requestBody'] as Map<String, dynamic>?)?['content']
+              as Map<String, dynamic>?;
       if (content != null && content.containsKey('multipart/form-data')) {
-        removed.add('${method.toUpperCase()} ${entry.key} (${op['operationId']})');
+        removed.add(
+          '${method.toUpperCase()} ${entry.key} (${op['operationId']})',
+        );
         operations.remove(method);
       }
     }
     if (operations.isEmpty) paths.remove(entry.key);
   }
 
-  target.writeAsStringSync('${const JsonEncoder.withIndent('  ').convert(doc)}\n');
+  target.writeAsStringSync(
+    '${const JsonEncoder.withIndent('  ').convert(doc)}\n',
+  );
   stdout.writeln('openapi: ${paths.length} paths → ${target.path}');
   for (final r in removed) {
     stdout.writeln('  multipart excluído (escrito à mão): $r');

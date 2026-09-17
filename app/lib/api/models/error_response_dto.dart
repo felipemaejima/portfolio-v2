@@ -21,6 +21,7 @@ abstract class ErrorResponseDto with _$ErrorResponseDto {
     /// Só em VALIDATION_FAILED: mensagens por campo.
     Map<String, List<String>>? details,
   }) = _ErrorResponseDto;
-  
-  factory ErrorResponseDto.fromJson(Map<String, Object?> json) => _$ErrorResponseDtoFromJson(json);
+
+  factory ErrorResponseDto.fromJson(Map<String, Object?> json) =>
+      _$ErrorResponseDtoFromJson(json);
 }

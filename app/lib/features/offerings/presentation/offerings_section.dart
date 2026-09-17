@@ -24,9 +24,12 @@ class OfferingsSection extends ConsumerWidget {
           if (items.isEmpty) return Text(l10n.emptyList);
           return LayoutBuilder(
             builder: (context, constraints) {
-              final columns = constraints.maxWidth >= 1000 ? 4 : (constraints.maxWidth >= 600 ? 2 : 1);
+              final columns = constraints.maxWidth >= 1000
+                  ? 4
+                  : (constraints.maxWidth >= 600 ? 2 : 1);
               const gap = 20.0;
-              final width = (constraints.maxWidth - gap * (columns - 1)) / columns;
+              final width =
+                  (constraints.maxWidth - gap * (columns - 1)) / columns;
               return Wrap(
                 spacing: gap,
                 runSpacing: gap,
@@ -46,7 +49,13 @@ class OfferingsSection extends ConsumerWidget {
                           children: [
                             Text(o.title, style: text.titleMedium),
                             const SizedBox(height: 8),
-                            Text(o.description, style: text.bodySmall?.copyWith(color: AppColors.neutral400, height: 1.5)),
+                            Text(
+                              o.description,
+                              style: text.bodySmall?.copyWith(
+                                color: AppColors.neutral400,
+                                height: 1.5,
+                              ),
+                            ),
                           ],
                         ),
                       ),

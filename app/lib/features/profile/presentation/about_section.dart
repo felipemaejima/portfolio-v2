@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 import '../../../api/models/profile_dto.dart';
+import '../../../core/config/app_config.dart';
 import '../../../core/ui/breakpoints.dart';
 import '../../../core/ui/enum_labels.dart';
 import '../../../core/ui/section.dart';
@@ -24,9 +25,16 @@ class AboutSection extends StatelessWidget {
       child: wide
           ? Row(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: [photo, const SizedBox(width: 56), Expanded(child: body)],
+              children: [
+                photo,
+                const SizedBox(width: 56),
+                Expanded(child: body),
+              ],
             )
-          : Column(crossAxisAlignment: CrossAxisAlignment.start, children: [photo, const SizedBox(height: 24), body]),
+          : Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [photo, const SizedBox(height: 24), body],
+            ),
     );
   }
 }
@@ -43,8 +51,20 @@ class _Photo extends StatelessWidget {
         width: 180,
         height: 180,
         child: url == null
-            ? const ColoredBox(color: AppColors.surface, child: Icon(Icons.person_outline, size: 48, color: AppColors.neutral500))
-            : CachedNetworkImage(imageUrl: url!, fit: BoxFit.cover, placeholder: (_, _) => const ColoredBox(color: AppColors.surface)),
+            ? const ColoredBox(
+                color: AppColors.surface,
+                child: Icon(
+                  Icons.person_outline,
+                  size: 48,
+                  color: AppColors.neutral500,
+                ),
+              )
+            : CachedNetworkImage(
+                imageUrl: AppConfig.resolve(url!),
+                fit: BoxFit.cover,
+                placeholder: (_, _) =>
+                    const ColoredBox(color: AppColors.surface),
+              ),
       ),
     );
   }
@@ -58,9 +78,17 @@ class _Body extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final text = Theme.of(context).textTheme;
-    final paragraphs = profile.description.split(RegExp(r'\n\s*\n')).where((p) => p.trim().isNotEmpty);
-    final location = [profile.location.city, profile.location.state].where((s) => s.isNotEmpty).join(', ');
-    final locationText = [location, profile.location.country].where((s) => s.isNotEmpty).join(' — ');
+    final paragraphs = profile.description
+        .split(RegExp(r'\n\s*\n'))
+        .where((p) => p.trim().isNotEmpty);
+    final location = [
+      profile.location.city,
+      profile.location.state,
+    ].where((s) => s.isNotEmpty).join(', ');
+    final locationText = [
+      location,
+      profile.location.country,
+    ].where((s) => s.isNotEmpty).join(' — ');
 
     return ConstrainedBox(
       constraints: const BoxConstraints(maxWidth: 600),
@@ -70,7 +98,13 @@ class _Body extends StatelessWidget {
           Text(l10n.aboutTitle, style: text.headlineSmall),
           const SizedBox(height: 20),
           for (final p in paragraphs) ...[
-            Text(p.trim(), style: text.bodyMedium?.copyWith(color: AppColors.neutral300, height: 1.7)),
+            Text(
+              p.trim(),
+              style: text.bodyMedium?.copyWith(
+                color: AppColors.neutral300,
+                height: 1.7,
+              ),
+            ),
             const SizedBox(height: 16),
           ],
           const SizedBox(height: 12),
@@ -79,9 +113,21 @@ class _Body extends StatelessWidget {
             runSpacing: 16,
             children: [
               _Fact(l10n.aboutLocation, locationText),
-              _Fact(l10n.aboutAvailability, joinLabels(profile.availability.map((a) => a.label(l10n)))),
-              _Fact(l10n.aboutWorkMode, joinLabels(profile.workModes.map((w) => w.label(l10n)), last: ' / ')),
-              _Fact(l10n.aboutLanguages, profile.languages.map((x) => x.language).join(', ')),
+              _Fact(
+                l10n.aboutAvailability,
+                joinLabels(profile.availability.map((a) => a.label(l10n))),
+              ),
+              _Fact(
+                l10n.aboutWorkMode,
+                joinLabels(
+                  profile.workModes.map((w) => w.label(l10n)),
+                  last: ' / ',
+                ),
+              ),
+              _Fact(
+                l10n.aboutLanguages,
+                profile.languages.map((x) => x.language).join(', '),
+              ),
             ],
           ),
         ],

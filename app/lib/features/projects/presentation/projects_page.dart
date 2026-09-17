@@ -25,7 +25,9 @@ class ProjectsPage extends ConsumerWidget {
         child: AsyncValueView(
           value: ref.watch(projectsProvider),
           onRetry: () => ref.invalidate(projectsProvider),
-          data: (projects) => projects.isEmpty ? Text(l10n.emptyList) : ProjectsGrid(projects: projects),
+          data: (projects) => projects.isEmpty
+              ? Text(l10n.emptyList)
+              : ProjectsGrid(projects: projects),
         ),
       ),
     );

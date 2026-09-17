@@ -159,7 +159,6 @@ Fonte única. `API.md` e `APP.md` referenciam esta tabela.
 | `COOKIE_SECURE` | api | `false` | `true` em prod |
 | `CORS_ORIGINS` | api | *(vazio)* | mesma origem via edge; só preencher se expor a API direto |
 | `UPLOADS_DIR` | api | `/data/uploads` | |
-| `PUBLIC_UPLOADS_BASE_URL` | api | `http://localhost/uploads` | `https://<domínio>/uploads` em prod |
 | `ADMIN_EMAIL`, `ADMIN_PASSWORD` | api (seed) | — | seed idempotente |
 | `POSTGRES_USER/PASSWORD/DB` | db | `portfolio` | |
 | `SITE_ADDRESS` | edge | `:80` | `https://<domínio>` em prod |
@@ -205,9 +204,8 @@ como processo do serviço; usar `docker compose attach app` e teclar `r`/`R`.
 
 O emulador não roda em Docker de forma prática (ADR 0005). Pré-requisitos
 comuns aos dois fluxos: celular e máquina na **mesma rede**, `make up` no ar,
-e `PUBLIC_UPLOADS_BASE_URL=http://<ip-da-máquina>/uploads` no `.env` (senão
-as imagens apontam para `localhost` e não carregam no aparelho) — `make
-restart` depois de mudar.
+e só isso: as imagens são caminhos `/uploads/...` que o app prefixa com a
+mesma origem da API, então funcionam em qualquer rede.
 
 **A. APK de debug (sem ADB):** `make build-apk-dev
 API_BASE_URL=http://<ip-da-máquina>` gera

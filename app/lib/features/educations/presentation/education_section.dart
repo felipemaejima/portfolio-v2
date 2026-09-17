@@ -29,22 +29,48 @@ class EducationSection extends ConsumerWidget {
                   for (final e in items)
                     Padding(
                       padding: const EdgeInsets.only(bottom: 24),
-                      child: Builder(builder: (context) {
-                        final period = Text(
-                          formatEducationPeriod(e.startYear, e.endYear, current: l10n.periodCurrent),
-                          style: text.bodySmall?.copyWith(color: AppColors.neutral500),
-                        );
-                        final body = Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(e.courseName, style: text.titleMedium),
-                            Text(e.institution, style: text.bodyMedium?.copyWith(color: AppColors.neutral400)),
-                          ],
-                        );
-                        return Breakpoints.isWide(context)
-                            ? Row(crossAxisAlignment: CrossAxisAlignment.start, children: [SizedBox(width: 180, child: period), Expanded(child: body)])
-                            : Column(crossAxisAlignment: CrossAxisAlignment.start, children: [period, const SizedBox(height: 6), body]);
-                      }),
+                      child: Builder(
+                        builder: (context) {
+                          final period = Text(
+                            formatEducationPeriod(
+                              e.startYear,
+                              e.endYear,
+                              current: l10n.periodCurrent,
+                            ),
+                            style: text.bodySmall?.copyWith(
+                              color: AppColors.neutral500,
+                            ),
+                          );
+                          final body = Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(e.courseName, style: text.titleMedium),
+                              Text(
+                                e.institution,
+                                style: text.bodyMedium?.copyWith(
+                                  color: AppColors.neutral400,
+                                ),
+                              ),
+                            ],
+                          );
+                          return Breakpoints.isWide(context)
+                              ? Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    SizedBox(width: 180, child: period),
+                                    Expanded(child: body),
+                                  ],
+                                )
+                              : Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    period,
+                                    const SizedBox(height: 6),
+                                    body,
+                                  ],
+                                );
+                        },
+                      ),
                     ),
                 ],
               ),

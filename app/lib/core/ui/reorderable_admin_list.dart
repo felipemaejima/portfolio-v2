@@ -23,7 +23,8 @@ class ReorderableAdminList<T> extends StatefulWidget {
   final String? emptyText;
 
   @override
-  State<ReorderableAdminList<T>> createState() => _ReorderableAdminListState<T>();
+  State<ReorderableAdminList<T>> createState() =>
+      _ReorderableAdminListState<T>();
 }
 
 class _ReorderableAdminListState<T> extends State<ReorderableAdminList<T>> {
@@ -45,7 +46,11 @@ class _ReorderableAdminListState<T> extends State<ReorderableAdminList<T>> {
     } on Object catch (e) {
       if (!mounted) return;
       setState(() => _items = before);
-      notify(context, failureText(AppLocalizations.of(context), e), error: true);
+      notify(
+        context,
+        failureText(AppLocalizations.of(context), e),
+        error: true,
+      );
     }
   }
 
@@ -54,7 +59,11 @@ class _ReorderableAdminListState<T> extends State<ReorderableAdminList<T>> {
     if (_items.isEmpty) {
       return Padding(
         padding: const EdgeInsets.symmetric(vertical: 32),
-        child: Center(child: Text(widget.emptyText ?? AppLocalizations.of(context).emptyList)),
+        child: Center(
+          child: Text(
+            widget.emptyText ?? AppLocalizations.of(context).emptyList,
+          ),
+        ),
       );
     }
     return ReorderableListView.builder(
@@ -68,7 +77,10 @@ class _ReorderableAdminListState<T> extends State<ReorderableAdminList<T>> {
         return Row(
           key: ValueKey(widget.idOf(item)),
           children: [
-            ReorderableDragStartListener(index: i, child: const Icon(Icons.drag_indicator)),
+            ReorderableDragStartListener(
+              index: i,
+              child: const Icon(Icons.drag_indicator),
+            ),
             const SizedBox(width: 8),
             Expanded(child: widget.itemBuilder(context, item)),
           ],

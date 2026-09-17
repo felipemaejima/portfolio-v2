@@ -30,7 +30,9 @@ class PortfolioApp extends ConsumerWidget {
       builder: (context, child) {
         final auth = ref.watch(authProvider);
         if (auth.isLoading && !auth.hasValue) {
-          return const Scaffold(body: Center(child: CircularProgressIndicator()));
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
         }
         return child!;
       },

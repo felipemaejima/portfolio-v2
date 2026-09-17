@@ -14,15 +14,26 @@ class ProjectsRepository {
   final Uploads _uploads;
 
   Future<List<ProjectDto>> list() => _guard(_api.projects.listProjects);
-  Future<ProjectDto> bySlug(String slug) => _guard(() => _api.projects.getProjectBySlug(slug: slug));
-  Future<ProjectDto> create(ProjectInputDto body) => _guard(() => _api.projects.createProject(body: body));
-  Future<ProjectDto> update(String id, ProjectInputDto body) => _guard(() => _api.projects.updateProject(id: id, body: body));
-  Future<void> delete(String id) => _guard(() => _api.projects.deleteProject(id: id));
-  Future<void> reorder(List<String> ids) => _guard(() => _api.projects.reorderProjects(body: ReorderDto(ids: ids)));
-  Future<ProjectDto> addImages(String id, List<PickedImage> images) => _guard(() => _uploads.addProjectImages(id, images));
-  Future<void> deleteImage(String id, String imageId) => _guard(() => _api.projects.deleteProjectImage(id: id, imageId: imageId));
-  Future<void> reorderImages(String id, List<String> ids) =>
-      _guard(() => _api.projects.reorderProjectImages(id: id, body: ReorderDto(ids: ids)));
+  Future<ProjectDto> bySlug(String slug) =>
+      _guard(() => _api.projects.getProjectBySlug(slug: slug));
+  Future<ProjectDto> create(ProjectInputDto body) =>
+      _guard(() => _api.projects.createProject(body: body));
+  Future<ProjectDto> update(String id, ProjectInputDto body) =>
+      _guard(() => _api.projects.updateProject(id: id, body: body));
+  Future<void> delete(String id) =>
+      _guard(() => _api.projects.deleteProject(id: id));
+  Future<void> reorder(List<String> ids) =>
+      _guard(() => _api.projects.reorderProjects(body: ReorderDto(ids: ids)));
+  Future<ProjectDto> addImages(String id, List<PickedImage> images) =>
+      _guard(() => _uploads.addProjectImages(id, images));
+  Future<void> deleteImage(String id, String imageId) =>
+      _guard(() => _api.projects.deleteProjectImage(id: id, imageId: imageId));
+  Future<void> reorderImages(String id, List<String> ids) => _guard(
+    () => _api.projects.reorderProjectImages(
+      id: id,
+      body: ReorderDto(ids: ids),
+    ),
+  );
 }
 
 Future<T> _guard<T>(Future<T> Function() call) async {
@@ -34,5 +45,8 @@ Future<T> _guard<T>(Future<T> Function() call) async {
 }
 
 final projectsRepositoryProvider = Provider<ProjectsRepository>(
-  (ref) => ProjectsRepository(ref.watch(restClientProvider), ref.watch(uploadsProvider)),
+  (ref) => ProjectsRepository(
+    ref.watch(restClientProvider),
+    ref.watch(uploadsProvider),
+  ),
 );

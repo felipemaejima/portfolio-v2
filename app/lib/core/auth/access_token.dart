@@ -5,4 +5,6 @@ class AccessTokenHolder {
   String? value;
 }
 
-final accessTokenProvider = Provider<AccessTokenHolder>((ref) => AccessTokenHolder());
+final accessTokenProvider = Provider<AccessTokenHolder>(
+  (ref) => AccessTokenHolder(),
+);

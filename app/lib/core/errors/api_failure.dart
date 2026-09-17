@@ -24,12 +24,14 @@ sealed class ApiFailure implements Exception {
     return switch (code) {
       ErrorCode.unauthenticated => ApiUnauthenticated(message),
       ErrorCode.notFound => ApiNotFound(message),
-      ErrorCode.validationFailed => ApiValidation(message, body?.details ?? const {}),
+      ErrorCode.validationFailed => ApiValidation(
+        message,
+        body?.details ?? const {},
+      ),
       ErrorCode.rateLimited => ApiRateLimited(message),
       ErrorCode.payloadTooLarge ||
       ErrorCode.unsupportedMediaType ||
-      ErrorCode.badRequest =>
-        ApiRejected(message, code!),
+      ErrorCode.badRequest => ApiRejected(message, code!),
       _ => ApiServer(message, response.statusCode ?? 500),
     };
   }

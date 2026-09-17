@@ -24,9 +24,11 @@ class _FakeContactRepository implements ContactRepository {
   @override
   Future<List<ContactLinkDto>> listLinks() async => [];
   @override
-  Future<ContactLinkDto> createLink(ContactLinkInputDto body) => throw UnimplementedError();
+  Future<ContactLinkDto> createLink(ContactLinkInputDto body) =>
+      throw UnimplementedError();
   @override
-  Future<ContactLinkDto> updateLink(String id, ContactLinkInputDto body) => throw UnimplementedError();
+  Future<ContactLinkDto> updateLink(String id, ContactLinkInputDto body) =>
+      throw UnimplementedError();
   @override
   Future<void> deleteLink(String id) => throw UnimplementedError();
   @override
@@ -40,18 +42,18 @@ class _FakeContactRepository implements ContactRepository {
 }
 
 Widget _app(_FakeContactRepository repo) => ProviderScope(
-      overrides: [contactRepositoryProvider.overrideWithValue(repo)],
-      child: const MaterialApp(
-        supportedLocales: [Locale('pt')],
-        localizationsDelegates: [
-          AppLocalizations.delegate,
-          GlobalMaterialLocalizations.delegate,
-          GlobalWidgetsLocalizations.delegate,
-          GlobalCupertinoLocalizations.delegate,
-        ],
-        home: Scaffold(body: SingleChildScrollView(child: ContactForm())),
-      ),
-    );
+  overrides: [contactRepositoryProvider.overrideWithValue(repo)],
+  child: const MaterialApp(
+    supportedLocales: [Locale('pt')],
+    localizationsDelegates: [
+      AppLocalizations.delegate,
+      GlobalMaterialLocalizations.delegate,
+      GlobalWidgetsLocalizations.delegate,
+      GlobalCupertinoLocalizations.delegate,
+    ],
+    home: Scaffold(body: SingleChildScrollView(child: ContactForm())),
+  ),
+);
 
 Future<void> _fill(WidgetTester tester) async {
   await tester.enterText(find.byType(TextField).at(0), 'Maria');
@@ -62,7 +64,9 @@ Future<void> _fill(WidgetTester tester) async {
 }
 
 void main() {
-  testWidgets('envio ok mostra confirmação com o que foi digitado', (tester) async {
+  testWidgets('envio ok mostra confirmação com o que foi digitado', (
+    tester,
+  ) async {
     final repo = _FakeContactRepository();
     await tester.pumpWidget(_app(repo));
     await _fill(tester);
@@ -72,7 +76,9 @@ void main() {
 
   testWidgets('422 mostra o erro no campo certo', (tester) async {
     final repo = _FakeContactRepository()
-      ..fail = const ApiValidation('Dados inválidos.', {'email': ['deve ser um e-mail válido']});
+      ..fail = const ApiValidation('Dados inválidos.', {
+        'email': ['deve ser um e-mail válido'],
+      });
     await tester.pumpWidget(_app(repo));
     await _fill(tester);
     expect(find.text('deve ser um e-mail válido'), findsOneWidget);
@@ -80,9 +86,13 @@ void main() {
   });
 
   testWidgets('429 mostra a mensagem amigável', (tester) async {
-    final repo = _FakeContactRepository()..fail = const ApiRateLimited('Muitas tentativas.');
+    final repo = _FakeContactRepository()
+      ..fail = const ApiRateLimited('Muitas tentativas.');
     await tester.pumpWidget(_app(repo));
     await _fill(tester);
-    expect(find.text('Muitas tentativas. Aguarde um instante.'), findsOneWidget);
+    expect(
+      find.text('Muitas tentativas. Aguarde um instante.'),
+      findsOneWidget,
+    );
   });
 }

@@ -14,7 +14,6 @@ export default defineConfig({
       DATABASE_URL: testDatabaseUrl,
       NODE_ENV: 'test',
       UPLOADS_DIR: '/tmp/portfolio-test-uploads',
-      PUBLIC_UPLOADS_BASE_URL: 'http://localhost/uploads',
     },
     fileParallelism: false,
     testTimeout: 20_000,

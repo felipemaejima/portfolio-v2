@@ -17,7 +17,9 @@ class FormErrors {
 
   /// Mensagens de campos que o formulário não exibe individualmente.
   String? others(Iterable<String> shown) {
-    final rest = _details.entries.where((e) => !shown.contains(e.key)).map((e) => '${e.key}: ${e.value.join(', ')}');
+    final rest = _details.entries
+        .where((e) => !shown.contains(e.key))
+        .map((e) => '${e.key}: ${e.value.join(', ')}');
     return rest.isEmpty ? null : rest.join('\n');
   }
 }

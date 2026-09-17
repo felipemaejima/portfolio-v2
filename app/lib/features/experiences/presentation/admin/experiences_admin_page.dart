@@ -18,28 +18,61 @@ class ExperiencesAdminPage extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     return AdminPage(
       title: l10n.experienceTitle,
-      actions: [FilledButton.icon(onPressed: () => context.go('/admin/experiences/new'), icon: const Icon(Icons.add), label: Text(l10n.newItem))],
+      actions: [
+        FilledButton.icon(
+          onPressed: () => context.go('/admin/experiences/new'),
+          icon: const Icon(Icons.add),
+          label: Text(l10n.newItem),
+        ),
+      ],
       child: AsyncValueView(
         value: ref.watch(experiencesProvider),
         onRetry: () => ref.invalidate(experiencesProvider),
         data: (items) => items.isEmpty
-            ? Center(child: Padding(padding: const EdgeInsets.all(32), child: Text(l10n.emptyList)))
+            ? Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(32),
+                  child: Text(l10n.emptyList),
+                ),
+              )
             : Column(
                 children: [
                   for (final e in items)
                     ListTile(
                       contentPadding: EdgeInsets.zero,
                       title: Text('${e.role} · ${e.companyName}'),
-                      subtitle: Text(formatExperiencePeriod(e.startDate, e.endDate, current: l10n.periodCurrent), style: const TextStyle(color: AppColors.neutral500)),
+                      subtitle: Text(
+                        formatExperiencePeriod(
+                          e.startDate,
+                          e.endDate,
+                          current: l10n.periodCurrent,
+                        ),
+                        style: const TextStyle(color: AppColors.neutral500),
+                      ),
                       onTap: () => context.go('/admin/experiences/${e.id}'),
                       trailing: IconButton(
                         icon: const Icon(Icons.delete_outline),
                         onPressed: () async {
-                          if (!await confirm(context, title: l10n.confirmDelete, confirmLabel: l10n.delete, cancelLabel: l10n.cancel)) return;
+                          if (!await confirm(
+                            context,
+                            title: l10n.confirmDelete,
+                            confirmLabel: l10n.delete,
+                            cancelLabel: l10n.cancel,
+                          )) {
+                            return;
+                          }
                           try {
-                            await ref.read(experiencesEditorProvider).delete(e.id);
+                            await ref
+                                .read(experiencesEditorProvider)
+                                .delete(e.id);
                           } on Object catch (err) {
-                            if (context.mounted) notify(context, failureText(l10n, err), error: true);
+                            if (context.mounted) {
+                              notify(
+                                context,
+                                failureText(l10n, err),
+                                error: true,
+                              );
+                            }
                           }
                         },
                       ),

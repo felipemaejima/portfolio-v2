@@ -30,7 +30,12 @@ class ProjectsSection extends ConsumerWidget {
               ProjectsGrid(projects: projects.take(_homeLimit).toList()),
               if (projects.length > _homeLimit) ...[
                 const SizedBox(height: 24),
-                Center(child: OutlinedButton(onPressed: () => context.go('/projects'), child: Text(l10n.projectsSeeAll))),
+                Center(
+                  child: OutlinedButton(
+                    onPressed: () => context.go('/projects'),
+                    child: Text(l10n.projectsSeeAll),
+                  ),
+                ),
               ],
             ],
           );

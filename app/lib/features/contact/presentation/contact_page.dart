@@ -14,8 +14,13 @@ class ContactPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final intro = ref.watch(profileProvider).value?.contactIntro;
     return Scaffold(
-      appBar: AppBar(leading: BackButton(onPressed: () => context.go('/')), title: Text(AppLocalizations.of(context).navContact)),
-      body: SingleChildScrollView(child: ContactSection(intro: intro, divider: false)),
+      appBar: AppBar(
+        leading: BackButton(onPressed: () => context.go('/')),
+        title: Text(AppLocalizations.of(context).navContact),
+      ),
+      body: SingleChildScrollView(
+        child: ContactSection(intro: intro, divider: false),
+      ),
     );
   }
 }

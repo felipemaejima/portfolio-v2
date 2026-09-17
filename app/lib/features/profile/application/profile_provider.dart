@@ -6,7 +6,9 @@ import '../../../core/network/uploads.dart';
 import '../data/profile_repository.dart';
 
 /// O Profile público. Mantido vivo: home e painel compartilham.
-final profileProvider = FutureProvider<ProfileDto>((ref) => ref.watch(profileRepositoryProvider).get());
+final profileProvider = FutureProvider<ProfileDto>(
+  (ref) => ref.watch(profileRepositoryProvider).get(),
+);
 
 /// Mutações do admin; cada uma atualiza o cache do profileProvider.
 class ProfileEditor {
@@ -15,9 +17,11 @@ class ProfileEditor {
 
   ProfileRepository get _repo => _ref.read(profileRepositoryProvider);
 
-  Future<ProfileDto> save(UpdateProfileDto body) async => _publish(await _repo.update(body));
+  Future<ProfileDto> save(UpdateProfileDto body) async =>
+      _publish(await _repo.update(body));
 
-  Future<ProfileDto> replaceImage(PickedImage image) async => _publish(await _repo.updateImage(image));
+  Future<ProfileDto> replaceImage(PickedImage image) async =>
+      _publish(await _repo.updateImage(image));
 
   Future<void> removeImage() async {
     await _repo.deleteImage();

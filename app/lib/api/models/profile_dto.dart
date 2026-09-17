@@ -33,6 +33,7 @@ abstract class ProfileDto with _$ProfileDto {
     required DateTime createdAt,
     required DateTime updatedAt,
   }) = _ProfileDto;
-  
-  factory ProfileDto.fromJson(Map<String, Object?> json) => _$ProfileDtoFromJson(json);
+
+  factory ProfileDto.fromJson(Map<String, Object?> json) =>
+      _$ProfileDtoFromJson(json);
 }

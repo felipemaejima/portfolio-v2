@@ -30,13 +30,19 @@ class FakeAuthRepository implements AuthRepository {
 
   AuthTokensDto _tokens() {
     _seq++;
-    return AuthTokensDto(accessToken: 'access-$_seq', expiresIn: 900, refreshToken: 'refresh-$_seq');
+    return AuthTokensDto(
+      accessToken: 'access-$_seq',
+      expiresIn: 900,
+      refreshToken: 'refresh-$_seq',
+    );
   }
 
   @override
   Future<AuthTokensDto> login(String email, String password) async {
     loginCalls++;
-    if (loginFails) throw const ApiUnauthenticated('E-mail ou senha inválidos.');
+    if (loginFails) {
+      throw const ApiUnauthenticated('E-mail ou senha inválidos.');
+    }
     return _tokens();
   }
 
@@ -44,12 +50,15 @@ class FakeAuthRepository implements AuthRepository {
   Future<AuthTokensDto> refresh(String? refreshToken) async {
     refreshCalls++;
     await Future<void>.delayed(refreshDelay);
-    if (refreshFails) throw const ApiUnauthenticated('Sessão expirada.');
+    if (refreshFails) {
+      throw const ApiUnauthenticated('Sessão expirada.');
+    }
     return _tokens();
   }
 
   @override
-  Future<void> logout(String? refreshToken) async => logoutCalledWith = refreshToken;
+  Future<void> logout(String? refreshToken) async =>
+      logoutCalledWith = refreshToken;
 
   @override
   Future<AdminDto> me() async => admin;

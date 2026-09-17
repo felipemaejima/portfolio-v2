@@ -27,7 +27,13 @@ class ContactSection extends ConsumerWidget {
         Text(l10n.navContact, style: text.headlineSmall),
         if (intro case final s? when s.isNotEmpty) ...[
           const SizedBox(height: 16),
-          Text(s, style: text.bodyMedium?.copyWith(color: AppColors.neutral300, height: 1.6)),
+          Text(
+            s,
+            style: text.bodyMedium?.copyWith(
+              color: AppColors.neutral300,
+              height: 1.6,
+            ),
+          ),
         ],
         const SizedBox(height: 24),
         AsyncValueView(
@@ -48,9 +54,16 @@ class ContactSection extends ConsumerWidget {
       child: Breakpoints.isWide(context)
           ? Row(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: [Expanded(child: left), const SizedBox(width: 64), const Expanded(child: right)],
+              children: [
+                Expanded(child: left),
+                const SizedBox(width: 64),
+                const Expanded(child: right),
+              ],
             )
-          : Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [left, const SizedBox(height: 32), right]),
+          : Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [left, const SizedBox(height: 32), right],
+            ),
     );
   }
 }
@@ -65,12 +78,23 @@ class _LinkRow extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: InkWell(
-        onTap: () => launchUrl(Uri.parse(link.url), mode: LaunchMode.externalApplication),
+        onTap: () => launchUrl(
+          Uri.parse(link.url),
+          mode: LaunchMode.externalApplication,
+        ),
         child: Text.rich(
-          TextSpan(children: [
-            TextSpan(text: '${link.label} — ', style: text.bodyMedium?.copyWith(color: AppColors.neutral400)),
-            TextSpan(text: link.value, style: text.bodyMedium?.copyWith(color: AppColors.accent300)),
-          ]),
+          TextSpan(
+            children: [
+              TextSpan(
+                text: '${link.label} — ',
+                style: text.bodyMedium?.copyWith(color: AppColors.neutral400),
+              ),
+              TextSpan(
+                text: link.value,
+                style: text.bodyMedium?.copyWith(color: AppColors.accent300),
+              ),
+            ],
+          ),
         ),
       ),
     );

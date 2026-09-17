@@ -29,17 +29,31 @@ ThemeData buildTheme() {
     outline: AppColors.divider,
   );
   // Inter variável, embutida (APP.md §6): sem google_fonts em runtime.
-  final base = ThemeData(useMaterial3: true, colorScheme: scheme, brightness: Brightness.dark, fontFamily: 'Inter');
+  final base = ThemeData(
+    useMaterial3: true,
+    colorScheme: scheme,
+    brightness: Brightness.dark,
+    fontFamily: 'Inter',
+  );
   return base.copyWith(
     scaffoldBackgroundColor: AppColors.bg,
     dividerColor: AppColors.divider,
-    textTheme: base.textTheme.apply(bodyColor: AppColors.text, displayColor: AppColors.text),
+    textTheme: base.textTheme.apply(
+      bodyColor: AppColors.text,
+      displayColor: AppColors.text,
+    ),
     inputDecorationTheme: const InputDecorationTheme(
       filled: true,
       fillColor: AppColors.surface,
-      border: OutlineInputBorder(borderSide: BorderSide(color: AppColors.divider)),
-      enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: AppColors.divider)),
-      focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: AppColors.accent)),
+      border: OutlineInputBorder(
+        borderSide: BorderSide(color: AppColors.divider),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderSide: BorderSide(color: AppColors.divider),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderSide: BorderSide(color: AppColors.accent),
+      ),
     ),
     filledButtonTheme: FilledButtonThemeData(
       style: FilledButton.styleFrom(
@@ -56,6 +70,10 @@ ThemeData buildTheme() {
       ),
     ),
     cardTheme: const CardThemeData(color: AppColors.surface, elevation: 0),
-    appBarTheme: const AppBarTheme(backgroundColor: AppColors.bg, foregroundColor: AppColors.text, elevation: 0),
+    appBarTheme: const AppBarTheme(
+      backgroundColor: AppColors.bg,
+      foregroundColor: AppColors.text,
+      elevation: 0,
+    ),
   );
 }

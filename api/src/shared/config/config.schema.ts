@@ -24,7 +24,6 @@ export const configSchema = z.object({
   CORS_ORIGINS: csv,
 
   UPLOADS_DIR: z.string().default('/data/uploads'),
-  PUBLIC_UPLOADS_BASE_URL: z.url(),
   MAX_UPLOAD_BYTES: z.coerce
     .number()
     .int()
@@ -54,7 +53,6 @@ export const configSchemaWithProductionRules = configSchema.superRefine((env, ct
   if (PLACEHOLDER.test(env.ADMIN_PASSWORD)) fail('ADMIN_PASSWORD', 'senha de exemplo em produção');
   if (!env.COOKIE_SECURE)
     fail('COOKIE_SECURE', 'deve ser true em produção (cookie de refresh só via HTTPS)');
-  if (!env.PUBLIC_UPLOADS_BASE_URL.startsWith('https://')) {
-    fail('PUBLIC_UPLOADS_BASE_URL', 'deve ser https:// em produção');
-  }
+  if (/portfolio:portfolio@/.test(env.DATABASE_URL))
+    fail('DATABASE_URL', 'senha do banco de exemplo em produção');
 });

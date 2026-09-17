@@ -11,9 +11,14 @@ class ExperiencesRepository {
   final RestClient _api;
 
   Future<List<ExperienceDto>> list() => guard(_api.experiences.listExperiences);
-  Future<ExperienceDto> create(ExperienceInputDto body) => guard(() => _api.experiences.createExperience(body: body));
-  Future<ExperienceDto> update(String id, ExperienceInputDto body) => guard(() => _api.experiences.updateExperience(id: id, body: body));
-  Future<void> delete(String id) => guard(() => _api.experiences.deleteExperience(id: id));
+  Future<ExperienceDto> create(ExperienceInputDto body) =>
+      guard(() => _api.experiences.createExperience(body: body));
+  Future<ExperienceDto> update(String id, ExperienceInputDto body) =>
+      guard(() => _api.experiences.updateExperience(id: id, body: body));
+  Future<void> delete(String id) =>
+      guard(() => _api.experiences.deleteExperience(id: id));
 }
 
-final experiencesRepositoryProvider = Provider<ExperiencesRepository>((ref) => ExperiencesRepository(ref.watch(restClientProvider)));
+final experiencesRepositoryProvider = Provider<ExperiencesRepository>(
+  (ref) => ExperiencesRepository(ref.watch(restClientProvider)),
+);

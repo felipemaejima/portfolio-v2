@@ -10,21 +10,21 @@ import 'package:portfolio_app/l10n/generated/app_localizations.dart';
 import '../../support/fakes.dart';
 
 Widget _app(FakeAuthRepository repo) => ProviderScope(
-      overrides: [
-        authRepositoryProvider.overrideWithValue(repo),
-        tokenStoreProvider.overrideWithValue(InMemoryTokenStore()),
-      ],
-      child: const MaterialApp(
-        supportedLocales: [Locale('pt')],
-        localizationsDelegates: [
-          AppLocalizations.delegate,
-          GlobalMaterialLocalizations.delegate,
-          GlobalWidgetsLocalizations.delegate,
-          GlobalCupertinoLocalizations.delegate,
-        ],
-        home: LoginPage(),
-      ),
-    );
+  overrides: [
+    authRepositoryProvider.overrideWithValue(repo),
+    tokenStoreProvider.overrideWithValue(InMemoryTokenStore()),
+  ],
+  child: const MaterialApp(
+    supportedLocales: [Locale('pt')],
+    localizationsDelegates: [
+      AppLocalizations.delegate,
+      GlobalMaterialLocalizations.delegate,
+      GlobalWidgetsLocalizations.delegate,
+      GlobalCupertinoLocalizations.delegate,
+    ],
+    home: LoginPage(),
+  ),
+);
 
 void main() {
   testWidgets('campos vazios não chamam a API', (tester) async {
@@ -39,7 +39,10 @@ void main() {
   testWidgets('401 mostra a mensagem da API', (tester) async {
     final repo = FakeAuthRepository()..loginFails = true;
     await tester.pumpWidget(_app(repo));
-    await tester.enterText(find.byType(TextFormField).at(0), 'admin@example.com');
+    await tester.enterText(
+      find.byType(TextFormField).at(0),
+      'admin@example.com',
+    );
     await tester.enterText(find.byType(TextFormField).at(1), 'errada');
     await tester.tap(find.byType(FilledButton));
     await tester.pumpAndSettle();
@@ -50,7 +53,10 @@ void main() {
   testWidgets('login válido chama a API uma vez', (tester) async {
     final repo = FakeAuthRepository();
     await tester.pumpWidget(_app(repo));
-    await tester.enterText(find.byType(TextFormField).at(0), 'admin@example.com');
+    await tester.enterText(
+      find.byType(TextFormField).at(0),
+      'admin@example.com',
+    );
     await tester.enterText(find.byType(TextFormField).at(1), 'senha');
     await tester.tap(find.byType(FilledButton));
     await tester.pumpAndSettle();

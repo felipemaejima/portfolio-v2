@@ -14,8 +14,10 @@ class ProfileRepository {
   final Uploads _uploads;
 
   Future<ProfileDto> get() => _guard(_api.profile.getProfile);
-  Future<ProfileDto> update(UpdateProfileDto body) => _guard(() => _api.profile.updateProfile(body: body));
-  Future<ProfileDto> updateImage(PickedImage image) => _guard(() => _uploads.updateProfileImage(image));
+  Future<ProfileDto> update(UpdateProfileDto body) =>
+      _guard(() => _api.profile.updateProfile(body: body));
+  Future<ProfileDto> updateImage(PickedImage image) =>
+      _guard(() => _uploads.updateProfileImage(image));
   Future<void> deleteImage() => _guard(_api.profile.deleteProfileImage);
 }
 
@@ -28,5 +30,8 @@ Future<T> _guard<T>(Future<T> Function() call) async {
 }
 
 final profileRepositoryProvider = Provider<ProfileRepository>(
-  (ref) => ProfileRepository(ref.watch(restClientProvider), ref.watch(uploadsProvider)),
+  (ref) => ProfileRepository(
+    ref.watch(restClientProvider),
+    ref.watch(uploadsProvider),
+  ),
 );

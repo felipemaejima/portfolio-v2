@@ -21,9 +21,7 @@ abstract class OfferingsClient {
 
   /// Cria no fim.
   @POST('/api/v1/offerings')
-  Future<OfferingDto> createOffering({
-    @Body() required OfferingInputDto body,
-  });
+  Future<OfferingDto> createOffering({@Body() required OfferingInputDto body});
 
   @PUT('/api/v1/offerings/{id}')
   Future<OfferingDto> updateOffering({
@@ -32,13 +30,9 @@ abstract class OfferingsClient {
   });
 
   @DELETE('/api/v1/offerings/{id}')
-  Future<void> deleteOffering({
-    @Path('id') required String id,
-  });
+  Future<void> deleteOffering({@Path('id') required String id});
 
   /// Ordem de exibição: o conjunto completo de ids na ordem final.
   @PATCH('/api/v1/offerings/reorder')
-  Future<void> reorderOfferings({
-    @Body() required ReorderDto body,
-  });
+  Future<void> reorderOfferings({@Body() required ReorderDto body});
 }

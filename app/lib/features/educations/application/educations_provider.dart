@@ -4,11 +4,18 @@ import '../../../api/models/education_dto.dart';
 import '../../../api/models/education_input_dto.dart';
 import '../data/educations_repository.dart';
 
-final educationsProvider = FutureProvider<List<EducationDto>>((ref) => ref.watch(educationsRepositoryProvider).list());
-
-final educationByIdProvider = Provider.autoDispose.family<EducationDto?, String>(
-  (ref, id) => ref.watch(educationsProvider).value?.where((e) => e.id == id).firstOrNull,
+final educationsProvider = FutureProvider<List<EducationDto>>(
+  (ref) => ref.watch(educationsRepositoryProvider).list(),
 );
+
+final educationByIdProvider = Provider.autoDispose
+    .family<EducationDto?, String>(
+      (ref, id) => ref
+          .watch(educationsProvider)
+          .value
+          ?.where((e) => e.id == id)
+          .firstOrNull,
+    );
 
 class EducationsEditor {
   EducationsEditor(this._ref);
@@ -31,4 +38,6 @@ class EducationsEditor {
   }
 }
 
-final educationsEditorProvider = Provider<EducationsEditor>(EducationsEditor.new);
+final educationsEditorProvider = Provider<EducationsEditor>(
+  EducationsEditor.new,
+);

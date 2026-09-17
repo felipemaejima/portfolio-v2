@@ -19,7 +19,15 @@ import '../../projects/presentation/projects_section.dart';
 import '../../skills/presentation/skills_section.dart';
 
 /// Âncoras da home; as seções entram conforme as features chegam (APP.md §9).
-enum HomeAnchor { about, projects, skills, experience, education, offerings, contact }
+enum HomeAnchor {
+  about,
+  projects,
+  skills,
+  experience,
+  education,
+  offerings,
+  contact,
+}
 
 class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
@@ -34,7 +42,11 @@ class _HomePageState extends ConsumerState<HomePage> {
   void _scrollTo(HomeAnchor anchor) {
     final ctx = _keys[anchor]!.currentContext;
     if (ctx != null) {
-      Scrollable.ensureVisible(ctx, duration: const Duration(milliseconds: 400), curve: Curves.easeInOut);
+      Scrollable.ensureVisible(
+        ctx,
+        duration: const Duration(milliseconds: 400),
+        curve: Curves.easeInOut,
+      );
     }
   }
 
@@ -49,8 +61,16 @@ class _HomePageState extends ConsumerState<HomePage> {
           SliverAppBar(
             pinned: true,
             titleSpacing: Breakpoints.isWide(context) ? 64 : 20,
-            title: Text(name, style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
-            actions: [_Nav(onSelect: _scrollTo), const SizedBox(width: 8)],
+            title: Text(
+              name,
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
+            ),
+            actions: [
+              _Nav(onSelect: _scrollTo),
+              const SizedBox(width: 8),
+            ],
           ),
           SliverToBoxAdapter(
             child: AsyncValueView(
@@ -65,13 +85,34 @@ class _HomePageState extends ConsumerState<HomePage> {
                     onSeeProjects: () => _scrollTo(HomeAnchor.projects),
                     onContact: () => _scrollTo(HomeAnchor.contact),
                   ),
-                  KeyedSubtree(key: _keys[HomeAnchor.about], child: AboutSection(profile: p)),
-                  KeyedSubtree(key: _keys[HomeAnchor.skills], child: const SkillsSection()),
-                  KeyedSubtree(key: _keys[HomeAnchor.projects], child: const ProjectsSection()),
-                  KeyedSubtree(key: _keys[HomeAnchor.experience], child: const ExperienceSection()),
-                  KeyedSubtree(key: _keys[HomeAnchor.education], child: const EducationSection()),
-                  KeyedSubtree(key: _keys[HomeAnchor.offerings], child: const OfferingsSection()),
-                  KeyedSubtree(key: _keys[HomeAnchor.contact], child: ContactSection(intro: p.contactIntro)),
+                  KeyedSubtree(
+                    key: _keys[HomeAnchor.about],
+                    child: AboutSection(profile: p),
+                  ),
+                  KeyedSubtree(
+                    key: _keys[HomeAnchor.skills],
+                    child: const SkillsSection(),
+                  ),
+                  KeyedSubtree(
+                    key: _keys[HomeAnchor.projects],
+                    child: const ProjectsSection(),
+                  ),
+                  KeyedSubtree(
+                    key: _keys[HomeAnchor.experience],
+                    child: const ExperienceSection(),
+                  ),
+                  KeyedSubtree(
+                    key: _keys[HomeAnchor.education],
+                    child: const EducationSection(),
+                  ),
+                  KeyedSubtree(
+                    key: _keys[HomeAnchor.offerings],
+                    child: const OfferingsSection(),
+                  ),
+                  KeyedSubtree(
+                    key: _keys[HomeAnchor.contact],
+                    child: ContactSection(intro: p.contactIntro),
+                  ),
                   _Footer(name: p.name),
                 ],
               ),
@@ -88,22 +129,27 @@ class _Nav extends StatelessWidget {
   final void Function(HomeAnchor) onSelect;
 
   static List<(HomeAnchor, String)> _items(AppLocalizations l10n) => [
-        (HomeAnchor.about, l10n.navAbout),
-        (HomeAnchor.projects, l10n.navProjects),
-        (HomeAnchor.skills, l10n.navSkills),
-        (HomeAnchor.experience, l10n.navExperience),
-        (HomeAnchor.education, l10n.navEducation),
-        (HomeAnchor.offerings, l10n.navOfferings),
-        (HomeAnchor.contact, l10n.navContact),
-      ];
+    (HomeAnchor.about, l10n.navAbout),
+    (HomeAnchor.projects, l10n.navProjects),
+    (HomeAnchor.skills, l10n.navSkills),
+    (HomeAnchor.experience, l10n.navExperience),
+    (HomeAnchor.education, l10n.navEducation),
+    (HomeAnchor.offerings, l10n.navOfferings),
+    (HomeAnchor.contact, l10n.navContact),
+  ];
 
-  static Future<void> _downloadCv() =>
-      launchUrl(Uri.parse('${AppConfig.apiBaseUrl}/api/v1/cv'), mode: LaunchMode.externalApplication);
+  static Future<void> _downloadCv() => launchUrl(
+    Uri.parse('${AppConfig.apiBaseUrl}/api/v1/cv'),
+    mode: LaunchMode.externalApplication,
+  );
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final cv = OutlinedButton(onPressed: _downloadCv, child: Text(l10n.downloadCv));
+    final cv = OutlinedButton(
+      onPressed: _downloadCv,
+      child: Text(l10n.downloadCv),
+    );
 
     if (!Breakpoints.isWide(context)) {
       return Row(
@@ -112,7 +158,10 @@ class _Nav extends StatelessWidget {
           PopupMenuButton<HomeAnchor>(
             icon: const Icon(Icons.menu),
             onSelected: onSelect,
-            itemBuilder: (_) => [for (final (a, label) in _items(l10n)) PopupMenuItem(value: a, child: Text(label))],
+            itemBuilder: (_) => [
+              for (final (a, label) in _items(l10n))
+                PopupMenuItem(value: a, child: Text(label)),
+            ],
           ),
         ],
       );
@@ -140,7 +189,9 @@ class _Footer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final style = Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.neutral500);
+    final style = Theme.of(
+      context,
+    ).textTheme.bodySmall?.copyWith(color: AppColors.neutral500);
     return Padding(
       padding: Breakpoints.pagePadding(context).copyWith(top: 32, bottom: 32),
       child: Wrap(

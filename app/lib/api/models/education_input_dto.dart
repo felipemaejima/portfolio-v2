@@ -17,6 +17,7 @@ abstract class EducationInputDto with _$EducationInputDto {
     /// null = em andamento. Igual a `startYear` → exibe um ano só.
     int? endYear,
   }) = _EducationInputDto;
-  
-  factory EducationInputDto.fromJson(Map<String, Object?> json) => _$EducationInputDtoFromJson(json);
+
+  factory EducationInputDto.fromJson(Map<String, Object?> json) =>
+      _$EducationInputDtoFromJson(json);
 }

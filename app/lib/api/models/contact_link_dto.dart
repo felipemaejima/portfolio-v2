@@ -18,6 +18,7 @@ abstract class ContactLinkDto with _$ContactLinkDto {
     required DateTime createdAt,
     required DateTime updatedAt,
   }) = _ContactLinkDto;
-  
-  factory ContactLinkDto.fromJson(Map<String, Object?> json) => _$ContactLinkDtoFromJson(json);
+
+  factory ContactLinkDto.fromJson(Map<String, Object?> json) =>
+      _$ContactLinkDtoFromJson(json);
 }

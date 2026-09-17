@@ -4,11 +4,18 @@ import '../../../api/models/experience_dto.dart';
 import '../../../api/models/experience_input_dto.dart';
 import '../data/experiences_repository.dart';
 
-final experiencesProvider = FutureProvider<List<ExperienceDto>>((ref) => ref.watch(experiencesRepositoryProvider).list());
-
-final experienceByIdProvider = Provider.autoDispose.family<ExperienceDto?, String>(
-  (ref, id) => ref.watch(experiencesProvider).value?.where((e) => e.id == id).firstOrNull,
+final experiencesProvider = FutureProvider<List<ExperienceDto>>(
+  (ref) => ref.watch(experiencesRepositoryProvider).list(),
 );
+
+final experienceByIdProvider = Provider.autoDispose
+    .family<ExperienceDto?, String>(
+      (ref, id) => ref
+          .watch(experiencesProvider)
+          .value
+          ?.where((e) => e.id == id)
+          .firstOrNull,
+    );
 
 class ExperiencesEditor {
   ExperiencesEditor(this._ref);
@@ -32,4 +39,6 @@ class ExperiencesEditor {
   }
 }
 
-final experiencesEditorProvider = Provider<ExperiencesEditor>(ExperiencesEditor.new);
+final experiencesEditorProvider = Provider<ExperiencesEditor>(
+  ExperiencesEditor.new,
+);

@@ -20,6 +20,7 @@ abstract class EducationDto with _$EducationDto {
     required DateTime createdAt,
     required DateTime updatedAt,
   }) = _EducationDto;
-  
-  factory EducationDto.fromJson(Map<String, Object?> json) => _$EducationDtoFromJson(json);
+
+  factory EducationDto.fromJson(Map<String, Object?> json) =>
+      _$EducationDtoFromJson(json);
 }

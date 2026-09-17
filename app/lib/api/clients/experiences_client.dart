@@ -30,7 +30,5 @@ abstract class ExperiencesClient {
   });
 
   @DELETE('/api/v1/experiences/{id}')
-  Future<void> deleteExperience({
-    @Path('id') required String id,
-  });
+  Future<void> deleteExperience({@Path('id') required String id});
 }

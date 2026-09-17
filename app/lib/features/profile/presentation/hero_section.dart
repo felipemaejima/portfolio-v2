@@ -29,7 +29,12 @@ class HeroSection extends StatelessWidget {
     final wide = Breakpoints.isWide(context);
 
     return Padding(
-      padding: EdgeInsets.fromLTRB(wide ? 64 : 20, wide ? 100 : 48, wide ? 64 : 20, wide ? 88 : 48),
+      padding: EdgeInsets.fromLTRB(
+        wide ? 64 : 20,
+        wide ? 100 : 48,
+        wide ? 64 : 20,
+        wide ? 88 : 48,
+      ),
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 760),
         child: Column(
@@ -38,18 +43,30 @@ class HeroSection extends StatelessWidget {
             if (profile.headline.isNotEmpty)
               Text(
                 profile.headline.toUpperCase(),
-                style: text.labelMedium?.copyWith(color: AppColors.accent300, letterSpacing: 1.6),
+                style: text.labelMedium?.copyWith(
+                  color: AppColors.accent300,
+                  letterSpacing: 1.6,
+                ),
               ),
             const SizedBox(height: 16),
             Text(
               profile.name,
-              style: (wide ? text.displayMedium : text.headlineLarge)?.copyWith(fontWeight: FontWeight.w500, height: 1.08),
+              style: (wide ? text.displayMedium : text.headlineLarge)?.copyWith(
+                fontWeight: FontWeight.w500,
+                height: 1.08,
+              ),
             ),
             if (profile.summary.isNotEmpty) ...[
               const SizedBox(height: 24),
               ConstrainedBox(
                 constraints: const BoxConstraints(maxWidth: 560),
-                child: Text(profile.summary, style: text.bodyLarge?.copyWith(color: AppColors.neutral300, height: 1.6)),
+                child: Text(
+                  profile.summary,
+                  style: text.bodyLarge?.copyWith(
+                    color: AppColors.neutral300,
+                    height: 1.6,
+                  ),
+                ),
               ),
             ],
             const SizedBox(height: 36),
@@ -57,10 +74,16 @@ class HeroSection extends StatelessWidget {
               spacing: 12,
               runSpacing: 12,
               children: [
-                OutlinedButton(onPressed: onSeeProjects, child: Text(l10n.heroSeeProjects)),
+                OutlinedButton(
+                  onPressed: onSeeProjects,
+                  child: Text(l10n.heroSeeProjects),
+                ),
                 OutlinedButton(
                   onPressed: onContact,
-                  style: OutlinedButton.styleFrom(foregroundColor: AppColors.text, side: const BorderSide(color: AppColors.divider)),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: AppColors.text,
+                    side: const BorderSide(color: AppColors.divider),
+                  ),
                   child: Text(l10n.heroContact),
                 ),
               ],
@@ -72,8 +95,16 @@ class HeroSection extends StatelessWidget {
                 children: [
                   for (final c in contacts.take(3))
                     InkWell(
-                      onTap: () => launchUrl(Uri.parse(c.url), mode: LaunchMode.externalApplication),
-                      child: Text(c.label, style: text.bodySmall?.copyWith(color: AppColors.neutral400)),
+                      onTap: () => launchUrl(
+                        Uri.parse(c.url),
+                        mode: LaunchMode.externalApplication,
+                      ),
+                      child: Text(
+                        c.label,
+                        style: text.bodySmall?.copyWith(
+                          color: AppColors.neutral400,
+                        ),
+                      ),
                     ),
                 ],
               ),

@@ -12,7 +12,7 @@ abstract class TokenStore {
 /// Mobile: secure storage.
 class SecureTokenStore implements TokenStore {
   SecureTokenStore([FlutterSecureStorage? storage])
-      : _storage = storage ?? const FlutterSecureStorage();
+    : _storage = storage ?? const FlutterSecureStorage();
 
   static const _key = 'refresh_token';
   final FlutterSecureStorage _storage;
@@ -21,7 +21,8 @@ class SecureTokenStore implements TokenStore {
   Future<String?> readRefresh() => _storage.read(key: _key);
 
   @override
-  Future<void> writeRefresh(String token) => _storage.write(key: _key, value: token);
+  Future<void> writeRefresh(String token) =>
+      _storage.write(key: _key, value: token);
 
   @override
   Future<void> clear() => _storage.delete(key: _key);

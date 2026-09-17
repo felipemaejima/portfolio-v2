@@ -18,7 +18,12 @@ class EducationFormPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
-    if (id == null) return AdminPage(title: l10n.newEducation, child: const _Form(initial: null));
+    if (id == null) {
+      return AdminPage(
+        title: l10n.newEducation,
+        child: const _Form(initial: null),
+      );
+    }
     return AdminPage(
       title: l10n.editEducation,
       child: AsyncValueView(
@@ -26,7 +31,9 @@ class EducationFormPage extends ConsumerWidget {
         onRetry: () => ref.invalidate(educationsProvider),
         data: (_) {
           final item = ref.watch(educationByIdProvider(id!));
-          return item == null ? Text(l10n.notFound) : _Form(key: ValueKey(item.updatedAt), initial: item);
+          return item == null
+              ? Text(l10n.notFound)
+              : _Form(key: ValueKey(item.updatedAt), initial: item);
         },
       ),
     );
@@ -43,9 +50,15 @@ class _Form extends ConsumerStatefulWidget {
 
 class _FormState extends ConsumerState<_Form> {
   late final _course = TextEditingController(text: widget.initial?.courseName);
-  late final _institution = TextEditingController(text: widget.initial?.institution);
-  late final _start = TextEditingController(text: widget.initial?.startYear.toString());
-  late final _end = TextEditingController(text: widget.initial?.endYear?.toString());
+  late final _institution = TextEditingController(
+    text: widget.initial?.institution,
+  );
+  late final _start = TextEditingController(
+    text: widget.initial?.startYear.toString(),
+  );
+  late final _end = TextEditingController(
+    text: widget.initial?.endYear?.toString(),
+  );
   FormErrors _errors = FormErrors.none;
   bool _busy = false;
 
@@ -63,17 +76,24 @@ class _FormState extends ConsumerState<_Form> {
     final endText = _end.text.trim();
     final end = endText.isEmpty ? null : int.tryParse(endText);
     if (start == null || (endText.isNotEmpty && end == null)) {
-      setState(() => _errors = FormErrors({
-            if (start == null) 'startYear': [l10n.invalidYear],
-            if (endText.isNotEmpty && end == null) 'endYear': [l10n.invalidYear],
-          }));
+      setState(
+        () => _errors = FormErrors({
+          if (start == null) 'startYear': [l10n.invalidYear],
+          if (endText.isNotEmpty && end == null) 'endYear': [l10n.invalidYear],
+        }),
+      );
       return;
     }
     setState(() {
       _busy = true;
       _errors = FormErrors.none;
     });
-    final input = EducationInputDto(courseName: _course.text.trim(), institution: _institution.text.trim(), startYear: start, endYear: end);
+    final input = EducationInputDto(
+      courseName: _course.text.trim(),
+      institution: _institution.text.trim(),
+      startYear: start,
+      endYear: end,
+    );
     try {
       final editor = ref.read(educationsEditorProvider);
       if (widget.initial == null) {
@@ -104,9 +124,23 @@ class _FormState extends ConsumerState<_Form> {
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Expanded(child: _text(_start, l10n.educationStartYear, 'startYear', number: true)),
+            Expanded(
+              child: _text(
+                _start,
+                l10n.educationStartYear,
+                'startYear',
+                number: true,
+              ),
+            ),
             const SizedBox(width: 12),
-            Expanded(child: _text(_end, l10n.educationEndYear, 'endYear', number: true)),
+            Expanded(
+              child: _text(
+                _end,
+                l10n.educationEndYear,
+                'endYear',
+                number: true,
+              ),
+            ),
           ],
         ),
         FilledButton(onPressed: _busy ? null : _save, child: Text(l10n.save)),
@@ -114,12 +148,17 @@ class _FormState extends ConsumerState<_Form> {
     );
   }
 
-  Widget _text(TextEditingController c, String label, String field, {bool number = false}) => Padding(
-        padding: const EdgeInsets.only(bottom: 16),
-        child: TextField(
-          controller: c,
-          keyboardType: number ? TextInputType.number : null,
-          decoration: InputDecoration(labelText: label, errorText: _errors[field]),
-        ),
-      );
+  Widget _text(
+    TextEditingController c,
+    String label,
+    String field, {
+    bool number = false,
+  }) => Padding(
+    padding: const EdgeInsets.only(bottom: 16),
+    child: TextField(
+      controller: c,
+      keyboardType: number ? TextInputType.number : null,
+      decoration: InputDecoration(labelText: label, errorText: _errors[field]),
+    ),
+  );
 }

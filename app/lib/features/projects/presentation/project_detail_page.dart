@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../api/models/project_dto.dart';
+import '../../../core/config/app_config.dart';
 import '../../../core/ui/async_value_view.dart';
 import '../../../core/ui/breakpoints.dart';
 import '../../../core/ui/section.dart';
@@ -22,7 +23,9 @@ class ProjectDetailPage extends ConsumerWidget {
     final value = ref.watch(projectBySlugProvider(slug));
     return Scaffold(
       appBar: AppBar(
-        leading: BackButton(onPressed: () => context.canPop() ? context.pop() : context.go('/')),
+        leading: BackButton(
+          onPressed: () => context.canPop() ? context.pop() : context.go('/'),
+        ),
         title: Text(value.value?.name ?? ''),
       ),
       body: SingleChildScrollView(
@@ -45,7 +48,9 @@ class _Detail extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final text = Theme.of(context).textTheme;
-    final paragraphs = project.fullDescription.split(RegExp(r'\n\s*\n')).where((s) => s.trim().isNotEmpty);
+    final paragraphs = project.fullDescription
+        .split(RegExp(r'\n\s*\n'))
+        .where((s) => s.trim().isNotEmpty);
 
     return ConstrainedBox(
       constraints: const BoxConstraints(maxWidth: 900),
@@ -54,15 +59,36 @@ class _Detail extends StatelessWidget {
         children: [
           Text(project.name, style: text.headlineMedium),
           const SizedBox(height: 8),
-          Text(project.shortDescription, style: text.bodyLarge?.copyWith(color: AppColors.neutral300)),
+          Text(
+            project.shortDescription,
+            style: text.bodyLarge?.copyWith(color: AppColors.neutral300),
+          ),
           const SizedBox(height: 16),
-          Wrap(spacing: 8, runSpacing: 8, children: [for (final t in project.technologies) TagChip(t)]),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [for (final t in project.technologies) TagChip(t)],
+          ),
           const SizedBox(height: 16),
           Wrap(
             spacing: 12,
             children: [
-              if (project.codeUrl case final url?) OutlinedButton(onPressed: () => launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication), child: Text(l10n.projectCode)),
-              if (project.demoUrl case final url?) FilledButton(onPressed: () => launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication), child: Text(l10n.projectDemo)),
+              if (project.codeUrl case final url?)
+                OutlinedButton(
+                  onPressed: () => launchUrl(
+                    Uri.parse(url),
+                    mode: LaunchMode.externalApplication,
+                  ),
+                  child: Text(l10n.projectCode),
+                ),
+              if (project.demoUrl case final url?)
+                FilledButton(
+                  onPressed: () => launchUrl(
+                    Uri.parse(url),
+                    mode: LaunchMode.externalApplication,
+                  ),
+                  child: Text(l10n.projectDemo),
+                ),
             ],
           ),
           if (project.images.isNotEmpty) ...[
@@ -72,13 +98,26 @@ class _Detail extends StatelessWidget {
                 padding: const EdgeInsets.only(bottom: 16),
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(12),
-                  child: CachedNetworkImage(imageUrl: img.url, fit: BoxFit.contain, placeholder: (_, _) => const AspectRatio(aspectRatio: 16 / 9, child: ColoredBox(color: AppColors.surface))),
+                  child: CachedNetworkImage(
+                    imageUrl: AppConfig.resolve(img.url),
+                    fit: BoxFit.contain,
+                    placeholder: (_, _) => const AspectRatio(
+                      aspectRatio: 16 / 9,
+                      child: ColoredBox(color: AppColors.surface),
+                    ),
+                  ),
                 ),
               ),
           ],
           const SizedBox(height: 16),
           for (final p in paragraphs) ...[
-            Text(p.trim(), style: text.bodyMedium?.copyWith(color: AppColors.neutral300, height: 1.7)),
+            Text(
+              p.trim(),
+              style: text.bodyMedium?.copyWith(
+                color: AppColors.neutral300,
+                height: 1.7,
+              ),
+            ),
             const SizedBox(height: 16),
           ],
         ],

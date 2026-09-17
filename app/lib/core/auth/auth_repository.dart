@@ -14,26 +14,34 @@ import '../network/dio.dart';
 /// sem retry); me/logout usam o Dio principal (com bearer).
 class AuthRepository {
   AuthRepository({required AuthClient raw, required AuthClient authed})
-      : _raw = raw,
-        _authed = authed;
+    : _raw = raw,
+      _authed = authed;
 
   final AuthClient _raw;
   final AuthClient _authed;
 
   // ignore_for_file: prefer_initializing_formals — campos privados com nome público
 
-  static ClientPlatform get platform => kIsWeb ? ClientPlatform.web : ClientPlatform.mobile;
+  static ClientPlatform get platform =>
+      kIsWeb ? ClientPlatform.web : ClientPlatform.mobile;
 
   Future<AuthTokensDto> login(String email, String password) => _guard(
-        () => _raw.login(body: LoginDto(email: email, password: password, clientPlatform: platform)),
-      );
+    () => _raw.login(
+      body: LoginDto(
+        email: email,
+        password: password,
+        clientPlatform: platform,
+      ),
+    ),
+  );
 
   /// Web: body vazio, o cookie vai sozinho. Mobile: refresh do store.
   Future<AuthTokensDto> refresh(String? refreshToken) =>
       _guard(() => _raw.refresh(body: RefreshDto(refreshToken: refreshToken)));
 
-  Future<void> logout(String? refreshToken) =>
-      _guard(() => _authed.logout(body: RefreshDto(refreshToken: refreshToken)));
+  Future<void> logout(String? refreshToken) => _guard(
+    () => _authed.logout(body: RefreshDto(refreshToken: refreshToken)),
+  );
 
   Future<AdminDto> me() => _guard(_authed.me);
 

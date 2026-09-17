@@ -48,4 +48,3 @@ export 'models/create_contact_message_dto.dart';
 export 'models/contact_message_dto.dart';
 // Root client
 export 'rest_client.dart';
-

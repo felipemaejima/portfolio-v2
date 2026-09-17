@@ -42,8 +42,14 @@ class _ContactFormState extends ConsumerState<ContactForm> {
       _error = null;
     });
     try {
-      await ref.read(contactEditorProvider).send(
-            CreateContactMessageDto(name: _name.text.trim(), email: _email.text.trim(), message: _message.text.trim()),
+      await ref
+          .read(contactEditorProvider)
+          .send(
+            CreateContactMessageDto(
+              name: _name.text.trim(),
+              email: _email.text.trim(),
+              message: _message.text.trim(),
+            ),
           );
       setState(() => _sent = true);
     } on ApiValidation catch (e) {
@@ -61,7 +67,10 @@ class _ContactFormState extends ConsumerState<ContactForm> {
     if (_sent) {
       return Container(
         padding: const EdgeInsets.all(24),
-        decoration: BoxDecoration(color: AppColors.surface, borderRadius: BorderRadius.circular(12)),
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          borderRadius: BorderRadius.circular(12),
+        ),
         child: Row(
           children: [
             const Icon(Icons.check_circle_outline, color: AppColors.accent300),
@@ -74,17 +83,44 @@ class _ContactFormState extends ConsumerState<ContactForm> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        TextField(controller: _name, decoration: InputDecoration(labelText: l10n.contactName, errorText: _errors['name'])),
+        TextField(
+          controller: _name,
+          decoration: InputDecoration(
+            labelText: l10n.contactName,
+            errorText: _errors['name'],
+          ),
+        ),
         const SizedBox(height: 12),
-        TextField(controller: _email, keyboardType: TextInputType.emailAddress, decoration: InputDecoration(labelText: l10n.contactEmail, errorText: _errors['email'])),
+        TextField(
+          controller: _email,
+          keyboardType: TextInputType.emailAddress,
+          decoration: InputDecoration(
+            labelText: l10n.contactEmail,
+            errorText: _errors['email'],
+          ),
+        ),
         const SizedBox(height: 12),
-        TextField(controller: _message, maxLines: 5, decoration: InputDecoration(labelText: l10n.contactMessage, errorText: _errors['message'], alignLabelWithHint: true)),
+        TextField(
+          controller: _message,
+          maxLines: 5,
+          decoration: InputDecoration(
+            labelText: l10n.contactMessage,
+            errorText: _errors['message'],
+            alignLabelWithHint: true,
+          ),
+        ),
         if (_error != null) ...[
           const SizedBox(height: 12),
-          Text(_error!, style: TextStyle(color: Theme.of(context).colorScheme.error)),
+          Text(
+            _error!,
+            style: TextStyle(color: Theme.of(context).colorScheme.error),
+          ),
         ],
         const SizedBox(height: 16),
-        FilledButton(onPressed: _busy ? null : _send, child: Text(l10n.contactSend)),
+        FilledButton(
+          onPressed: _busy ? null : _send,
+          child: Text(l10n.contactSend),
+        ),
       ],
     );
   }

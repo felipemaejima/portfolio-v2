@@ -293,9 +293,11 @@ export abstract class FileStorage {
 ```
 - `LocalDiskStorage`: grava em `UPLOADS_DIR/<keyPrefix>/<uuid>.<ext>` com
   `flag: 'wx'` (chave nova nunca sobrescreve) e recusa chave que escape da
-  raiz; `url` = `PUBLIC_UPLOADS_BASE_URL + '/' + key`. Extensão vem do mime
-  detectado. O banco guarda a **chave** (`imageKey`); a URL é derivada na
-  leitura via `FileStorage.urlFor`, então mudar a base URL não exige migração.
+  raiz; `url` = `/uploads/<key>` (caminho relativo à origem; sem variável de
+  ambiente — o mesmo valor serve browser em localhost, celular na rede local
+  e domínio hospedado). Extensão vem do mime detectado. O banco guarda a
+  **chave** (`imageKey`); o caminho é derivado na leitura via
+  `FileStorage.urlFor`.
 - Upload: `FileInterceptor('file')` / `FilesInterceptor('files', 12)` com
   `limits.fileSize = MAX_UPLOAD_BYTES` (constante de contrato em
   `shared/storage/image-type.ts`, não variável de ambiente); depois

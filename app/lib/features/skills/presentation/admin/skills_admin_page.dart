@@ -15,19 +15,35 @@ import '../../application/skills_provider.dart';
 class SkillsAdminPage extends ConsumerWidget {
   const SkillsAdminPage({super.key});
 
-  Future<void> _act(BuildContext context, Future<void> Function() action) async {
+  Future<void> _act(
+    BuildContext context,
+    Future<void> Function() action,
+  ) async {
     try {
       await action();
     } on Object catch (e) {
-      if (context.mounted) notify(context, failureText(AppLocalizations.of(context), e), error: true);
+      if (context.mounted) {
+        notify(
+          context,
+          failureText(AppLocalizations.of(context), e),
+          error: true,
+        );
+      }
     }
   }
 
   Future<void> _newCategory(BuildContext context, WidgetRef ref) async {
     final l10n = AppLocalizations.of(context);
-    final name = await _prompt(context, title: l10n.newCategory, label: l10n.categoryName);
+    final name = await _prompt(
+      context,
+      title: l10n.newCategory,
+      label: l10n.categoryName,
+    );
     if (name == null || !context.mounted) return;
-    await _act(context, () => ref.read(skillsEditorProvider).createCategory(name));
+    await _act(
+      context,
+      () => ref.read(skillsEditorProvider).createCategory(name),
+    );
   }
 
   @override
@@ -35,7 +51,13 @@ class SkillsAdminPage extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     return AdminPage(
       title: l10n.navSkills,
-      actions: [FilledButton.icon(onPressed: () => _newCategory(context, ref), icon: const Icon(Icons.add), label: Text(l10n.newCategory))],
+      actions: [
+        FilledButton.icon(
+          onPressed: () => _newCategory(context, ref),
+          icon: const Icon(Icons.add),
+          label: Text(l10n.newCategory),
+        ),
+      ],
       child: AsyncValueView(
         value: ref.watch(skillCategoriesProvider),
         onRetry: () => ref.invalidate(skillCategoriesProvider),
@@ -43,7 +65,11 @@ class SkillsAdminPage extends ConsumerWidget {
           items: categories,
           idOf: (c) => c.id,
           onReorder: ref.read(skillsEditorProvider).reorderCategories,
-          itemBuilder: (context, c) => _CategoryCard(category: c, categories: categories, act: (a) => _act(context, a)),
+          itemBuilder: (context, c) => _CategoryCard(
+            category: c,
+            categories: categories,
+            act: (a) => _act(context, a),
+          ),
         ),
       ),
     );
@@ -51,7 +77,11 @@ class SkillsAdminPage extends ConsumerWidget {
 }
 
 class _CategoryCard extends ConsumerStatefulWidget {
-  const _CategoryCard({required this.category, required this.categories, required this.act});
+  const _CategoryCard({
+    required this.category,
+    required this.categories,
+    required this.act,
+  });
   final SkillCategoryDto category;
   final List<SkillCategoryDto> categories;
   final Future<void> Function(Future<void> Function()) act;
@@ -80,14 +110,26 @@ class _CategoryCardState extends ConsumerState<_CategoryCard> {
 
   Future<void> _rename() async {
     final l10n = AppLocalizations.of(context);
-    final name = await _prompt(context, title: l10n.renameCategory, label: l10n.categoryName, initial: widget.category.name);
+    final name = await _prompt(
+      context,
+      title: l10n.renameCategory,
+      label: l10n.categoryName,
+      initial: widget.category.name,
+    );
     if (name == null || !mounted) return;
     await widget.act(() => _editor.renameCategory(widget.category.id, name));
   }
 
   Future<void> _deleteCategory() async {
     final l10n = AppLocalizations.of(context);
-    if (!await confirm(context, title: l10n.confirmDeleteCategory, confirmLabel: l10n.delete, cancelLabel: l10n.cancel)) return;
+    if (!await confirm(
+      context,
+      title: l10n.confirmDeleteCategory,
+      confirmLabel: l10n.delete,
+      cancelLabel: l10n.cancel,
+    )) {
+      return;
+    }
     await widget.act(() => _editor.deleteCategory(widget.category.id));
   }
 
@@ -113,9 +155,22 @@ class _CategoryCardState extends ConsumerState<_CategoryCard> {
           children: [
             Row(
               children: [
-                Expanded(child: Text(c.name, style: Theme.of(context).textTheme.titleMedium)),
-                IconButton(icon: const Icon(Icons.edit_outlined), tooltip: l10n.renameCategory, onPressed: _rename),
-                IconButton(icon: const Icon(Icons.delete_outline), tooltip: l10n.delete, onPressed: _deleteCategory),
+                Expanded(
+                  child: Text(
+                    c.name,
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.edit_outlined),
+                  tooltip: l10n.renameCategory,
+                  onPressed: _rename,
+                ),
+                IconButton(
+                  icon: const Icon(Icons.delete_outline),
+                  tooltip: l10n.delete,
+                  onPressed: _deleteCategory,
+                ),
               ],
             ),
             ReorderableAdminList<SkillDto>(
@@ -140,12 +195,18 @@ class _CategoryCardState extends ConsumerState<_CategoryCard> {
                 Expanded(
                   child: TextField(
                     controller: _newSkill,
-                    decoration: InputDecoration(hintText: l10n.newSkillHint, isDense: true),
+                    decoration: InputDecoration(
+                      hintText: l10n.newSkillHint,
+                      isDense: true,
+                    ),
                     onSubmitted: (_) => _addSkill(),
                   ),
                 ),
                 const SizedBox(width: 8),
-                IconButton.filledTonal(icon: const Icon(Icons.add), onPressed: _addSkill),
+                IconButton.filledTonal(
+                  icon: const Icon(Icons.add),
+                  onPressed: _addSkill,
+                ),
               ],
             ),
           ],
@@ -182,40 +243,68 @@ class _SkillDialogState extends State<_SkillDialog> {
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          TextField(controller: _name, autofocus: true, decoration: InputDecoration(labelText: l10n.skillName)),
+          TextField(
+            controller: _name,
+            autofocus: true,
+            decoration: InputDecoration(labelText: l10n.skillName),
+          ),
           const SizedBox(height: 12),
           DropdownMenu<String>(
             initialSelection: _categoryId,
             label: Text(l10n.categoryName),
             onSelected: (v) => _categoryId = v ?? _categoryId,
-            dropdownMenuEntries: [for (final c in widget.categories) DropdownMenuEntry(value: c.id, label: c.name)],
+            dropdownMenuEntries: [
+              for (final c in widget.categories)
+                DropdownMenuEntry(value: c.id, label: c.name),
+            ],
           ),
         ],
       ),
       actions: [
-        TextButton(onPressed: () => Navigator.pop(context), child: Text(l10n.cancel)),
-        FilledButton(onPressed: () => Navigator.pop(context, (_name.text.trim(), _categoryId)), child: Text(l10n.save)),
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: Text(l10n.cancel),
+        ),
+        FilledButton(
+          onPressed: () =>
+              Navigator.pop(context, (_name.text.trim(), _categoryId)),
+          child: Text(l10n.save),
+        ),
       ],
     );
   }
 }
 
 /// Diálogo de um campo de texto; devolve null se cancelado.
-Future<String?> _prompt(BuildContext context, {required String title, required String label, String initial = ''}) {
+Future<String?> _prompt(
+  BuildContext context, {
+  required String title,
+  required String label,
+  String initial = '',
+}) {
   final controller = TextEditingController(text: initial);
   return showDialog<String>(
     context: context,
     builder: (context) => AlertDialog(
       title: Text(title),
-      content: TextField(controller: controller, autofocus: true, decoration: InputDecoration(labelText: label)),
+      content: TextField(
+        controller: controller,
+        autofocus: true,
+        decoration: InputDecoration(labelText: label),
+      ),
       actions: [
-        TextButton(onPressed: () => Navigator.pop(context), child: Text(AppLocalizations.of(context).cancel)),
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: Text(AppLocalizations.of(context).cancel),
+        ),
         FilledButton(
-          onPressed: () => Navigator.pop(context, controller.text.trim().isEmpty ? null : controller.text.trim()),
+          onPressed: () => Navigator.pop(
+            context,
+            controller.text.trim().isEmpty ? null : controller.text.trim(),
+          ),
           child: Text(AppLocalizations.of(context).save),
         ),
       ],
     ),
   ).whenComplete(controller.dispose);
 }
-

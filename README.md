@@ -108,9 +108,7 @@ make build-apk API_BASE_URL=https://seu-dominio.com
 ```
 
 **Contra a API rodando na sua máquina (desenvolvimento):** celular e máquina
-na mesma rede; no `.env`, `PUBLIC_UPLOADS_BASE_URL=http://<ip-da-máquina>/uploads`
-(+ `make restart`), senão as imagens apontam para `localhost` e não carregam
-no aparelho.
+na mesma rede.
 ```sh
 make build-apk-dev API_BASE_URL=http://<ip-da-máquina>   # só o build de debug aceita http
 ```
@@ -124,8 +122,7 @@ abertas. O Caddy emite o certificado TLS sozinho.
 
 1. Clone o repositório no servidor e crie o `.env` com **valores reais**:
    `JWT_ACCESS_SECRET` (`make secret`), `ADMIN_EMAIL`, `ADMIN_PASSWORD`,
-   `COOKIE_SECURE=true`, `SITE_ADDRESS=https://seu-dominio.com`,
-   `PUBLIC_UPLOADS_BASE_URL=https://seu-dominio.com/uploads`, e uma senha
+   `COOKIE_SECURE=true`, `SITE_ADDRESS=https://seu-dominio.com`, e uma senha
    forte em `POSTGRES_PASSWORD` (refletida em `DATABASE_URL`).
    **A API se recusa a subir em produção com os valores de exemplo.**
 2. `make prod-up` — constrói as imagens (a do edge compila o Flutter Web
@@ -156,7 +153,7 @@ Backups (funcionam com dev ou prod no ar): `make db-backup`,
 
 | Sintoma | Causa provável | O que fazer |
 |---------|----------------|-------------|
-| App no celular abre mas nada carrega | máquina inacessível, ou `.env` com `PUBLIC_UPLOADS_BASE_URL=localhost` | abra `http://<ip>/api/v1/health` no navegador do celular; ajuste o `.env` e `make restart`; em build de debug o app mostra a causa técnica embaixo do erro |
+| App no celular abre mas nada carrega | máquina inacessível pela rede (firewall na porta 80) ou APK de release apontando para `http` | abra `http://<ip>/api/v1/health` no navegador do celular; para `http` use `build-apk-dev`; em build de debug o app mostra a causa técnica embaixo do erro |
 | `make prod-up` não sobe a API | `.env` de exemplo | `make prod-logs` lista campo a campo o que corrigir |
 | Site mostra dados velhos | cache do navegador do `main.dart.js` | recarregar forte; o Caddy já serve `flutter_service_worker.js` sem cache |
 | `make app-gen-check` falha no CI | contrato mudou e o cliente não foi regenerado | `make app-gen` e commit `app/lib/api` |

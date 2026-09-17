@@ -7,7 +7,13 @@ import 'failure_text.dart';
 
 /// Loading / erro (com retry) / dado, padronizado para toda lista e detalhe.
 class AsyncValueView<T> extends StatelessWidget {
-  const AsyncValueView({required this.value, required this.data, this.onRetry, this.compact = false, super.key});
+  const AsyncValueView({
+    required this.value,
+    required this.data,
+    this.onRetry,
+    this.compact = false,
+    super.key,
+  });
 
   final AsyncValue<T> value;
   final Widget Function(T data) data;
@@ -34,7 +40,13 @@ class AsyncValueView<T> extends StatelessWidget {
               if (kDebugMode) ...[
                 const SizedBox(height: 8),
                 // Só em debug: a causa técnica (ex.: DioException connection error), para diagnosticar no aparelho.
-                Text('$error', textAlign: TextAlign.center, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Theme.of(context).colorScheme.error)),
+                Text(
+                  '$error',
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Theme.of(context).colorScheme.error,
+                  ),
+                ),
               ],
               if (onRetry != null) ...[
                 const SizedBox(height: 12),

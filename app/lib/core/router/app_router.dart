@@ -44,7 +44,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       if (!kIsWeb && !isAdmin) return '/admin';
 
       if (isAdmin && !isLogin && !loggedIn) {
-        return Uri(path: '/admin/login', queryParameters: {'from': state.uri.toString()}).toString();
+        return Uri(
+          path: '/admin/login',
+          queryParameters: {'from': state.uri.toString()},
+        ).toString();
       }
       if (isLogin && loggedIn) {
         return state.uri.queryParameters['from'] ?? '/admin';
@@ -55,26 +58,78 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(path: '/', builder: (_, _) => const HomePage()),
       GoRoute(path: '/projects', builder: (_, _) => const ProjectsPage()),
       GoRoute(path: '/contact', builder: (_, _) => const ContactPage()),
-      GoRoute(path: '/projects/:slug', builder: (_, state) => ProjectDetailPage(slug: state.pathParameters['slug']!)),
+      GoRoute(
+        path: '/projects/:slug',
+        builder: (_, state) =>
+            ProjectDetailPage(slug: state.pathParameters['slug']!),
+      ),
       GoRoute(path: '/admin/login', builder: (_, _) => const LoginPage()),
       ShellRoute(
         builder: (_, _, child) => AdminShellPage(child: child),
         routes: [
-          GoRoute(path: '/admin', builder: (_, _) => const AdminDashboardPage()),
-          GoRoute(path: '/admin/profile', builder: (_, _) => const ProfileFormPage()),
-          GoRoute(path: '/admin/projects', builder: (_, _) => const ProjectsAdminPage()),
-          GoRoute(path: '/admin/projects/new', builder: (_, _) => const ProjectFormPage()),
-          GoRoute(path: '/admin/projects/:id', builder: (_, state) => ProjectFormPage(id: state.pathParameters['id'])),
-          GoRoute(path: '/admin/skills', builder: (_, _) => const SkillsAdminPage()),
-          GoRoute(path: '/admin/experiences', builder: (_, _) => const ExperiencesAdminPage()),
-          GoRoute(path: '/admin/experiences/new', builder: (_, _) => const ExperienceFormPage()),
-          GoRoute(path: '/admin/experiences/:id', builder: (_, state) => ExperienceFormPage(id: state.pathParameters['id'])),
-          GoRoute(path: '/admin/educations', builder: (_, _) => const EducationsAdminPage()),
-          GoRoute(path: '/admin/educations/new', builder: (_, _) => const EducationFormPage()),
-          GoRoute(path: '/admin/educations/:id', builder: (_, state) => EducationFormPage(id: state.pathParameters['id'])),
-          GoRoute(path: '/admin/offerings', builder: (_, _) => const OfferingsAdminPage()),
-          GoRoute(path: '/admin/contact-links', builder: (_, _) => const ContactLinksAdminPage()),
-          GoRoute(path: '/admin/messages', builder: (_, _) => const MessagesAdminPage()),
+          GoRoute(
+            path: '/admin',
+            builder: (_, _) => const AdminDashboardPage(),
+          ),
+          GoRoute(
+            path: '/admin/profile',
+            builder: (_, _) => const ProfileFormPage(),
+          ),
+          GoRoute(
+            path: '/admin/projects',
+            builder: (_, _) => const ProjectsAdminPage(),
+          ),
+          GoRoute(
+            path: '/admin/projects/new',
+            builder: (_, _) => const ProjectFormPage(),
+          ),
+          GoRoute(
+            path: '/admin/projects/:id',
+            builder: (_, state) =>
+                ProjectFormPage(id: state.pathParameters['id']),
+          ),
+          GoRoute(
+            path: '/admin/skills',
+            builder: (_, _) => const SkillsAdminPage(),
+          ),
+          GoRoute(
+            path: '/admin/experiences',
+            builder: (_, _) => const ExperiencesAdminPage(),
+          ),
+          GoRoute(
+            path: '/admin/experiences/new',
+            builder: (_, _) => const ExperienceFormPage(),
+          ),
+          GoRoute(
+            path: '/admin/experiences/:id',
+            builder: (_, state) =>
+                ExperienceFormPage(id: state.pathParameters['id']),
+          ),
+          GoRoute(
+            path: '/admin/educations',
+            builder: (_, _) => const EducationsAdminPage(),
+          ),
+          GoRoute(
+            path: '/admin/educations/new',
+            builder: (_, _) => const EducationFormPage(),
+          ),
+          GoRoute(
+            path: '/admin/educations/:id',
+            builder: (_, state) =>
+                EducationFormPage(id: state.pathParameters['id']),
+          ),
+          GoRoute(
+            path: '/admin/offerings',
+            builder: (_, _) => const OfferingsAdminPage(),
+          ),
+          GoRoute(
+            path: '/admin/contact-links',
+            builder: (_, _) => const ContactLinksAdminPage(),
+          ),
+          GoRoute(
+            path: '/admin/messages',
+            builder: (_, _) => const MessagesAdminPage(),
+          ),
         ],
       ),
     ],

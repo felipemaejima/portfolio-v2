@@ -23,8 +23,15 @@ class MessagesAdminPage extends ConsumerWidget {
         value: ref.watch(contactMessagesProvider),
         onRetry: () => ref.invalidate(contactMessagesProvider),
         data: (items) => items.isEmpty
-            ? Center(child: Padding(padding: const EdgeInsets.all(32), child: Text(l10n.emptyList)))
-            : Column(children: [for (final m in items) _MessageTile(message: m)]),
+            ? Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(32),
+                  child: Text(l10n.emptyList),
+                ),
+              )
+            : Column(
+                children: [for (final m in items) _MessageTile(message: m)],
+              ),
       ),
     );
   }
@@ -38,7 +45,9 @@ class _MessageTile extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final unread = message.readAt == null;
-    final date = DateFormat('dd/MM/yyyy HH:mm').format(message.createdAt.toLocal());
+    final date = DateFormat(
+      'dd/MM/yyyy HH:mm',
+    ).format(message.createdAt.toLocal());
 
     Future<void> act(Future<void> Function() action) async {
       try {
@@ -52,22 +61,47 @@ class _MessageTile extends ConsumerWidget {
       margin: const EdgeInsets.only(bottom: 8),
       child: ExpansionTile(
         onExpansionChanged: (open) {
-          if (open && unread) act(() => ref.read(contactEditorProvider).markRead(message.id));
+          if (open && unread) {
+            act(() => ref.read(contactEditorProvider).markRead(message.id));
+          }
         },
-        leading: Icon(unread ? Icons.mark_email_unread_outlined : Icons.drafts_outlined, color: unread ? AppColors.accent : AppColors.neutral500),
-        title: Text(message.name, style: TextStyle(fontWeight: unread ? FontWeight.w600 : FontWeight.normal)),
-        subtitle: Text('${message.email} · $date', style: const TextStyle(color: AppColors.neutral500)),
+        leading: Icon(
+          unread ? Icons.mark_email_unread_outlined : Icons.drafts_outlined,
+          color: unread ? AppColors.accent : AppColors.neutral500,
+        ),
+        title: Text(
+          message.name,
+          style: TextStyle(
+            fontWeight: unread ? FontWeight.w600 : FontWeight.normal,
+          ),
+        ),
+        subtitle: Text(
+          '${message.email} · $date',
+          style: const TextStyle(color: AppColors.neutral500),
+        ),
         trailing: IconButton(
           icon: const Icon(Icons.delete_outline),
           onPressed: () async {
-            if (!await confirm(context, title: l10n.confirmDelete, confirmLabel: l10n.delete, cancelLabel: l10n.cancel)) return;
-            await act(() => ref.read(contactEditorProvider).deleteMessage(message.id));
+            if (!await confirm(
+              context,
+              title: l10n.confirmDelete,
+              confirmLabel: l10n.delete,
+              cancelLabel: l10n.cancel,
+            )) {
+              return;
+            }
+            await act(
+              () => ref.read(contactEditorProvider).deleteMessage(message.id),
+            );
           },
         ),
         children: [
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-            child: Align(alignment: Alignment.centerLeft, child: SelectableText(message.message)),
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: SelectableText(message.message),
+            ),
           ),
         ],
       ),

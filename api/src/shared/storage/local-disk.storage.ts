@@ -7,19 +7,22 @@ import type { AppConfig } from '../config/config.schema.js';
 import { FileStorage, type FileToStore, type StoredFile } from './file-storage.js';
 import { IMAGE_EXTENSIONS } from './image-type.js';
 
+/** Prefixo público servido pelo Caddy (INFRA.md). Constante de contrato. */
+export const UPLOADS_PUBLIC_PATH = '/uploads';
+
 /**
- * Disco local (ADR 0003): grava em UPLOADS_DIR e devolve URL sob
- * PUBLIC_UPLOADS_BASE_URL. Quem serve os bytes é a borda (Caddy).
+ * Disco local (ADR 0003): grava em UPLOADS_DIR e devolve o caminho público
+ * `/uploads/<key>`, relativo à origem — o mesmo caminho vale para o browser
+ * em localhost, o celular na rede local e o domínio hospedado. Quem serve os
+ * bytes é a borda (Caddy).
  */
 @Injectable()
 export class LocalDiskStorage extends FileStorage {
   private readonly root: string;
-  private readonly baseUrl: string;
 
   constructor(config: ConfigService<AppConfig, true>) {
     super();
     this.root = config.get('UPLOADS_DIR', { infer: true });
-    this.baseUrl = config.get('PUBLIC_UPLOADS_BASE_URL', { infer: true }).replace(/\/+$/, '');
   }
 
   async put(file: FileToStore, keyPrefix: string): Promise<StoredFile> {
@@ -36,7 +39,7 @@ export class LocalDiskStorage extends FileStorage {
   }
 
   urlFor(key: string): string {
-    return `${this.baseUrl}/${key}`;
+    return `${UPLOADS_PUBLIC_PATH}/${key}`;
   }
 
   private pathFor(key: string): string {

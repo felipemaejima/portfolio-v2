@@ -50,7 +50,8 @@ class AuthNotifier extends AsyncNotifier<AuthState> {
 
   /// Rotaciona o refresh e devolve o access novo, ou null se a sessão acabou.
   /// Single-flight: chamadas concorrentes compartilham a mesma Future.
-  Future<String?> refreshAccessToken() => _refreshing ??= _doRefresh().whenComplete(() => _refreshing = null);
+  Future<String?> refreshAccessToken() =>
+      _refreshing ??= _doRefresh().whenComplete(() => _refreshing = null);
 
   Future<String?> _doRefresh() async {
     final stored = await _store.readRefresh();
@@ -79,4 +80,6 @@ class AuthNotifier extends AsyncNotifier<AuthState> {
   }
 }
 
-final authProvider = AsyncNotifierProvider<AuthNotifier, AuthState>(AuthNotifier.new);
+final authProvider = AsyncNotifierProvider<AuthNotifier, AuthState>(
+  AuthNotifier.new,
+);

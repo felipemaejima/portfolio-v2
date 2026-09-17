@@ -16,6 +16,7 @@ abstract class ProjectImageDto with _$ProjectImageDto {
     required String url,
     required int position,
   }) = _ProjectImageDto;
-  
-  factory ProjectImageDto.fromJson(Map<String, Object?> json) => _$ProjectImageDtoFromJson(json);
+
+  factory ProjectImageDto.fromJson(Map<String, Object?> json) =>
+      _$ProjectImageDtoFromJson(json);
 }
