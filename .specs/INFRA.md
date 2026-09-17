@@ -116,6 +116,26 @@ entregando ao dono do host tudo que foi criado no bind mount. `git config
 --system safe.directory '*'` evita o "dubious ownership" do SDK.
 
 ### `edge/Dockerfile` (prod)
+Três estágios: `build` (Flutter Web `--wasm --no-web-resources-cdn`),
+`compress` (alpine com `brotli`/`gzip`: gera `.br` e `.gz` de js/mjs/wasm/
+json/ttf/otf/html) e a imagem final `caddy:2-alpine` com `/srv` e o
+`Caddyfile.prod`. O Caddy serve os pré-comprimidos (`file_server {
+precompressed br gzip }`): zero CPU de compressão no servidor para o app; a
+API continua com `encode` sob demanda (JSON pequeno).
+
+**Cache:** nenhum arquivo do build tem hash no nome e o service worker do
+Flutter (build Wasm) não cacheia recursos — então o app é servido com
+`Cache-Control: no-cache` (revalidação por ETag → 304, sem transferir bytes)
+e só `/uploads/*` é `immutable`. Alternativa mais agressiva exigiria
+renomear os artefatos por hash no build; não vale o risco de app velho.
+
+**CSP** (só no `handle` do app): `default-src 'self'; script-src 'self'
+'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data:
+blob:; font-src 'self' data:; connect-src 'self'; worker-src 'self' blob:;
+object-src 'none'; frame-ancestors 'none'`. Possível porque nada vem de
+terceiros; qualquer recurso externo futuro (analytics, fontes) precisa
+entrar aqui explicitamente. O `index.html` não tem script inline
+(`splash.js`).
 ```
 FROM ghcr.io/cirruslabs/flutter:<versão> AS build
 WORKDIR /app
@@ -137,9 +157,13 @@ COPY edge/Caddyfile.prod /etc/caddy/Caddyfile
 | `caddy_data` | `edge:/data` (prod) | certificados |
 | `pub_cache` | `app:/root/.pub-cache` (dev) | cache do `pub` entre `run`s |
 
-Backup (prod): `pg_dump` diário + `tar` de `uploads`, via `docker compose exec`
-num cron do host. Fora do escopo de código; documentado aqui para não ser
-esquecido.
+Backup (prod): `make backup` gera `backups/db-<data>.sql` e
+`backups/uploads-<data>.tgz`. No servidor, agende no cron do host e copie para
+fora dele (rclone, scp, o que for):
+
+```
+0 3 * * * cd /srv/portfolio-v2 && make backup >> backups/cron.log 2>&1 && find backups -mtime +14 -delete
+```
 
 ---
 

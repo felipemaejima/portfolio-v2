@@ -20,8 +20,8 @@ STAMP        := $(shell date +%Y%m%d-%H%M%S)
         up down restart logs ps clean dev app-dev app-dev-stop app-dev-attach \
         api-sh api-install api-generate api-lint api-format api-build api-test api-e2e api-logs api-outdated \
         migrate migrate-deploy migrate-status seed openapi openapi-check \
-        db-shell db-backup db-restore uploads-backup uploads-restore \
-        app-sh app-install app-gen app-gen-check app-analyze app-format app-test app-build-web app-clean app-outdated \
+        db-shell db-backup db-restore uploads-backup uploads-restore backup api-audit \
+        app-sh app-install app-gen app-gen-check app-analyze app-format app-test app-build-web app-clean app-outdated preview preview-stop app-fonts \
         build-apk-dev build-apk build-aab app-android \
         check check-api check-app \
         prod-build prod-up prod-down prod-restart prod-logs prod-ps prod-migrate-status
@@ -54,7 +54,7 @@ up: ## sobe db, api (watch) e edge — http://localhost
 	$(COMPOSE) up -d db api edge
 
 down: ## derruba tudo (mantém volumes: banco, uploads, caches)
-	$(COMPOSE) --profile app down
+	$(COMPOSE) --profile app --profile preview down
 
 restart: ## reinicia a api (ex.: após mudar o .env)
 	$(COMPOSE) restart api
@@ -66,11 +66,11 @@ ps: ## estado dos serviços
 	$(COMPOSE) --profile app ps
 
 clean: ## derruba tudo E apaga volumes (banco, uploads, caches) — irreversível
-	$(COMPOSE) --profile app down -v
+	$(COMPOSE) --profile app --profile preview down -v
 
 dev: up app-dev ## sobe API + dev server do Flutter Web (http://localhost/)
 
-app-dev: ## dev server do Flutter Web atrás do Caddy (http://localhost/); hot reload: make app-dev-attach
+app-dev: preview-stop ## dev server do Flutter Web atrás do Caddy (http://localhost/); hot reload: make app-dev-attach
 	$(COMPOSE) --profile app up -d app
 
 app-dev-stop: ## para o dev server do Flutter
@@ -109,6 +109,9 @@ api-logs: ## logs só da api
 
 api-outdated: ## dependências desatualizadas
 	$(API_TOOL) pnpm outdated || true
+
+api-audit: ## vulnerabilidades conhecidas nas dependências de runtime (falha em high)
+	$(API_TOOL) pnpm audit --prod --audit-level=high
 
 migrate: ## cria/aplica migration em dev e regenera o cliente: make migrate NAME=descricao
 	@test -n "$(NAME)" || (echo "uso: make migrate NAME=descricao" && exit 1)
@@ -150,6 +153,8 @@ uploads-backup: ## tar.gz do volume de uploads em backups/uploads-<data>.tgz
 	docker run --rm -v portfolio_uploads:/data:ro -v "$$PWD/$(BACKUPS)":/out alpine tar czf /out/uploads-$(STAMP).tgz -C /data .
 	@echo "backups/uploads-$(STAMP).tgz"
 
+backup: db-backup uploads-backup ## banco + uploads em backups/ (agende no cron do servidor; ver INFRA.md §3)
+
 uploads-restore: ## restaura o volume de uploads: make uploads-restore FILE=backups/uploads-....tgz
 	@test -f "$(FILE)" || (echo "uso: make uploads-restore FILE=backups/uploads-....tgz" && exit 1)
 	docker run --rm -v portfolio_uploads:/data -v "$$PWD/$(FILE)":/in.tgz:ro alpine sh -c 'tar xzf /in.tgz -C /data'
@@ -172,14 +177,25 @@ app-gen-check: ## falha se app/lib/api estiver desatualizado em relação ao con
 app-analyze: ## flutter analyze (gera l10n antes)
 	$(APP_T) sh -c "flutter gen-l10n && flutter analyze"
 
-app-format: ## dart format
-	$(APP_T) dart format lib test tool
+app-format: ## dart format (nunca em lib/api, que é gerado)
+	$(APP_T) dart format lib/app.dart lib/main.dart lib/core lib/features lib/l10n test tool
 
 app-test: ## flutter test
 	$(APP_T) flutter test
 
-app-build-web: ## flutter build web --release (o que o edge embute)
-	$(APP_T) flutter build web --release
+app-build-web: ## flutter build web (wasm, recursos locais) + pré-compressão — o que o edge embute
+	$(APP_T) flutter build web --release --wasm --no-web-resources-cdn
+	docker run --rm -v "$$PWD/app/build/web":/srv alpine:3 sh -c 'apk add -q --no-cache brotli gzip >/dev/null && find /srv -type f \( -name "*.js" -o -name "*.mjs" -o -name "*.wasm" -o -name "*.json" -o -name "*.ttf" -o -name "*.otf" -o -name "*.html" -o -name "*.css" -o -name "*.svg" \) -exec sh -c "brotli -q 11 -f -k \"\$$1\" && gzip -9 -f -k \"\$$1\"" _ {} \; && chown -R $(HOST_UID):$(HOST_GID) /srv'
+
+preview: app-dev-stop app-build-web ## serve o build de release em http://localhost/ (medir performance de verdade)
+	$(COMPOSE) --profile preview up -d app-preview
+	@echo "preview em http://localhost/ (make preview-stop para voltar ao dev server)"
+
+preview-stop: ## para o preview
+	$(COMPOSE) --profile preview stop app-preview
+
+app-fonts: ## regenera o subset Latin da Inter (tools/fonts/subset-inter.sh)
+	tools/fonts/subset-inter.sh
 
 app-clean: ## flutter clean (build/ e .dart_tool/)
 	$(APP_T) flutter clean

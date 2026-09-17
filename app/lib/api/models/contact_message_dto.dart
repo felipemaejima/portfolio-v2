@@ -19,7 +19,6 @@ abstract class ContactMessageDto with _$ContactMessageDto {
     required DateTime? readAt,
     required DateTime createdAt,
   }) = _ContactMessageDto;
-
-  factory ContactMessageDto.fromJson(Map<String, Object?> json) =>
-      _$ContactMessageDtoFromJson(json);
+  
+  factory ContactMessageDto.fromJson(Map<String, Object?> json) => _$ContactMessageDtoFromJson(json);
 }

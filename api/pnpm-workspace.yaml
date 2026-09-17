@@ -8,3 +8,6 @@ allowBuilds:
 # GHSA-qvfw-j98x-7q72: @nestjs/platform-express ainda pede multer 2.2
 overrides:
   multer: '>=2.3.0'
+  # Transitivas do CLI do Prisma (não executam em runtime), só para o audit ficar limpo:
+  mysql2: '>=3.23.1'
+  deepmerge-ts: '>=8.0.0'

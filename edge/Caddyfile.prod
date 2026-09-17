@@ -1,7 +1,6 @@
 {$SITE_ADDRESS}
 
-# Headers de segurança para tudo (app, API e uploads). Sem CSP: o Flutter Web
-# carrega o CanvasKit de gstatic e usa script inline no index.html.
+# Headers de segurança para tudo (app, API e uploads).
 header {
 	Strict-Transport-Security "max-age=31536000; includeSubDomains"
 	X-Content-Type-Options "nosniff"
@@ -24,8 +23,17 @@ handle_path /uploads/* {
 handle {
 	root * /srv
 	try_files {path} /index.html
-	file_server
-	header /flutter_service_worker.js Cache-Control "no-cache"
+	# Flutter Web: CanvasKit/Skwasm e fontes são 'self' (--no-web-resources-cdn).
+	# 'wasm-unsafe-eval' é o mínimo para instanciar Wasm; 'unsafe-inline' em
+	# style é exigido pelo engine (estilos inline no DOM). Sem inline scripts.
+	header Content-Security-Policy "default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self'; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"
+	# Nenhum arquivo do build tem hash no nome e o service worker do Flutter não
+	# cacheia mais: o cache HTTP revalida sempre (ETag → 304, barato) para o app
+	# nunca ficar velho após um deploy.
+	header Cache-Control "no-cache"
+	file_server {
+		precompressed br gzip
+	}
 }
 
 encode zstd gzip

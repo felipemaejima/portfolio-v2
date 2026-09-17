@@ -36,11 +36,15 @@ abstract class SkillsClient {
 
   /// Apaga a categoria e suas skills.
   @DELETE('/api/v1/skill-categories/{id}')
-  Future<void> deleteSkillCategory({@Path('id') required String id});
+  Future<void> deleteSkillCategory({
+    @Path('id') required String id,
+  });
 
   /// Ordem das categorias: o conjunto completo de ids na ordem final.
   @PATCH('/api/v1/skill-categories/reorder')
-  Future<void> reorderSkillCategories({@Body() required ReorderDto body});
+  Future<void> reorderSkillCategories({
+    @Body() required ReorderDto body,
+  });
 
   /// Cria uma skill no fim da categoria.
   @POST('/api/v1/skill-categories/{id}/skills')
@@ -64,5 +68,7 @@ abstract class SkillsClient {
   });
 
   @DELETE('/api/v1/skills/{id}')
-  Future<void> deleteSkill({@Path('id') required String id});
+  Future<void> deleteSkill({
+    @Path('id') required String id,
+  });
 }

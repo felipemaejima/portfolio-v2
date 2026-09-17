@@ -9,8 +9,9 @@ part 'reorder_dto.g.dart';
 
 @Freezed()
 abstract class ReorderDto with _$ReorderDto {
-  const factory ReorderDto({required List<String> ids}) = _ReorderDto;
-
-  factory ReorderDto.fromJson(Map<String, Object?> json) =>
-      _$ReorderDtoFromJson(json);
+  const factory ReorderDto({
+    required List<String> ids,
+  }) = _ReorderDto;
+  
+  factory ReorderDto.fromJson(Map<String, Object?> json) => _$ReorderDtoFromJson(json);
 }

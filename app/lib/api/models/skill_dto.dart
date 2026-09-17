@@ -19,7 +19,6 @@ abstract class SkillDto with _$SkillDto {
     required DateTime createdAt,
     required DateTime updatedAt,
   }) = _SkillDto;
-
-  factory SkillDto.fromJson(Map<String, Object?> json) =>
-      _$SkillDtoFromJson(json);
+  
+  factory SkillDto.fromJson(Map<String, Object?> json) => _$SkillDtoFromJson(json);
 }

@@ -28,6 +28,13 @@ export class PrismaRefreshTokenRepository extends RefreshTokenRepository {
     });
   }
 
+  async deleteStale(now: Date, revokedBefore: Date): Promise<number> {
+    const { count } = await this.prisma.refreshToken.deleteMany({
+      where: { OR: [{ expiresAt: { lt: now } }, { revokedAt: { lt: revokedBefore } }] },
+    });
+    return count;
+  }
+
   async revokeFamily(familyId: string): Promise<void> {
     await this.prisma.refreshToken.updateMany({
       where: { familyId, revokedAt: null },

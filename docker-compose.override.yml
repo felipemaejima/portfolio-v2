@@ -41,6 +41,18 @@ services:
     stdin_open: true
     tty: true
 
+  # Preview do build de release (make preview): responde pelo alias `app`,
+  # no lugar do dev server. Só sobe com `--profile preview`.
+  app-preview:
+    image: caddy:2-alpine
+    profiles: ["preview"]
+    volumes:
+      - ./app/build/web:/srv:ro
+      - ./edge/Caddyfile.preview:/etc/caddy/Caddyfile:ro
+    networks:
+      default:
+        aliases: [app]
+
   edge:
     volumes:
       - ./edge/Caddyfile.dev:/etc/caddy/Caddyfile:ro

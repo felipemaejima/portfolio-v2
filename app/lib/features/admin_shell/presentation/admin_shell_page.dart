@@ -17,7 +17,12 @@ class AdminShellPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
-    final auth = ref.watch(authProvider).value;
+    final authAsync = ref.watch(authProvider);
+    // Sessão ainda em boot: spinner, sem construir a página (evita buscar dados sem token).
+    if (authAsync.isLoading && !authAsync.hasValue) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+    final auth = authAsync.value;
     final email = auth is Authenticated ? auth.admin.email : '';
     final wide = Breakpoints.isWide(context);
     final items = adminDestinations(l10n);

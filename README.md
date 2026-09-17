@@ -64,6 +64,10 @@ make help        # todos os alvos, por seção
 A API recompila sozinha ao salvar (`nest --watch`). O Flutter Web recompila
 com `r` no terminal do dev server.
 
+**Performance só se mede no build de release:** `make preview` compila como
+em produção (Wasm, pré-compressão) e serve em `http://localhost/`. O dev
+server é um build de debug, dezenas de vezes maior — não tire conclusões dele.
+
 ### Testes e verificação
 
 ```sh
@@ -131,9 +135,10 @@ abertas. O Caddy emite o certificado TLS sozinho.
    + `make prod-up`. Trocar a senha do admin = editar o `.env` +
    `make prod-restart`.
 
-Backups (funcionam com dev ou prod no ar): `make db-backup`,
-`make uploads-backup`; restauração com `db-restore FILE=…` e
-`uploads-restore FILE=…`.
+Backups (funcionam com dev ou prod no ar): `make backup` (banco + uploads em
+`backups/`); restauração com `db-restore FILE=…` e `uploads-restore FILE=…`.
+No servidor, agende no cron e copie para fora (linha pronta em
+[`INFRA.md` §3](.specs/INFRA.md)).
 
 ## Segurança — o que já está feito
 
@@ -145,9 +150,13 @@ Backups (funcionam com dev ou prod no ar): `make db-backup`,
   com argon2id. Rate limit no login e no formulário de contato.
 - Uploads validados pelo conteúdo (magic bytes: jpeg/png/webp, 5 MB),
   chave imutável, sem path traversal; servidos pelo Caddy, nunca pela API.
-- Produção recusa `.env` com placeholders ou sem `COOKIE_SECURE`/HTTPS;
-  headers de segurança e HSTS no Caddy; API roda sem root; Swagger só em
-  dev; segredos fora do git.
+- Produção recusa `.env` com placeholders (JWT, admin, senha do banco) ou
+  sem `COOKIE_SECURE`; CSP `'self'` + HSTS + headers no Caddy (nada vem de
+  CDN); API roda sem root; Swagger só em dev; segredos fora do git;
+  `pnpm audit` bloqueia o CI em vulnerabilidade `high` de runtime; refresh
+  tokens antigos são limpos diariamente.
+- O que **não** há, por escolha de custo: 2FA, captcha no contato, remoção de
+  EXIF das fotos, log de auditoria.
 
 ## Se algo não carrega
 

@@ -9,9 +9,10 @@ part 'admin_dto.g.dart';
 
 @Freezed()
 abstract class AdminDto with _$AdminDto {
-  const factory AdminDto({required String id, required String email}) =
-      _AdminDto;
-
-  factory AdminDto.fromJson(Map<String, Object?> json) =>
-      _$AdminDtoFromJson(json);
+  const factory AdminDto({
+    required String id,
+    required String email,
+  }) = _AdminDto;
+  
+  factory AdminDto.fromJson(Map<String, Object?> json) => _$AdminDtoFromJson(json);
 }

@@ -23,7 +23,6 @@ abstract class ExperienceDto with _$ExperienceDto {
     required DateTime createdAt,
     required DateTime updatedAt,
   }) = _ExperienceDto;
-
-  factory ExperienceDto.fromJson(Map<String, Object?> json) =>
-      _$ExperienceDtoFromJson(json);
+  
+  factory ExperienceDto.fromJson(Map<String, Object?> json) => _$ExperienceDtoFromJson(json);
 }

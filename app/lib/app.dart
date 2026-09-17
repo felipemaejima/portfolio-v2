@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'core/auth/auth_notifier.dart';
 import 'core/router/app_router.dart';
 import 'core/ui/theme.dart';
 import 'l10n/generated/app_localizations.dart';
@@ -14,8 +13,8 @@ class PortfolioApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     // Um único MaterialApp.router desde o primeiro frame: o GoRouter precisa
     // ser criado enquanto a URL inicial do browser ainda é a rota padrão.
-    // Durante o boot da sessão (estado `unknown`) o builder mostra a splash e
-    // não insere o filho na árvore — nenhuma página busca dados sem sessão.
+    // O boot da sessão NÃO bloqueia as rotas públicas (o visitante não espera
+    // o POST /auth/refresh); só o painel espera — ver AdminShellPage/LoginPage.
     return MaterialApp.router(
       onGenerateTitle: (context) => AppLocalizations.of(context).appTitle,
       theme: buildTheme(),
@@ -27,15 +26,6 @@ class PortfolioApp extends ConsumerWidget {
         GlobalCupertinoLocalizations.delegate,
       ],
       routerConfig: ref.watch(routerProvider),
-      builder: (context, child) {
-        final auth = ref.watch(authProvider);
-        if (auth.isLoading && !auth.hasValue) {
-          return const Scaffold(
-            body: Center(child: CircularProgressIndicator()),
-          );
-        }
-        return child!;
-      },
     );
   }
 }

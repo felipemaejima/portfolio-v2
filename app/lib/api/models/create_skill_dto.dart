@@ -9,8 +9,9 @@ part 'create_skill_dto.g.dart';
 
 @Freezed()
 abstract class CreateSkillDto with _$CreateSkillDto {
-  const factory CreateSkillDto({required String name}) = _CreateSkillDto;
-
-  factory CreateSkillDto.fromJson(Map<String, Object?> json) =>
-      _$CreateSkillDtoFromJson(json);
+  const factory CreateSkillDto({
+    required String name,
+  }) = _CreateSkillDto;
+  
+  factory CreateSkillDto.fromJson(Map<String, Object?> json) => _$CreateSkillDtoFromJson(json);
 }

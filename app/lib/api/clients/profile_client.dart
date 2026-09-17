@@ -20,7 +20,9 @@ abstract class ProfileClient {
 
   /// Substitui o Profile inteiro.
   @PUT('/api/v1/profile')
-  Future<ProfileDto> updateProfile({@Body() required UpdateProfileDto body});
+  Future<ProfileDto> updateProfile({
+    @Body() required UpdateProfileDto body,
+  });
 
   /// Remove a foto.
   @DELETE('/api/v1/profile/image')

@@ -21,7 +21,6 @@ abstract class ProjectInputDto with _$ProjectInputDto {
     String? codeUrl,
     String? demoUrl,
   }) = _ProjectInputDto;
-
-  factory ProjectInputDto.fromJson(Map<String, Object?> json) =>
-      _$ProjectInputDtoFromJson(json);
+  
+  factory ProjectInputDto.fromJson(Map<String, Object?> json) => _$ProjectInputDtoFromJson(json);
 }

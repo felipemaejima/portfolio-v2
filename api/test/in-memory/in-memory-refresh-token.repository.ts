@@ -33,6 +33,15 @@ export class InMemoryRefreshTokenRepository extends RefreshTokenRepository {
     return created;
   }
 
+  async deleteStale(now: Date, revokedBefore: Date): Promise<number> {
+    const before = this.tokens.length;
+    const keep = this.tokens.filter(
+      (t) => !(t.expiresAt < now || (t.revokedAt !== null && t.revokedAt < revokedBefore)),
+    );
+    this.tokens.splice(0, this.tokens.length, ...keep);
+    return before - keep.length;
+  }
+
   async revokeFamily(familyId: string): Promise<void> {
     for (const t of this.tokens) {
       if (t.familyId === familyId && !t.revokedAt) t.revokedAt = new Date();

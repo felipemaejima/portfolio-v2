@@ -13,4 +13,6 @@ export abstract class RefreshTokenRepository {
   /** Atomicamente: cria o sucessor e marca `currentId` como substituído. */
   abstract rotate(currentId: string, next: NewRefreshToken): Promise<RefreshToken>;
   abstract revokeFamily(familyId: string): Promise<void>;
+  /** Apaga expirados e os revogados há mais de `revokedBefore`. Devolve quantos. */
+  abstract deleteStale(now: Date, revokedBefore: Date): Promise<number>;
 }

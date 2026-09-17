@@ -270,8 +270,27 @@ Só tema escuro na v2.
 ## 7. Plataformas
 
 ### Web
-- `flutter build web --release` (CanvasKit; não há mais `--web-renderer`).
+- `flutter build web --release --wasm --no-web-resources-cdn` (`make
+  app-build-web`). **Wasm** (WasmGC) parte o primeiro frame pela metade em
+  relação ao dart2js; browsers sem WasmGC recebem o `main.dart.js`
+  automaticamente (os dois vão no build). **Sem CDN**: Skwasm/CanvasKit e
+  fontes servidos da mesma origem — uma conexão a menos e CSP `'self'`.
   Sem `API_BASE_URL` — mesma origem via Caddy.
+- Orçamento de bytes na primeira visita (brotli, Chrome): Skwasm ~1,2 MB +
+  app ~0,9 MB + Inter ~45 KB ≈ **2,1 MB** (era 3,9 MB com CanvasKit do gstatic
+  e a Inter inteira). Firefox/Safari usam `skwasm_heavy` (~1,8 MB). Esse é o
+  piso do Flutter Web; abaixo disso só mudando a decisão da ADR 0001.
+- Fonte: subset Latin da Inter (`tools/fonts/subset-inter.sh`, ~110 KB) e a
+  família `Roboto` apontando para o mesmo arquivo, para o engine não baixar
+  Roboto do fonts.gstatic em runtime.
+- Carregamento: as rotas públicas **não esperam** o boot da sessão (só o
+  painel e o login mostram spinner até o `POST /auth/refresh` resolver), e
+  cada seção da home observa seu próprio provider — todas as requests saem
+  no primeiro build, em paralelo.
+- `make preview` serve o build de release atrás do Caddy de dev, em
+  `http://localhost/`: é assim que se mede performance. O dev server
+  (`make app-dev`) serve um build de debug com centenas de módulos e não
+  representa nada.
 - `web/index.html`: `lang="pt-BR"`, `<title>`, `description`, `og:*`,
   `theme-color`. Splash em CSS na cor do tema (`#161826`) enquanto o engine
   carrega, removida no evento `flutter-first-frame` (ADR 0001, consequência

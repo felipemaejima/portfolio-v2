@@ -19,7 +19,6 @@ abstract class ContactLinkInputDto with _$ContactLinkInputDto {
     /// Destino abrível pelo app: `https://…`, `mailto:…` ou `tel:…`.
     required String url,
   }) = _ContactLinkInputDto;
-
-  factory ContactLinkInputDto.fromJson(Map<String, Object?> json) =>
-      _$ContactLinkInputDtoFromJson(json);
+  
+  factory ContactLinkInputDto.fromJson(Map<String, Object?> json) => _$ContactLinkInputDtoFromJson(json);
 }

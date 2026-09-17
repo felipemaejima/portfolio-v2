@@ -53,6 +53,11 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final auth = ref.watch(authProvider);
+    // Não mostrar o login antes de saber se já há sessão (o redirect leva ao painel).
+    if (auth.isLoading && !auth.hasValue) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
     return Scaffold(
       body: Center(
         child: ConstrainedBox(

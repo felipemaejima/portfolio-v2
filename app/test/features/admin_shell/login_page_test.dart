@@ -30,6 +30,8 @@ void main() {
   testWidgets('campos vazios não chamam a API', (tester) async {
     final repo = FakeAuthRepository();
     await tester.pumpWidget(_app(repo));
+    await tester
+        .pumpAndSettle(); // boot da sessão (Anonymous) antes do formulário aparecer
     await tester.tap(find.byType(FilledButton));
     await tester.pump();
     expect(find.text('Obrigatório'), findsNWidgets(2));
@@ -39,6 +41,7 @@ void main() {
   testWidgets('401 mostra a mensagem da API', (tester) async {
     final repo = FakeAuthRepository()..loginFails = true;
     await tester.pumpWidget(_app(repo));
+    await tester.pumpAndSettle();
     await tester.enterText(
       find.byType(TextFormField).at(0),
       'admin@example.com',
@@ -53,6 +56,7 @@ void main() {
   testWidgets('login válido chama a API uma vez', (tester) async {
     final repo = FakeAuthRepository();
     await tester.pumpWidget(_app(repo));
+    await tester.pumpAndSettle();
     await tester.enterText(
       find.byType(TextFormField).at(0),
       'admin@example.com',

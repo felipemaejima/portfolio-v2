@@ -17,7 +17,6 @@ abstract class OfferingDto with _$OfferingDto {
     required DateTime createdAt,
     required DateTime updatedAt,
   }) = _OfferingDto;
-
-  factory OfferingDto.fromJson(Map<String, Object?> json) =>
-      _$OfferingDtoFromJson(json);
+  
+  factory OfferingDto.fromJson(Map<String, Object?> json) => _$OfferingDtoFromJson(json);
 }

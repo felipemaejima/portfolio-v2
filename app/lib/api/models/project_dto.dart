@@ -29,7 +29,6 @@ abstract class ProjectDto with _$ProjectDto {
     required DateTime createdAt,
     required DateTime updatedAt,
   }) = _ProjectDto;
-
-  factory ProjectDto.fromJson(Map<String, Object?> json) =>
-      _$ProjectDtoFromJson(json);
+  
+  factory ProjectDto.fromJson(Map<String, Object?> json) => _$ProjectDtoFromJson(json);
 }

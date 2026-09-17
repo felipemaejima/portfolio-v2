@@ -14,7 +14,6 @@ abstract class LocationDto with _$LocationDto {
     required String state,
     required String country,
   }) = _LocationDto;
-
-  factory LocationDto.fromJson(Map<String, Object?> json) =>
-      _$LocationDtoFromJson(json);
+  
+  factory LocationDto.fromJson(Map<String, Object?> json) => _$LocationDtoFromJson(json);
 }

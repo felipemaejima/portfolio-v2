@@ -112,6 +112,28 @@ describe('AuthService', () => {
     });
   });
 
+  describe('deleteStale (repositório)', () => {
+    it('remove expirados e revogados antigos; mantém vivos e revogados recentes', async () => {
+      const { service, tokenRepo } = makeService([admin], 30);
+      const live = await service.login(admin.email, PASSWORD);
+      const rotated = await service.login(admin.email, PASSWORD);
+      await service.refresh(rotated.refreshToken); // o antigo fica revogado agora (recente)
+      const expired = await tokenRepo.create({
+        adminId: admin.id,
+        familyId: 'f',
+        tokenHash: 'h',
+        expiresAt: new Date(Date.now() - 1000),
+      });
+      const removed = await tokenRepo.deleteStale(
+        new Date(),
+        new Date(Date.now() - 7 * 24 * 3600 * 1000),
+      );
+      expect(removed).toBe(1);
+      expect(tokenRepo.tokens.find((t) => t.id === expired.id)).toBeUndefined();
+      await expect(service.refresh(live.refreshToken)).resolves.toBeDefined();
+    });
+  });
+
   describe('logout', () => {
     it('sem refresh é no-op; com refresh desconhecido também', async () => {
       const { service } = makeService([admin]);

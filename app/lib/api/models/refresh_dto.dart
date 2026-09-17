@@ -13,7 +13,6 @@ abstract class RefreshDto with _$RefreshDto {
     /// Só para MOBILE. No WEB o refresh vem no cookie e o body é vazio.
     String? refreshToken,
   }) = _RefreshDto;
-
-  factory RefreshDto.fromJson(Map<String, Object?> json) =>
-      _$RefreshDtoFromJson(json);
+  
+  factory RefreshDto.fromJson(Map<String, Object?> json) => _$RefreshDtoFromJson(json);
 }

@@ -34,11 +34,15 @@ abstract class ContactClient {
   });
 
   @DELETE('/api/v1/contact-links/{id}')
-  Future<void> deleteContactLink({@Path('id') required String id});
+  Future<void> deleteContactLink({
+    @Path('id') required String id,
+  });
 
   /// Ordem de exibição: o conjunto completo de ids na ordem final.
   @PATCH('/api/v1/contact-links/reorder')
-  Future<void> reorderContactLinks({@Body() required ReorderDto body});
+  Future<void> reorderContactLinks({
+    @Body() required ReorderDto body,
+  });
 
   /// Visitor envia uma mensagem. Só persiste; sem corpo de resposta. 3/min por IP.
   @POST('/api/v1/contact-messages')
@@ -57,5 +61,7 @@ abstract class ContactClient {
   });
 
   @DELETE('/api/v1/contact-messages/{id}')
-  Future<void> deleteContactMessage({@Path('id') required String id});
+  Future<void> deleteContactMessage({
+    @Path('id') required String id,
+  });
 }

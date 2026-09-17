@@ -18,7 +18,11 @@ import 'clients/cv_client.dart';
 ///
 /// Contrato da API do portfólio. Ver .specs/GLOBAL.md.
 class RestClient {
-  RestClient(Dio dio, {String? baseUrl}) : _dio = dio, _baseUrl = baseUrl;
+  RestClient(
+    Dio dio, {
+    String? baseUrl,
+  })  : _dio = dio,
+        _baseUrl = baseUrl;
 
   final Dio _dio;
   final String? _baseUrl;
@@ -37,25 +41,19 @@ class RestClient {
 
   AuthClient get auth => _auth ??= AuthClient(_dio, baseUrl: _baseUrl);
 
-  ProfileClient get profile =>
-      _profile ??= ProfileClient(_dio, baseUrl: _baseUrl);
+  ProfileClient get profile => _profile ??= ProfileClient(_dio, baseUrl: _baseUrl);
 
-  ProjectsClient get projects =>
-      _projects ??= ProjectsClient(_dio, baseUrl: _baseUrl);
+  ProjectsClient get projects => _projects ??= ProjectsClient(_dio, baseUrl: _baseUrl);
 
   SkillsClient get skills => _skills ??= SkillsClient(_dio, baseUrl: _baseUrl);
 
-  ExperiencesClient get experiences =>
-      _experiences ??= ExperiencesClient(_dio, baseUrl: _baseUrl);
+  ExperiencesClient get experiences => _experiences ??= ExperiencesClient(_dio, baseUrl: _baseUrl);
 
-  EducationsClient get educations =>
-      _educations ??= EducationsClient(_dio, baseUrl: _baseUrl);
+  EducationsClient get educations => _educations ??= EducationsClient(_dio, baseUrl: _baseUrl);
 
-  OfferingsClient get offerings =>
-      _offerings ??= OfferingsClient(_dio, baseUrl: _baseUrl);
+  OfferingsClient get offerings => _offerings ??= OfferingsClient(_dio, baseUrl: _baseUrl);
 
-  ContactClient get contact =>
-      _contact ??= ContactClient(_dio, baseUrl: _baseUrl);
+  ContactClient get contact => _contact ??= ContactClient(_dio, baseUrl: _baseUrl);
 
   CvClient get cv => _cv ??= CvClient(_dio, baseUrl: _baseUrl);
 }

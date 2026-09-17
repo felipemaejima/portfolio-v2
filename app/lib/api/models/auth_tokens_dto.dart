@@ -18,7 +18,6 @@ abstract class AuthTokensDto with _$AuthTokensDto {
     /// Presente só para MOBILE; no WEB o refresh viaja em cookie httpOnly.
     String? refreshToken,
   }) = _AuthTokensDto;
-
-  factory AuthTokensDto.fromJson(Map<String, Object?> json) =>
-      _$AuthTokensDtoFromJson(json);
+  
+  factory AuthTokensDto.fromJson(Map<String, Object?> json) => _$AuthTokensDtoFromJson(json);
 }

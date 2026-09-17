@@ -73,49 +73,57 @@ class _HomePageState extends ConsumerState<HomePage> {
             ],
           ),
           SliverToBoxAdapter(
-            child: AsyncValueView(
-              value: profile,
-              onRetry: () => ref.invalidate(profileProvider),
-              data: (p) => Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  HeroSection(
-                    profile: p,
-                    contacts: ref.watch(contactLinksProvider).value ?? const [],
-                    onSeeProjects: () => _scrollTo(HomeAnchor.projects),
-                    onContact: () => _scrollTo(HomeAnchor.contact),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // Cada seção observa seu próprio provider: todas as requests
+                // disparam no primeiro build, em paralelo — sem cascata.
+                AsyncValueView(
+                  value: profile,
+                  onRetry: () => ref.invalidate(profileProvider),
+                  data: (p) => Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      HeroSection(
+                        profile: p,
+                        contacts:
+                            ref.watch(contactLinksProvider).value ?? const [],
+                        onSeeProjects: () => _scrollTo(HomeAnchor.projects),
+                        onContact: () => _scrollTo(HomeAnchor.contact),
+                      ),
+                      KeyedSubtree(
+                        key: _keys[HomeAnchor.about],
+                        child: AboutSection(profile: p),
+                      ),
+                    ],
                   ),
-                  KeyedSubtree(
-                    key: _keys[HomeAnchor.about],
-                    child: AboutSection(profile: p),
-                  ),
-                  KeyedSubtree(
-                    key: _keys[HomeAnchor.skills],
-                    child: const SkillsSection(),
-                  ),
-                  KeyedSubtree(
-                    key: _keys[HomeAnchor.projects],
-                    child: const ProjectsSection(),
-                  ),
-                  KeyedSubtree(
-                    key: _keys[HomeAnchor.experience],
-                    child: const ExperienceSection(),
-                  ),
-                  KeyedSubtree(
-                    key: _keys[HomeAnchor.education],
-                    child: const EducationSection(),
-                  ),
-                  KeyedSubtree(
-                    key: _keys[HomeAnchor.offerings],
-                    child: const OfferingsSection(),
-                  ),
-                  KeyedSubtree(
-                    key: _keys[HomeAnchor.contact],
-                    child: ContactSection(intro: p.contactIntro),
-                  ),
-                  _Footer(name: p.name),
-                ],
-              ),
+                ),
+                KeyedSubtree(
+                  key: _keys[HomeAnchor.skills],
+                  child: const SkillsSection(),
+                ),
+                KeyedSubtree(
+                  key: _keys[HomeAnchor.projects],
+                  child: const ProjectsSection(),
+                ),
+                KeyedSubtree(
+                  key: _keys[HomeAnchor.experience],
+                  child: const ExperienceSection(),
+                ),
+                KeyedSubtree(
+                  key: _keys[HomeAnchor.education],
+                  child: const EducationSection(),
+                ),
+                KeyedSubtree(
+                  key: _keys[HomeAnchor.offerings],
+                  child: const OfferingsSection(),
+                ),
+                KeyedSubtree(
+                  key: _keys[HomeAnchor.contact],
+                  child: ContactSection(intro: profile.value?.contactIntro),
+                ),
+                _Footer(name: name),
+              ],
             ),
           ),
         ],

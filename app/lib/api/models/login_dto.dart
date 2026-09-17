@@ -18,7 +18,6 @@ abstract class LoginDto with _$LoginDto {
     /// WEB → refresh em cookie httpOnly; MOBILE → refresh no body.
     required ClientPlatform clientPlatform,
   }) = _LoginDto;
-
-  factory LoginDto.fromJson(Map<String, Object?> json) =>
-      _$LoginDtoFromJson(json);
+  
+  factory LoginDto.fromJson(Map<String, Object?> json) => _$LoginDtoFromJson(json);
 }

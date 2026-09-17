@@ -24,6 +24,9 @@ jobs:
       - name: Lint
         run: make api-lint
 
+      - name: Vulnerabilidades em dependências de runtime
+        run: make api-audit
+
       - name: Build
         run: make api-build
 
@@ -76,5 +79,5 @@ jobs:
       - name: Testes
         run: make app-test
 
-      - name: Build web (o que o edge embute)
+      - name: Build web (wasm + pré-compressão, o que o edge embute)
         run: make app-build-web

@@ -13,7 +13,6 @@ abstract class OfferingInputDto with _$OfferingInputDto {
     required String title,
     required String description,
   }) = _OfferingInputDto;
-
-  factory OfferingInputDto.fromJson(Map<String, Object?> json) =>
-      _$OfferingInputDtoFromJson(json);
+  
+  factory OfferingInputDto.fromJson(Map<String, Object?> json) => _$OfferingInputDtoFromJson(json);
 }

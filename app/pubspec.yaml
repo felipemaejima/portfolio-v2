@@ -47,6 +47,12 @@ flutter:
   uses-material-design: true
   generate: true
   fonts:
+    # Subset Latin da Inter (tools/fonts/subset-inter.sh), eixo wght preservado.
     - family: Inter
       fonts:
-        - asset: assets/fonts/InterVariable.ttf
+        - asset: assets/fonts/Inter-latin.ttf
+    # Alias: qualquer estilo que ainda peça Roboto usa a Inter, em vez de o
+    # engine baixar Roboto do fonts.gstatic em runtime.
+    - family: Roboto
+      fonts:
+        - asset: assets/fonts/Inter-latin.ttf

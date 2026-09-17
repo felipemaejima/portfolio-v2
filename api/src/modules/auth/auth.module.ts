@@ -7,6 +7,7 @@ import { AuthService } from './auth.service.js';
 import { CookieOriginGuard } from './cookie-origin.guard.js';
 import { AdminRepository } from './ports/admin.repository.js';
 import { RefreshTokenRepository } from './ports/refresh-token.repository.js';
+import { RefreshTokenJanitor } from './refresh-token-janitor.js';
 
 @Module({
   imports: [JwtAuthModule],
@@ -14,6 +15,7 @@ import { RefreshTokenRepository } from './ports/refresh-token.repository.js';
   providers: [
     AuthService,
     CookieOriginGuard,
+    RefreshTokenJanitor,
     { provide: AdminRepository, useClass: PrismaAdminRepository },
     { provide: RefreshTokenRepository, useClass: PrismaRefreshTokenRepository },
   ],

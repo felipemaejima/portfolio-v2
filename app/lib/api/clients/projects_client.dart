@@ -21,11 +21,15 @@ abstract class ProjectsClient {
 
   /// Cria no fim da vitrine; `slug` é derivado do nome.
   @POST('/api/v1/projects')
-  Future<ProjectDto> createProject({@Body() required ProjectInputDto body});
+  Future<ProjectDto> createProject({
+    @Body() required ProjectInputDto body,
+  });
 
   /// Detalhe pelo slug.
   @GET('/api/v1/projects/{slug}')
-  Future<ProjectDto> getProjectBySlug({@Path('slug') required String slug});
+  Future<ProjectDto> getProjectBySlug({
+    @Path('slug') required String slug,
+  });
 
   /// Substitui os campos; `slug` e galeria não mudam.
   @PUT('/api/v1/projects/{id}')
@@ -36,11 +40,15 @@ abstract class ProjectsClient {
 
   /// Apaga o projeto, suas imagens e os arquivos.
   @DELETE('/api/v1/projects/{id}')
-  Future<void> deleteProject({@Path('id') required String id});
+  Future<void> deleteProject({
+    @Path('id') required String id,
+  });
 
   /// Ordem da vitrine: o conjunto completo de ids na ordem final.
   @PATCH('/api/v1/projects/reorder')
-  Future<void> reorderProjects({@Body() required ReorderDto body});
+  Future<void> reorderProjects({
+    @Body() required ReorderDto body,
+  });
 
   /// Remove uma imagem da galeria e o arquivo.
   @DELETE('/api/v1/projects/{id}/images/{imageId}')
